@@ -18,7 +18,7 @@ namespace BefunCompile.Math
 			int nx = X;
 			int ny = Y;
 
-			switch (direction)
+			switch (BCDirectionHelper.toNonSMDirection(direction))
 			{
 				case BCDirection.FROM_LEFT:
 					nx++;

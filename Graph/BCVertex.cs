@@ -25,8 +25,18 @@ namespace BefunCompile.Graph
 
 		public static BCVertex fromChar(BCDirection d, char c, Vec2i pos, out BCDirection[] outgoingEdges)
 		{
+			if (BCDirectionHelper.isSMDirection(d) && c != '"')
+			{
+				outgoingEdges = new BCDirection[] { d };
+				return new BCVertexPush(d, pos, c);
+			}
+
 			switch (c)
 			{
+				case '"':
+					outgoingEdges = new BCDirection[] { BCDirectionHelper.switchSMDirection(d) };
+					return new BCVertexNOP(d, pos);
+
 				case '0':
 				case '1':
 				case '2':
@@ -47,6 +57,10 @@ namespace BefunCompile.Graph
 				case ':':
 					outgoingEdges = new BCDirection[] { d };
 					return new BCVertexDup(d, pos);
+
+				case '!':
+					outgoingEdges = new BCDirection[] { d };
+					return new BCVertexNot(d, pos);
 
 				case '\\':
 					outgoingEdges = new BCDirection[] { d };
@@ -97,6 +111,7 @@ namespace BefunCompile.Graph
 					return new BCVertexInput(d, pos, c);
 
 				case '|':
+				case '_':
 					outgoingEdges = new BCDirection[] { BCDirection.FROM_TOP, BCDirection.FROM_BOTTOM };
 					return new BCVertexDecision(d, pos);
 
