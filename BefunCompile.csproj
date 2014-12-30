@@ -47,6 +47,12 @@
     <Compile Include="Graph\Vertex\BCVertexPop.cs" />
     <Compile Include="Graph\Vertex\BCVertexNOP.cs" />
     <Compile Include="Graph\Vertex\BCVertexBinaryMath.cs" />
+    <Compile Include="Graph\Vertex\BCVertexOutput.cs" />
+    <Compile Include="Graph\Vertex\BCVertexDecision.cs" />
+    <Compile Include="Graph\Vertex\BCVertexInput.cs" />
+    <Compile Include="Graph\Vertex\BCVertexSwap.cs" />
+    <Compile Include="Graph\Vertex\BCVertexDup.cs" />
+    <Compile Include="Math\Vec2i.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

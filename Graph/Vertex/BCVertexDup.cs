@@ -2,9 +2,9 @@
 using BefunCompile.Math;
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexNOP : BCVertex
+	public class BCVertexDup : BCVertex
 	{
-		public BCVertexNOP(BCDirection d, Vec2i pos)
+		public BCVertexDup(BCDirection d, Vec2i pos)
 			: base(d, pos)
 		{
 
@@ -12,7 +12,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return "NOP";
+			return "DUP";
 		}
 	}
 }

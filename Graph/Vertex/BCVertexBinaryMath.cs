@@ -1,4 +1,5 @@
 ﻿
+using BefunCompile.Math;
 using System;
 namespace BefunCompile.Graph.Vertex
 {
@@ -16,8 +17,8 @@ namespace BefunCompile.Graph.Vertex
 	{
 		public readonly BinaryMathType mtype;
 
-		public BCVertexBinaryMath(BCDirection d, char type)
-			: base(d)
+		public BCVertexBinaryMath(BCDirection d, Vec2i pos, char type)
+			: base(d, pos)
 		{
 			switch (type)
 			{
@@ -42,6 +43,11 @@ namespace BefunCompile.Graph.Vertex
 				default:
 					throw new ArgumentException("Not a Math OP: " + type);
 			}
+		}
+
+		public override string ToString()
+		{
+			return mtype.ToString();
 		}
 	}
 }
