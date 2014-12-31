@@ -10,6 +10,12 @@ namespace BefunCompile.Graph.Vertex
 		public BCVertex edgeFalse = null;
 
 		public BCVertexDecision(BCDirection d, Vec2i pos)
+			: base(d, new Vec2i[] { pos })
+		{
+
+		}
+
+		public BCVertexDecision(BCDirection d, Vec2i[] pos)
 			: base(d, pos)
 		{
 

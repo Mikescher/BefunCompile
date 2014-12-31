@@ -4,6 +4,8 @@ namespace BefunCompile.Graph
 {
 	public enum BCDirection
 	{
+		UNKNOWN,
+
 		FROM_LEFT,
 		FROM_TOP,
 		FROM_RIGHT,

@@ -42,6 +42,7 @@
     <Compile Include="BefunCompiler.cs" />
     <Compile Include="Graph\BCDirection.cs" />
     <Compile Include="Graph\BCGraph.cs" />
+    <Compile Include="Graph\BCModRule.cs" />
     <Compile Include="Graph\BCVertex.cs" />
     <Compile Include="Graph\Vertex\BCVertexPush.cs" />
     <Compile Include="Graph\Vertex\BCVertexPop.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="Graph\Vertex\BCVertexSwap.cs" />
     <Compile Include="Graph\Vertex\BCVertexDup.cs" />
     <Compile Include="Graph\Vertex\BCVertexNot.cs" />
+    <Compile Include="Math\CustomLinq.cs" />
     <Compile Include="Math\Vec2i.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

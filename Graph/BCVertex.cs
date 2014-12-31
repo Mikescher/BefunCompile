@@ -14,10 +14,10 @@ namespace BefunCompile.Graph
 
 		public List<BCVertex> parents = new List<BCVertex>();
 
-		public BCVertex(BCDirection d, Vec2i pos)
+		public BCVertex(BCDirection d, Vec2i[] pos)
 		{
 			this.direction = d;
-			this.positions = new Vec2i[] { pos };
+			this.positions = pos;
 		}
 
 		public virtual void AfterGen()
@@ -33,7 +33,7 @@ namespace BefunCompile.Graph
 			}
 		}
 
-		public bool TestUpdateParents()
+		public bool TestParents()
 		{
 			foreach (var child in children)
 			{

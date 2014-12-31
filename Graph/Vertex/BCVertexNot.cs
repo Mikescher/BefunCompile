@@ -5,6 +5,12 @@ namespace BefunCompile.Graph.Vertex
 	public class BCVertexNot : BCVertex
 	{
 		public BCVertexNot(BCDirection d, Vec2i pos)
+			: base(d, new Vec2i[] { pos })
+		{
+
+		}
+
+		public BCVertexNot(BCDirection d, Vec2i[] pos)
 			: base(d, pos)
 		{
 

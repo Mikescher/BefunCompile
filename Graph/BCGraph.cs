@@ -41,28 +41,50 @@ namespace BefunCompile.Graph
 			}
 		}
 
-		public bool TestUpdateParents()
+		public bool TestGraph()
 		{
 			foreach (var v in vertices)
 			{
-				if (!v.TestUpdateParents())
+				if (!v.TestParents())
 					return false;
 			}
+
+			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
+			Stack<BCVertex> untravelled = new Stack<BCVertex>();
+			untravelled.Push(root);
+
+			while (untravelled.Count > 0)
+			{
+				BCVertex curr = untravelled.Pop();
+
+				travelled.Add(curr);
+
+				foreach (var child in curr.children.Where(p => !travelled.Contains(p)))
+					untravelled.Push(child);
+			}
+
+			if (travelled.Count != vertices.Count)
+				return false;
+
+			if (vertices.Count(p => p.parents.Count == 0) > 1)
+				return false;
 
 			return true;
 		}
 
-		public bool Optimize()
+		#region Minimize
+
+		public bool Minimize()
 		{
-			bool o1 = OptimizeNOP();
-			bool o2 = OptimizeNOPSplit();
-			bool o3 = OptimizeNOPTail();
-			bool o4 = OptimizeNOPDecision();
+			bool o1 = MinimizeNOP();
+			bool o2 = MinimizeNOPSplit();
+			bool o3 = MinimizeNOPTail();
+			bool o4 = MinimizeNOPDecision();
 
 			return o1 | o2 | o3 | o4;
 		}
 
-		public bool OptimizeNOP()
+		public bool MinimizeNOP()
 		{
 			bool found = false;
 
@@ -70,6 +92,12 @@ namespace BefunCompile.Graph
 			foreach (var vertex in vertices)
 			{
 				if (!(vertex is BCVertexNOP))
+					continue;
+
+				if (vertex.children.Contains(vertex))
+					continue;
+
+				if (vertex.parents.Contains(vertex))
 					continue;
 
 				if (vertex.parents.Count == 1 && vertex.children.Count == 1 && vertex.parents[0].children.Count == 1)
@@ -103,7 +131,7 @@ namespace BefunCompile.Graph
 			return found;
 		}
 
-		public bool OptimizeNOPSplit()
+		public bool MinimizeNOPSplit()
 		{
 			bool found = false;
 
@@ -147,7 +175,7 @@ namespace BefunCompile.Graph
 			return found;
 		}
 
-		public bool OptimizeNOPTail()
+		public bool MinimizeNOPTail()
 		{
 			bool found = false;
 
@@ -191,7 +219,7 @@ namespace BefunCompile.Graph
 			return found;
 		}
 
-		public bool OptimizeNOPDecision()
+		public bool MinimizeNOPDecision()
 		{
 			bool found = false;
 
@@ -237,5 +265,47 @@ namespace BefunCompile.Graph
 
 			return found;
 		}
+
+		#endregion
+
+		#region Substitute
+
+		public bool Substitute()
+		{
+			var rule1 = new BCModRule();
+			rule1.AddPreq(v => v is BCVertexPush);
+			rule1.AddPreq(v => v is BCVertexPush);
+			rule1.AddPreq(v => v is BCVertexBinaryMath);
+			rule1.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[2] as BCVertexBinaryMath).Calc(l[0] as BCVertexPush, l[1] as BCVertexPush)));
+
+			var rule2 = new BCModRule();
+			rule2.AddPreq(v => v is BCVertexPush);
+			rule2.AddPreq(v => v is BCVertexNot);
+			rule2.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value != 0 ? 0 : 1));
+
+			var rule3 = new BCModRule();
+			rule3.AddPreq(v => v is BCVertexPush);
+			rule3.AddPreq(v => v is BCVertexPop);
+
+			var rule4 = new BCModRule();
+			rule4.AddPreq(v => v is BCVertexSwap);
+			rule4.AddPreq(v => v is BCVertexSwap);
+
+			var rule5 = new BCModRule();
+			rule5.AddPreq(v => v is BCVertexPush);
+			rule5.AddPreq(v => v is BCVertexDup);
+			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value));
+			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value));
+
+			bool b1 = rule1.Execute(this);
+			bool b2 = rule2.Execute(this);
+			bool b3 = rule3.Execute(this);
+			bool b4 = rule4.Execute(this);
+			bool b5 = rule5.Execute(this);
+
+			return b1 | b2 | b3 | b4 | b5;
+		}
+
+		#endregion
 	}
 }

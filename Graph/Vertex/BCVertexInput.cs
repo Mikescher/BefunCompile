@@ -7,6 +7,12 @@ namespace BefunCompile.Graph.Vertex
 		private readonly bool modeInteger; // true = int | false = char
 
 		public BCVertexInput(BCDirection d, Vec2i pos, char mode)
+			: base(d, new Vec2i[] { pos })
+		{
+			modeInteger = mode == '&';
+		}
+
+		public BCVertexInput(BCDirection d, Vec2i[] pos, char mode)
 			: base(d, pos)
 		{
 			modeInteger = mode == '&';

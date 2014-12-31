@@ -11,6 +11,9 @@ namespace BefunCompile
 		private readonly string source;
 		private readonly char[,] sourceGrid;
 
+		public int log_Cycles_Minimize { get; private set; }
+		public int log_Cycles_Substitute { get; private set; }
+
 		public BefunCompiler(string befsource)
 		{
 			this.source = befsource;
@@ -87,7 +90,7 @@ namespace BefunCompile
 			graph.AfterGen();
 			graph.UpdateParents();
 
-			if (!graph.TestUpdateParents())// TODO REM  ??
+			if (!graph.TestGraph())// TODO REM  ??
 				throw new Exception("Internal Parent Exception :( ");
 
 			return graph;
@@ -99,14 +102,36 @@ namespace BefunCompile
 
 			for (int i = level; i != 0; i--)
 			{
-				bool op = graph.Optimize();
+				bool op = graph.Minimize();
 
-				if (!graph.TestUpdateParents())// TODO REM  ??
+				if (!graph.TestGraph())// TODO REM  ??
 					throw new Exception("Internal Parent Exception :( ");
 
 				if (!op)
 				{
-					Console.Out.WriteLine("Optimize Cycles: " + (level - i));
+					log_Cycles_Minimize = level - 1;
+
+					break;
+				}
+			}
+
+			return graph;
+		}
+
+		public BCGraph generateSubstitutedGraph(int level = -1) // O:2
+		{
+			BCGraph graph = generateMinimizedGraph(-1);
+
+			for (int i = level; i != 0; i--)
+			{
+				bool op = graph.Substitute();
+
+				if (!graph.TestGraph())// TODO REM  ??
+					throw new Exception("Internal Parent Exception :( ");
+
+				if (!op)
+				{
+					log_Cycles_Substitute = level - 1;
 
 					break;
 				}

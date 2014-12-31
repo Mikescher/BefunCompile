@@ -1,5 +1,6 @@
-﻿
-using BefunCompile.Graph;
+﻿using BefunCompile.Graph;
+using System;
+
 namespace BefunCompile.Math
 {
 	public class Vec2i
@@ -49,6 +50,36 @@ namespace BefunCompile.Math
 			ny %= height;
 
 			return new Vec2i(nx, ny);
+		}
+
+		public override bool Equals(Object obj)
+		{
+			var other = obj as Vec2i;
+			if (other == null)
+				return false;
+
+			return Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			return X.GetHashCode() ^ Y.GetHashCode();
+		}
+
+		public bool Equals(Vec2i other)
+		{
+			if (other == null)
+			{
+				return false;
+			}
+
+			if (other.X == X && other.Y == Y)
+			{
+				return false;
+			}
+
+			return true;
+
 		}
 	}
 }
