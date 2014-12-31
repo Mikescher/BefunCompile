@@ -6,8 +6,8 @@ namespace BefunCompile.Graph.Vertex
 {
 	public class BCVertexDecision : BCVertex
 	{
-		private BCVertex edgeTrue = null;
-		private BCVertex edgeFalse = null;
+		public BCVertex edgeTrue = null;
+		public BCVertex edgeFalse = null;
 
 		public BCVertexDecision(BCDirection d, Vec2i pos)
 			: base(d, pos)
@@ -17,6 +17,8 @@ namespace BefunCompile.Graph.Vertex
 
 		public override void AfterGen()
 		{
+			base.AfterGen();
+
 			if (children.Count != 2)
 				throw new Exception("Decision needs 2 children");
 

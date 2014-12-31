@@ -12,6 +12,8 @@ namespace BefunCompile.Graph
 
 		public List<BCVertex> children = new List<BCVertex>();
 
+		public List<BCVertex> parents = new List<BCVertex>();
+
 		public BCVertex(BCDirection d, Vec2i pos)
 		{
 			this.direction = d;
@@ -21,6 +23,31 @@ namespace BefunCompile.Graph
 		public virtual void AfterGen()
 		{
 			// NOP
+		}
+
+		public void UpdateParents()
+		{
+			foreach (var child in children)
+			{
+				child.parents.Add(this);
+			}
+		}
+
+		public bool TestUpdateParents()
+		{
+			foreach (var child in children)
+			{
+				if (!child.parents.Contains(this))
+					return false;
+			}
+
+			foreach (var parent in parents)
+			{
+				if (!parent.children.Contains(this))
+					return false;
+			}
+
+			return true;
 		}
 
 		public static BCVertex fromChar(BCDirection d, char c, Vec2i pos, out BCDirection[] outgoingEdges)
@@ -111,8 +138,10 @@ namespace BefunCompile.Graph
 					return new BCVertexInput(d, pos, c);
 
 				case '|':
-				case '_':
 					outgoingEdges = new BCDirection[] { BCDirection.FROM_TOP, BCDirection.FROM_BOTTOM };
+					return new BCVertexDecision(d, pos);
+				case '_':
+					outgoingEdges = new BCDirection[] { BCDirection.FROM_LEFT, BCDirection.FROM_RIGHT };
 					return new BCVertexDecision(d, pos);
 
 				default:

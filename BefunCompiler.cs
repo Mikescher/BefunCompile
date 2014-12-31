@@ -38,7 +38,7 @@ namespace BefunCompile
 			return result;
 		}
 
-		public BCGraph generateGraph()
+		public BCGraph generateGraph() // O:0
 		{
 			List<BCVertex> all = new List<BCVertex>();
 			var unfinished = new Stack<Tuple<BCVertex, Vec2i, BCDirection>>(); /*<parent, position, direction>*/
@@ -84,9 +84,32 @@ namespace BefunCompile
 				}
 			}
 
-			foreach (var vertex in graph.vertices)
+			graph.AfterGen();
+			graph.UpdateParents();
+
+			if (!graph.TestUpdateParents())// TODO REM  ??
+				throw new Exception("Internal Parent Exception :( ");
+
+			return graph;
+		}
+
+		public BCGraph generateMinimizedGraph(int level = -1) // O:1
+		{
+			BCGraph graph = generateGraph();
+
+			for (int i = level; i != 0; i--)
 			{
-				vertex.AfterGen();
+				bool op = graph.Optimize();
+
+				if (!graph.TestUpdateParents())// TODO REM  ??
+					throw new Exception("Internal Parent Exception :( ");
+
+				if (!op)
+				{
+					Console.Out.WriteLine("Optimize Cycles: " + (level - i));
+
+					break;
+				}
 			}
 
 			return graph;
