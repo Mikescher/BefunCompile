@@ -1,6 +1,7 @@
 ﻿using BefunCompile.Math;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
@@ -40,6 +41,13 @@ namespace BefunCompile.Graph.Vertex
 		public override BCVertex Duplicate()
 		{
 			return new BCVertexDecision(direction, positions);
+		}
+
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		{
+			var v = stackbuilder.PopBool();
+
+			return v ? edgeTrue : edgeFalse;
 		}
 	}
 }

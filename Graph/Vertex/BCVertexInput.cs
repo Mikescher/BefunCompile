@@ -1,5 +1,6 @@
-﻿
-using BefunCompile.Math;
+﻿using BefunCompile.Math;
+using System.Text;
+
 namespace BefunCompile.Graph.Vertex
 {
 	public class BCVertexInput : BCVertex
@@ -32,6 +33,11 @@ namespace BefunCompile.Graph.Vertex
 		public override BCVertex Duplicate()
 		{
 			return new BCVertexInput(direction, positions, modeInteger);
+		}
+
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		{
+			throw new System.NotImplementedException();
 		}
 	}
 }

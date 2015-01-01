@@ -1,5 +1,8 @@
-﻿
-using BefunCompile.Math;
+﻿using BefunCompile.Math;
+using System;
+using System.Linq;
+using System.Text;
+
 namespace BefunCompile.Graph.Vertex
 {
 	public class BCVertexPush : BCVertex
@@ -26,6 +29,15 @@ namespace BefunCompile.Graph.Vertex
 		public override BCVertex Duplicate()
 		{
 			return new BCVertexPush(direction, positions, value);
+		}
+
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		{
+			stackbuilder.Push(value);
+
+			if (children.Count > 1)
+				throw new ArgumentException("#");
+			return children.FirstOrDefault();
 		}
 	}
 }

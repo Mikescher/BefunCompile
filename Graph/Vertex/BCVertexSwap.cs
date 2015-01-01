@@ -1,5 +1,9 @@
 ﻿
 using BefunCompile.Math;
+using System;
+using System.Linq;
+using System.Text;
+
 namespace BefunCompile.Graph.Vertex
 {
 	public class BCVertexSwap : BCVertex
@@ -24,6 +28,15 @@ namespace BefunCompile.Graph.Vertex
 		public override BCVertex Duplicate()
 		{
 			return new BCVertexSwap(direction, positions);
+		}
+
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		{
+			stackbuilder.Swap();
+
+			if (children.Count > 1)
+				throw new ArgumentException("#");
+			return children.FirstOrDefault();
 		}
 	}
 }

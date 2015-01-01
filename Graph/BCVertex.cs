@@ -2,6 +2,7 @@
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace BefunCompile.Graph
 {
@@ -150,5 +151,6 @@ namespace BefunCompile.Graph
 		}
 
 		public abstract BCVertex Duplicate();
+		public abstract BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder);
 	}
 }

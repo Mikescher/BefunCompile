@@ -1,5 +1,5 @@
-﻿
-using System;
+﻿using System;
+
 namespace BefunCompile.Graph
 {
 	public enum BCDirection

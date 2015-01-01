@@ -44,6 +44,8 @@
     <Compile Include="Graph\BCGraph.cs" />
     <Compile Include="Graph\BCModRule.cs" />
     <Compile Include="Graph\BCVertex.cs" />
+    <Compile Include="Graph\GraphRunner.cs" />
+    <Compile Include="Graph\GraphRunnerStack.cs" />
     <Compile Include="Graph\Vertex\BCVertexPush.cs" />
     <Compile Include="Graph\Vertex\BCVertexPop.cs" />
     <Compile Include="Graph\Vertex\BCVertexNOP.cs" />

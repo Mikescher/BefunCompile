@@ -1,6 +1,8 @@
-﻿
-using BefunCompile.Math;
+﻿using BefunCompile.Math;
 using System;
+using System.Linq;
+using System.Text;
+
 namespace BefunCompile.Graph.Vertex
 {
 	public enum BinaryMathType
@@ -114,6 +116,19 @@ namespace BefunCompile.Graph.Vertex
 		public override BCVertex Duplicate()
 		{
 			return new BCVertexBinaryMath(direction, positions, mtype);
+		}
+
+
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		{
+			var b = stackbuilder.Pop();
+			var a = stackbuilder.Pop();
+
+			stackbuilder.Push(Calc(a, b));
+
+			if (children.Count > 1)
+				throw new ArgumentException("#");
+			return children.FirstOrDefault();
 		}
 	}
 }
