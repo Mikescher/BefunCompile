@@ -19,5 +19,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "DUP";
 		}
+
+		public override BCVertex Duplicate()
+		{
+			return new BCVertexDup(direction, positions);
+		}
 	}
 }

@@ -297,13 +297,21 @@ namespace BefunCompile.Graph
 			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value));
 			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value));
 
+			var rule6 = new BCModRule();
+			rule6.AddPreq(v => v is BCVertexPush);
+			rule6.AddPreq(v => v is BCVertexPush);
+			rule6.AddPreq(v => v is BCVertexSwap);
+			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[1] as BCVertexPush).value));
+			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value));
+
 			bool b1 = rule1.Execute(this);
 			bool b2 = rule2.Execute(this);
 			bool b3 = rule3.Execute(this);
 			bool b4 = rule4.Execute(this);
 			bool b5 = rule5.Execute(this);
+			bool b6 = rule5.Execute(this);
 
-			return b1 | b2 | b3 | b4 | b5;
+			return b1 | b2 | b3 | b4 | b5 | b6;
 		}
 
 		#endregion

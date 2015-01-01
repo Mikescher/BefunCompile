@@ -20,5 +20,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "POP";
 		}
+
+		public override BCVertex Duplicate()
+		{
+			return new BCVertexPop(direction, positions);
+		}
 	}
 }

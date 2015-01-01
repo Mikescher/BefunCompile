@@ -20,5 +20,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "SWAP";
 		}
+
+		public override BCVertex Duplicate()
+		{
+			return new BCVertexSwap(direction, positions);
+		}
 	}
 }

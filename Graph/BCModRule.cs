@@ -59,7 +59,7 @@ namespace BefunCompile.Graph
 
 		public bool Execute(BCGraph g, BCVertex v)
 		{
-			var chainlist = GetMatchingChain(0, v);
+			var chainlist = GetMatchingExtractedChain(g, v);
 
 			if (chainlist == null)
 				return false;
@@ -168,6 +168,15 @@ namespace BefunCompile.Graph
 			return true;
 		}
 
+		private List<BCVertex> GetMatchingExtractedChain(BCGraph g, BCVertex v)
+		{
+			List<BCVertex> chain = GetMatchingChain(0, v);
+
+			chain = ExtractChain(g, chain);
+
+			return chain;
+		}
+
 		private List<BCVertex> GetMatchingChain(int pos, BCVertex v)
 		{
 			if (pos >= prerequisites.Count)
@@ -201,6 +210,49 @@ namespace BefunCompile.Graph
 			}
 
 			return null;
+		}
+
+		private List<BCVertex> ExtractChain(BCGraph g, List<BCVertex> chain)
+		{
+			if (chain == null)
+				return null;
+
+			if (!chain.Skip(1).Any(p => p.parents.Count > 1))
+				return chain;
+
+			if (chain.Count <= 1)
+				return chain;
+
+			if (chain.Last().children.Count > 1)
+				return chain;
+
+			bool isRoot = chain[0] == g.root;
+			int cutIndex = chain.FindIndex(p => p.parents.Count > 1 && p != chain[0]);
+
+			BCVertex cut = chain[cutIndex];
+			BCVertex cutPrev = cut.parents.Where(p => p != chain[cutIndex - 1]).First();
+			BCVertex next = chain.Last().children.FirstOrDefault();
+
+			cutPrev.children.Remove(cut);
+			cut.parents.Remove(cutPrev);
+
+			BCVertex cutCurr = cutPrev;
+			for (int i = cutIndex; i < chain.Count; i++)
+			{
+				BCVertex newVertex = chain[i].Duplicate();
+				g.vertices.Add(newVertex);
+
+				cutCurr.children.Add(newVertex);
+				newVertex.parents.Add(cutCurr);
+				cutCurr = newVertex;
+			}
+			if (next != null)
+			{
+				cutCurr.children.Add(next);
+				next.parents.Add(cutCurr);
+			}
+
+			return ExtractChain(g, chain);
 		}
 	}
 }

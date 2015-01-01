@@ -36,5 +36,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "IF ?";
 		}
+
+		public override BCVertex Duplicate()
+		{
+			return new BCVertexDecision(direction, positions);
+		}
 	}
 }

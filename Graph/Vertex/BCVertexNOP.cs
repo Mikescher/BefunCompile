@@ -20,5 +20,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "NOP";
 		}
+
+		public override BCVertex Duplicate()
+		{
+			return new BCVertexNOP(direction, positions);
+		}
 	}
 }

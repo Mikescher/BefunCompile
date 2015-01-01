@@ -73,6 +73,12 @@ namespace BefunCompile.Graph.Vertex
 			}
 		}
 
+		public BCVertexBinaryMath(BCDirection d, Vec2i[] pos, BinaryMathType type)
+			: base(d, pos)
+		{
+			this.mtype = type;
+		}
+
 		public override string ToString()
 		{
 			return mtype.ToString();
@@ -103,6 +109,11 @@ namespace BefunCompile.Graph.Vertex
 				default:
 					throw new Exception("uwotm8");
 			}
+		}
+
+		public override BCVertex Duplicate()
+		{
+			return new BCVertexBinaryMath(direction, positions, mtype);
 		}
 	}
 }

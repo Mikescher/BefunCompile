@@ -148,5 +148,7 @@ namespace BefunCompile.Graph
 					throw new ArgumentException("[::] Unknown char: " + c);
 			}
 		}
+
+		public abstract BCVertex Duplicate();
 	}
 }

@@ -22,5 +22,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "PUSH(" + value + ")";
 		}
+
+		public override BCVertex Duplicate()
+		{
+			return new BCVertexPush(direction, positions, value);
+		}
 	}
 }
