@@ -89,7 +89,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public long Calc(BCVertexPush a, BCVertexPush b) // Reihenfolge:   a  b  +
 		{
-			return Calc(a.value, b.value);
+			return Calc(a.Value, b.Value);
 		}
 
 		public long Calc(long a, long b) // Reihenfolge:   a  b  +

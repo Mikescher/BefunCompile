@@ -13,6 +13,7 @@ namespace BefunCompile
 
 		public int log_Cycles_Minimize { get; private set; }
 		public int log_Cycles_Substitute { get; private set; }
+		public int log_Cycles_Variablize { get; private set; }
 
 		public BefunCompiler(string befsource)
 		{
@@ -41,7 +42,7 @@ namespace BefunCompile
 			return result;
 		}
 
-		public BCGraph generateGraph() // O:0
+		public BCGraph generateUntouchedGraph() // O:0
 		{
 			List<BCVertex> all = new List<BCVertex>();
 			var unfinished = new Stack<Tuple<BCVertex, Vec2i, BCDirection>>(); /*<parent, position, direction>*/
@@ -98,7 +99,7 @@ namespace BefunCompile
 
 		public BCGraph generateMinimizedGraph(int level = -1) // O:1
 		{
-			BCGraph graph = generateGraph();
+			BCGraph graph = generateUntouchedGraph();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -125,6 +126,28 @@ namespace BefunCompile
 			for (int i = level; i != 0; i--)
 			{
 				bool op = graph.Substitute();
+
+				if (!graph.TestGraph())// TODO REM  ??
+					throw new Exception("Internal Parent Exception :( ");
+
+				if (!op)
+				{
+					log_Cycles_Substitute = level - 1;
+
+					break;
+				}
+			}
+
+			return graph;
+		}
+
+		public BCGraph generateVariablizedGraph(int level = -1) // O:3
+		{
+			BCGraph graph = generateSubstitutedGraph(-1);
+
+			for (int i = level; i != 0; i--)
+			{
+				bool op = graph.FlattenStack();
 
 				if (!graph.TestGraph())// TODO REM  ??
 					throw new Exception("Internal Parent Exception :( ");

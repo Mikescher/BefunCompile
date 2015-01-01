@@ -281,7 +281,7 @@ namespace BefunCompile.Graph
 			var rule2 = new BCModRule();
 			rule2.AddPreq(v => v is BCVertexPush);
 			rule2.AddPreq(v => v is BCVertexNot);
-			rule2.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value != 0 ? 0 : 1));
+			rule2.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value != 0 ? 0 : 1));
 
 			var rule3 = new BCModRule();
 			rule3.AddPreq(v => v is BCVertexPush);
@@ -294,15 +294,15 @@ namespace BefunCompile.Graph
 			var rule5 = new BCModRule();
 			rule5.AddPreq(v => v is BCVertexPush);
 			rule5.AddPreq(v => v is BCVertexDup);
-			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value));
-			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value));
+			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value));
+			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value));
 
 			var rule6 = new BCModRule();
 			rule6.AddPreq(v => v is BCVertexPush);
 			rule6.AddPreq(v => v is BCVertexPush);
 			rule6.AddPreq(v => v is BCVertexSwap);
-			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[1] as BCVertexPush).value));
-			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).value));
+			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[1] as BCVertexPush).Value));
+			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value));
 
 			bool b1 = rule1.Execute(this);
 			bool b2 = rule2.Execute(this);
@@ -310,6 +310,56 @@ namespace BefunCompile.Graph
 			bool b4 = rule4.Execute(this);
 			bool b5 = rule5.Execute(this);
 			bool b6 = rule5.Execute(this);
+
+			return b1 | b2 | b3 | b4 | b5 | b6;
+		}
+
+		#endregion
+
+		#region Variablize
+
+		public bool FlattenStack()
+		{
+			var rule1 = new BCModRule();
+			rule1.AddPreq(v => v is BCVertexPush);
+			rule1.AddPreq(v => v is BCVertexPush);
+			rule1.AddPreq(v => v is BCVertexGet);
+			rule1.AddRep((l, p) => new BCVertexFullGet(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value, (l[1] as BCVertexPush).Value));
+
+			var rule2 = new BCModRule();
+			rule2.AddPreq(v => v is BCVertexPush);
+			rule2.AddPreq(v => v is BCVertexPush);
+			rule2.AddPreq(v => v is BCVertexSet);
+			rule2.AddRep((l, p) => new BCVertexFullSet(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value, (l[1] as BCVertexPush).Value));
+
+			var rule3 = new BCModRule();
+			rule3.AddPreq(v => v is BCVertexPush);
+			rule3.AddPreq(v => v is BCVertexFullSet);
+			rule3.AddRep((l, p) => new BCVertexTotalSet(BCDirection.UNKNOWN, p, (l[1] as BCVertexFullSet).X, (l[1] as BCVertexFullSet).Y, (l[0] as BCVertexPush).Value));
+
+			var rule4 = new BCModRule();
+			rule4.AddPreq(v => v is BCVertexFullGet);
+			rule4.AddPreq(v => v is BCVertexDup);
+			rule4.AddRep((l, p) => l[0].Duplicate());
+			rule4.AddRep((l, p) => l[0].Duplicate());
+
+			var rule5 = new BCModRule();
+			rule5.AddPreq(v => v is BCVertexFullGet);
+			rule5.AddPreq(v => v is BCVertexFullSet);
+			rule5.AddRep((l, p) => new BCVertexReferenceSet(BCDirection.UNKNOWN, p, (l[1] as BCVertexFullSet).X, (l[1] as BCVertexFullSet).Y, (l[0] as BCVertexFullGet).X, (l[0] as BCVertexFullGet).Y));
+
+			var rule6 = new BCModRule();
+			rule6.AddPreq(v => v is BCVertexTotalSet || v is BCVertexReferenceSet);
+			rule6.AddPreq(v => !(v is BCVertexDecision || v is BCVertexTotalSet || v is BCVertexReferenceSet));
+			rule6.AddRep((l, p) => l[1].Duplicate());
+			rule6.AddRep((l, p) => l[0].Duplicate());
+
+			bool b1 = rule1.Execute(this);
+			bool b2 = rule2.Execute(this);
+			bool b3 = rule3.Execute(this);
+			bool b4 = rule4.Execute(this);
+			bool b5 = rule5.Execute(this);
+			bool b6 = rule6.Execute(this);
 
 			return b1 | b2 | b3 | b4 | b5 | b6;
 		}

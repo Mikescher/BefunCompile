@@ -56,6 +56,12 @@
     <Compile Include="Graph\Vertex\BCVertexSwap.cs" />
     <Compile Include="Graph\Vertex\BCVertexDup.cs" />
     <Compile Include="Graph\Vertex\BCVertexNot.cs" />
+    <Compile Include="Graph\Vertex\BCVertexGet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexSet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexFullGet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexFullSet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexTotalSet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexReferenceSet.cs" />
     <Compile Include="Math\CustomLinq.cs" />
     <Compile Include="Math\Vec2i.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

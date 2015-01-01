@@ -145,6 +145,13 @@ namespace BefunCompile.Graph
 					outgoingEdges = new BCDirection[] { BCDirection.FROM_LEFT, BCDirection.FROM_RIGHT };
 					return new BCVertexDecision(d, pos);
 
+				case 'g':
+					outgoingEdges = new BCDirection[] { d };
+					return new BCVertexGet(d, pos);
+				case 'p':
+					outgoingEdges = new BCDirection[] { d };
+					return new BCVertexSet(d, pos);
+
 				default:
 					throw new ArgumentException("[::] Unknown char: " + c);
 			}
