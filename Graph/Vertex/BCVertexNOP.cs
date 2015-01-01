@@ -31,8 +31,6 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
 		{
-			stackbuilder.Dup();
-
 			if (children.Count > 1)
 				throw new ArgumentException("#");
 			return children.FirstOrDefault();

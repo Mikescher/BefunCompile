@@ -20,8 +20,8 @@ namespace BefunCompile.Graph
 		{
 			var a = Pop();
 			var b = Pop();
-			Push(b);
 			Push(a);
+			Push(b);
 		}
 
 		public void Dup()
