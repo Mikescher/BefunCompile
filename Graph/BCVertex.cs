@@ -1,4 +1,5 @@
-﻿using BefunCompile.Graph.Vertex;
+﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -56,7 +57,7 @@ namespace BefunCompile.Graph
 			if (BCDirectionHelper.isSMDirection(d) && c != '"')
 			{
 				outgoingEdges = new BCDirection[] { d };
-				return new BCVertexPush(d, pos, c);
+				return new BCVertexPush(d, pos, ExpressionConstant.Create(c));
 			}
 
 			switch (c)
@@ -76,7 +77,7 @@ namespace BefunCompile.Graph
 				case '8':
 				case '9':
 					outgoingEdges = new BCDirection[] { d };
-					return new BCVertexPush(d, pos, c - '0');
+					return new BCVertexPush(d, pos, ExpressionConstant.Create(c - '0'));
 
 				case '$':
 					outgoingEdges = new BCDirection[] { d };
@@ -159,5 +160,8 @@ namespace BefunCompile.Graph
 
 		public abstract BCVertex Duplicate();
 		public abstract BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder);
+
+		public abstract IEnumerable<MemoryAccess> listConstantVariableAccess();
+		public abstract IEnumerable<MemoryAccess> listDynamicVariableAccess();
 	}
 }

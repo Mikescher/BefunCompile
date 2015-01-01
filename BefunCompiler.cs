@@ -13,6 +13,7 @@ namespace BefunCompile
 
 		public int log_Cycles_Minimize { get; private set; }
 		public int log_Cycles_Substitute { get; private set; }
+		public int log_Cycles_Flatten { get; private set; }
 		public int log_Cycles_Variablize { get; private set; }
 
 		public BefunCompiler(string befsource)
@@ -110,7 +111,7 @@ namespace BefunCompile
 
 				if (!op)
 				{
-					log_Cycles_Minimize = level - 1;
+					log_Cycles_Minimize = level - i;
 
 					break;
 				}
@@ -132,7 +133,7 @@ namespace BefunCompile
 
 				if (!op)
 				{
-					log_Cycles_Substitute = level - 1;
+					log_Cycles_Substitute = level - i;
 
 					break;
 				}
@@ -141,7 +142,7 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateVariablizedGraph(int level = -1) // O:3
+		public BCGraph generateFlattenedGraph(int level = -1) // O:3
 		{
 			BCGraph graph = generateSubstitutedGraph(-1);
 
@@ -154,11 +155,21 @@ namespace BefunCompile
 
 				if (!op)
 				{
-					log_Cycles_Substitute = level - 1;
+					log_Cycles_Flatten = level - i;
 
 					break;
 				}
 			}
+
+			return graph;
+		}
+
+		public BCGraph generateVariablizedGraph(int level = -1) // O:4
+		{
+			BCGraph graph = generateFlattenedGraph(-1);
+
+			var constGets = graph.listConstantVariableAccess().ToList();
+			var dynamGets = graph.listDynamicVariableAccess().ToList();
 
 			return graph;
 		}

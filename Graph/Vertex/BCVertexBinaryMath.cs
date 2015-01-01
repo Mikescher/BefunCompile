@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Math;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -89,7 +90,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public long Calc(BCVertexPush a, BCVertexPush b) // Reihenfolge:   a  b  +
 		{
-			return Calc(a.Value, b.Value);
+			return Calc(a.Value.Calculate(), b.Value.Calculate());
 		}
 
 		public long Calc(long a, long b) // Reihenfolge:   a  b  +
@@ -118,6 +119,15 @@ namespace BefunCompile.Graph.Vertex
 			return new BCVertexBinaryMath(direction, positions, mtype);
 		}
 
+		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		{
+			return Enumerable.Empty<MemoryAccess>();
+		}
+
+		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		{
+			return Enumerable.Empty<MemoryAccess>();
+		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
 		{

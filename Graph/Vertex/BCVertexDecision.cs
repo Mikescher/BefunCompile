@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Math;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -41,6 +42,16 @@ namespace BefunCompile.Graph.Vertex
 		public override BCVertex Duplicate()
 		{
 			return new BCVertexDecision(direction, positions);
+		}
+
+		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		{
+			return Enumerable.Empty<MemoryAccess>();
+		}
+
+		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		{
+			return Enumerable.Empty<MemoryAccess>();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)

@@ -46,6 +46,12 @@
     <Compile Include="Graph\BCVertex.cs" />
     <Compile Include="Graph\GraphRunner.cs" />
     <Compile Include="Graph\GraphRunnerStack.cs" />
+    <Compile Include="Graph\Expression\ExpressionConstant.cs" />
+    <Compile Include="Graph\Expression\ExpressionBinMath.cs" />
+    <Compile Include="Graph\Expression\ExpressionNot.cs" />
+    <Compile Include="Graph\Expression\ExpressionGet.cs" />
+    <Compile Include="Graph\Expression\BCExpression.cs" />
+    <Compile Include="Graph\MemoryAccess.cs" />
     <Compile Include="Graph\Vertex\BCVertexPush.cs" />
     <Compile Include="Graph\Vertex\BCVertexPop.cs" />
     <Compile Include="Graph\Vertex\BCVertexNOP.cs" />
@@ -61,7 +67,8 @@
     <Compile Include="Graph\Vertex\BCVertexFullGet.cs" />
     <Compile Include="Graph\Vertex\BCVertexFullSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexTotalSet.cs" />
-    <Compile Include="Graph\Vertex\BCVertexReferenceSet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexFullOutput.cs" />
+    <Compile Include="Graph\Vertex\BCVertexFullDecision.cs" />
     <Compile Include="Math\CustomLinq.cs" />
     <Compile Include="Math\Vec2i.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

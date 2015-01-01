@@ -1,36 +1,41 @@
 ﻿using BefunCompile.Graph.Expression;
 using BefunCompile.Math;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexPush : BCVertex
+	public class BCVertexFullDecision : BCVertex
 	{
+		public readonly BCVertex edgeTrue;
+		public readonly BCVertex edgeFalse;
+
 		public readonly BCExpression Value;
 
-		public BCVertexPush(BCDirection d, Vec2i pos, BCExpression val)
+		public BCVertexFullDecision(BCDirection d, Vec2i pos, BCVertex childTrue, BCVertex childFalse, BCExpression val)
 			: base(d, new Vec2i[] { pos })
 		{
+			this.edgeTrue = childTrue;
+			this.edgeFalse = childFalse;
 			this.Value = val;
 		}
 
-		public BCVertexPush(BCDirection d, Vec2i[] pos, BCExpression val)
+		public BCVertexFullDecision(BCDirection d, Vec2i[] pos, BCVertex childTrue, BCVertex childFalse, BCExpression val)
 			: base(d, pos)
 		{
+			this.edgeTrue = childTrue;
+			this.edgeFalse = childFalse;
 			this.Value = val;
 		}
 
 		public override string ToString()
 		{
-			return "PUSH(" + Value + ")";
+			return "IF (" + Value.ToString() + ")";
 		}
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexPush(direction, positions, Value);
+			return new BCVertexFullDecision(direction, positions, edgeTrue, edgeFalse, Value);
 		}
 
 		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
@@ -45,11 +50,9 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
 		{
-			stackbuilder.Push(Value.Calculate());
+			var v = Value.Calculate() != 0;
 
-			if (children.Count > 1)
-				throw new ArgumentException("#");
-			return children.FirstOrDefault();
+			return v ? edgeTrue : edgeFalse;
 		}
 	}
 }

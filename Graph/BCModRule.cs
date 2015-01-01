@@ -168,6 +168,33 @@ namespace BefunCompile.Graph
 			return true;
 		}
 
+		public List<BCVertex> GetMatchingChain(BCGraph g)
+		{
+			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
+			Stack<BCVertex> untravelled = new Stack<BCVertex>();
+			untravelled.Push(g.root);
+
+			while (untravelled.Count > 0)
+			{
+				BCVertex curr = untravelled.Pop();
+
+				var chain = GetMatchingChain(0, curr);
+
+				if (chain != null)
+					return chain;
+
+				travelled.Add(curr);
+
+				foreach (var child in curr.children)
+				{
+					if (!travelled.Contains(child))
+						untravelled.Push(child);
+				}
+			}
+
+			return null;
+		}
+
 		private List<BCVertex> GetMatchingExtractedChain(BCGraph g, BCVertex v)
 		{
 			List<BCVertex> chain = GetMatchingChain(0, v);
