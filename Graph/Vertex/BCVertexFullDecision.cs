@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Graph.Expression;
 using BefunCompile.Math;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +11,7 @@ namespace BefunCompile.Graph.Vertex
 		public readonly BCVertex edgeTrue;
 		public readonly BCVertex edgeFalse;
 
-		public readonly BCExpression Value;
+		public BCExpression Value;
 
 		public BCVertexFullDecision(BCDirection d, Vec2i pos, BCVertex childTrue, BCVertex childFalse, BCExpression val)
 			: base(d, new Vec2i[] { pos })
@@ -53,6 +54,24 @@ namespace BefunCompile.Graph.Vertex
 			var v = Value.Calculate() != 0;
 
 			return v ? edgeTrue : edgeFalse;
+		}
+
+		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			bool found = false;
+
+			if (prerequisite(Value))
+			{
+				Value = replacement(Value);
+				found = true;
+			}
+
+			if (Value.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 	}
 }

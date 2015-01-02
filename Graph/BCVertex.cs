@@ -52,7 +52,7 @@ namespace BefunCompile.Graph
 			return true;
 		}
 
-		public static BCVertex fromChar(BCDirection d, char c, Vec2i pos, out BCDirection[] outgoingEdges)
+		public static BCVertex fromChar(BCDirection d, long c, Vec2i pos, out BCDirection[] outgoingEdges)
 		{
 			if (BCDirectionHelper.isSMDirection(d) && c != '"')
 			{
@@ -163,5 +163,7 @@ namespace BefunCompile.Graph
 
 		public abstract IEnumerable<MemoryAccess> listConstantVariableAccess();
 		public abstract IEnumerable<MemoryAccess> listDynamicVariableAccess();
+
+		public abstract bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
 	}
 }

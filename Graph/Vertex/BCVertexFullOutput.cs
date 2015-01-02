@@ -10,7 +10,7 @@ namespace BefunCompile.Graph.Vertex
 	public class BCVertexFullOutput : BCVertex
 	{
 		public readonly bool ModeInteger; // true = int | false = char
-		public readonly BCExpression Value;
+		public BCExpression Value;
 
 		public BCVertexFullOutput(BCDirection d, Vec2i pos, char mode, BCExpression val)
 			: base(d, new Vec2i[] { pos })
@@ -63,6 +63,24 @@ namespace BefunCompile.Graph.Vertex
 			if (children.Count > 1)
 				throw new ArgumentException("#");
 			return children.FirstOrDefault();
+		}
+
+		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			bool found = false;
+
+			if (prerequisite(Value))
+			{
+				Value = replacement(Value);
+				found = true;
+			}
+
+			if (Value.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 	}
 }

@@ -11,10 +11,11 @@ namespace BefunCompile.Graph.Expression
 		public abstract IEnumerable<MemoryAccess> listConstantVariableAccess();
 		public abstract IEnumerable<MemoryAccess> listDynamicVariableAccess();
 
+		public abstract bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
+
 		public override string ToString()
 		{
 			return getRepresentation();
 		}
-
 	}
 }

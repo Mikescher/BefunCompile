@@ -1,4 +1,5 @@
-﻿using BefunCompile.Math;
+﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,13 @@ namespace BefunCompile.Graph.Vertex
 	{
 		public readonly bool ModeInteger; // true = int | false = char
 
-		public BCVertexOutput(BCDirection d, Vec2i pos, char mode)
+		public BCVertexOutput(BCDirection d, Vec2i pos, long mode)
 			: base(d, new Vec2i[] { pos })
 		{
 			ModeInteger = (mode == '.');
 		}
 
-		public BCVertexOutput(BCDirection d, Vec2i[] pos, char mode)
+		public BCVertexOutput(BCDirection d, Vec2i[] pos, long mode)
 			: base(d, pos)
 		{
 			ModeInteger = (mode == '.');
@@ -60,6 +61,11 @@ namespace BefunCompile.Graph.Vertex
 			if (children.Count > 1)
 				throw new ArgumentException("#");
 			return children.FirstOrDefault();
+		}
+
+		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			return false;
 		}
 	}
 }

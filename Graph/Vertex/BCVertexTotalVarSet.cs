@@ -7,28 +7,33 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexSet : BCVertex, MemoryAccess
+	public class BCVertexTotalVarSet : BCVertex, MemoryAccess
 	{
-		public BCVertexSet(BCDirection d, Vec2i pos)
+		public ExpressionVariable Variable;
+		public BCExpression Value;
+
+		public BCVertexTotalVarSet(BCDirection d, Vec2i pos, ExpressionVariable var, BCExpression val)
 			: base(d, new Vec2i[] { pos })
 		{
-
+			this.Variable = var;
+			this.Value = val;
 		}
 
-		public BCVertexSet(BCDirection d, Vec2i[] pos)
+		public BCVertexTotalVarSet(BCDirection d, Vec2i[] pos, ExpressionVariable var, BCExpression val)
 			: base(d, pos)
 		{
-
+			this.Variable = var;
+			this.Value = val;
 		}
 
 		public override string ToString()
 		{
-			return "SET";
+			return string.Format("SET({0}) = {1}", Variable, Value);
 		}
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexSet(direction, positions);
+			return new BCVertexTotalVarSet(direction, positions, Variable, Value);
 		}
 
 		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
@@ -38,7 +43,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
 		{
-			return new MemoryAccess[] { this };
+			return Enumerable.Empty<MemoryAccess>();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
@@ -69,7 +74,29 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
 		{
-			return false;
+			bool found = false;
+
+			if (prerequisite(Variable))
+			{
+				Variable = (ExpressionVariable)replacement(Variable);
+				found = true;
+			}
+			if (Variable.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			if (prerequisite(Value))
+			{
+				Value = replacement(Value);
+				found = true;
+			}
+			if (Value.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 	}
 }

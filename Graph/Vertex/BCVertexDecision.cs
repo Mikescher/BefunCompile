@@ -1,4 +1,5 @@
-﻿using BefunCompile.Math;
+﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,6 +60,11 @@ namespace BefunCompile.Graph.Vertex
 			var v = stackbuilder.PopBool();
 
 			return v ? edgeTrue : edgeFalse;
+		}
+
+		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			return false;
 		}
 	}
 }

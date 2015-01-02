@@ -9,7 +9,9 @@ namespace BefunCompile
 	public class BefunCompiler
 	{
 		private readonly string source;
-		private readonly char[,] sourceGrid;
+		private readonly long[,] sourceGrid;
+		private int width;
+		private int height;
 
 		public int log_Cycles_Minimize { get; private set; }
 		public int log_Cycles_Substitute { get; private set; }
@@ -20,9 +22,12 @@ namespace BefunCompile
 		{
 			this.source = befsource;
 			this.sourceGrid = stringToCharArr(source);
+
+			width = sourceGrid.GetLength(0);
+			height = sourceGrid.GetLength(1);
 		}
 
-		private char[,] stringToCharArr(string str)
+		private long[,] stringToCharArr(string str)
 		{
 			string[] lines = str.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 			int height = lines.Length;
@@ -30,7 +35,7 @@ namespace BefunCompile
 
 			lines = lines.Select(p => p.PadRight(width, ' ')).ToArray();
 
-			char[,] result = new char[width, height];
+			long[,] result = new long[width, height];
 
 			for (int x = 0; x < width; x++)
 			{
@@ -41,6 +46,14 @@ namespace BefunCompile
 			}
 
 			return result;
+		}
+
+		public long GetGridValue(long x, long y)
+		{
+			if (x < 0 || y < 0 || x >= width || y >= height)
+				return 0;
+			else
+				return sourceGrid[x, y];
 		}
 
 		public BCGraph generateUntouchedGraph() // O:0
@@ -71,7 +84,7 @@ namespace BefunCompile
 				BCVertex parent = current.Item1;
 				Vec2i pos = current.Item2;
 				BCDirection currentDir = current.Item3;
-				char command = sourceGrid[pos.X, pos.Y];
+				long command = sourceGrid[pos.X, pos.Y];
 
 				BCVertex vertex = BCVertex.fromChar(currentDir, command, pos, out next);
 				graph.vertices.Add(vertex);
@@ -170,6 +183,9 @@ namespace BefunCompile
 
 			var constGets = graph.listConstantVariableAccess().ToList();
 			var dynamGets = graph.listDynamicVariableAccess().ToList();
+
+			if (dynamGets.Count == 0)
+				graph.SubstituteConstMemoryAccess(GetGridValue);
 
 			return graph;
 		}

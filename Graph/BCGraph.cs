@@ -1,6 +1,7 @@
 ﻿using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,6 +12,8 @@ namespace BefunCompile.Graph
 		public BCVertex root = null;
 
 		public List<BCVertex> vertices = new List<BCVertex>();
+
+		public List<ExpressionVariable> variables = new List<ExpressionVariable>();
 
 		public BCVertex getVertex(Vec2i pos, BCDirection dir)
 		{
@@ -392,6 +395,9 @@ namespace BefunCompile.Graph
 			if (prev.Any(p => p is BCVertexFullDecision))
 				return false;
 
+			if (chain[1].parents.Count > 1)
+				return false;
+
 			chain[0].children.Clear();
 			chain[0].parents.Clear();
 			vertices.Remove(chain[0]);
@@ -435,6 +441,8 @@ namespace BefunCompile.Graph
 
 		#endregion
 
+		#region Variablize
+
 		public IEnumerable<MemoryAccess> listConstantVariableAccess()
 		{
 			return vertices.SelectMany(p => p.listConstantVariableAccess());
@@ -444,5 +452,52 @@ namespace BefunCompile.Graph
 		{
 			return vertices.SelectMany(p => p.listDynamicVariableAccess());
 		}
+
+		public void SubstituteConstMemoryAccess(Func<long, long, long> gridGetter)
+		{
+			var ios = listConstantVariableAccess().ToList();
+
+			variables = ios
+				.Select(p => new Vec2l(p.getX().Calculate(), p.getY().Calculate()))
+				.Distinct()
+				.Select((p, i) => ExpressionVariable.Create("var" + i, gridGetter(p.X, p.Y), p))
+				.ToList();
+
+			Dictionary<Vec2l, ExpressionVariable> vardic = new Dictionary<Vec2l, ExpressionVariable>();
+			variables.ForEach(p => vardic.Add(p.position, p));
+
+			foreach (var variable in variables)
+			{
+				BCModRule vertexRule1 = new BCModRule();
+				vertexRule1.AddPreq(p => p is BCVertexFullGet && ios.Contains(p as MemoryAccess));
+				vertexRule1.AddRep((l, p) => new BCVertexFullVarGet(BCDirection.UNKNOWN, p, vardic[(l[0] as BCVertexFullGet).getConstantPos()]));
+
+				BCModRule vertexRule2 = new BCModRule();
+				vertexRule2.AddPreq(p => p is BCVertexFullSet && ios.Contains(p as MemoryAccess));
+				vertexRule2.AddRep((l, p) => new BCVertexFullVarSet(BCDirection.UNKNOWN, p, vardic[(l[0] as BCVertexFullSet).getConstantPos()]));
+
+				BCModRule vertexRule3 = new BCModRule();
+				vertexRule3.AddPreq(p => p is BCVertexTotalSet && ios.Contains(p as MemoryAccess));
+				vertexRule3.AddRep((l, p) => new BCVertexTotalVarSet(BCDirection.UNKNOWN, p, vardic[(l[0] as BCVertexTotalSet).getConstantPos()], (l[0] as BCVertexTotalSet).Value));
+
+				BCExprModRule exprRule1 = new BCExprModRule();
+				exprRule1.setPreq(p => p is ExpressionGet && ios.Contains(p as MemoryAccess));
+				exprRule1.setRep(p => vardic[(p as ExpressionGet).getConstantPos()]);
+
+				bool changed = true;
+
+				while (changed)
+				{
+					bool b1 = vertexRule1.Execute(this);
+					bool b2 = vertexRule2.Execute(this);
+					bool b3 = vertexRule3.Execute(this);
+					bool b4 = exprRule1.Execute(this);
+
+					changed = b1 || b2 || b3 || b4;
+				}
+			}
+		}
+
+		#endregion
 	}
 }

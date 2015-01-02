@@ -7,28 +7,30 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexSet : BCVertex, MemoryAccess
+	public class BCVertexFullVarSet : BCVertex, MemoryAccess
 	{
-		public BCVertexSet(BCDirection d, Vec2i pos)
+		public ExpressionVariable Variable;
+
+		public BCVertexFullVarSet(BCDirection d, Vec2i pos, ExpressionVariable var)
 			: base(d, new Vec2i[] { pos })
 		{
-
+			this.Variable = var;
 		}
 
-		public BCVertexSet(BCDirection d, Vec2i[] pos)
+		public BCVertexFullVarSet(BCDirection d, Vec2i[] pos, ExpressionVariable var)
 			: base(d, pos)
 		{
-
+			this.Variable = var;
 		}
 
 		public override string ToString()
 		{
-			return "SET";
+			return Variable.getRepresentation();
 		}
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexSet(direction, positions);
+			return new BCVertexFullVarSet(direction, positions, Variable);
 		}
 
 		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
@@ -38,7 +40,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
 		{
-			return new MemoryAccess[] { this };
+			return Enumerable.Empty<MemoryAccess>();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
@@ -69,7 +71,20 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
 		{
-			return false;
+			bool found = false;
+
+			if (prerequisite(Variable))
+			{
+				Variable = (ExpressionVariable)replacement(Variable);
+				found = true;
+			}
+
+			if (Variable.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 	}
 }

@@ -75,10 +75,10 @@ namespace BefunCompile.Math
 
 			if (other.X == X && other.Y == Y)
 			{
-				return false;
+				return true;
 			}
 
-			return true;
+			return false;
 
 		}
 	}

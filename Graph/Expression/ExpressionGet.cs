@@ -1,4 +1,5 @@
 ﻿
+using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,8 +7,8 @@ namespace BefunCompile.Graph.Expression
 {
 	public class ExpressionGet : BCExpression, MemoryAccess
 	{
-		public readonly BCExpression PosX;
-		public readonly BCExpression PosY;
+		public BCExpression PosX;
+		public BCExpression PosY;
 
 		private ExpressionGet(BCExpression xx, BCExpression yy)
 		{
@@ -44,6 +45,54 @@ namespace BefunCompile.Graph.Expression
 				return PosX.listDynamicVariableAccess().Concat(PosY.listDynamicVariableAccess());
 			else
 				return new MemoryAccess[] { this }.Concat(PosX.listDynamicVariableAccess()).Concat(PosY.listDynamicVariableAccess());
+		}
+
+		public BCExpression getX()
+		{
+			return PosX;
+		}
+
+		public BCExpression getY()
+		{
+			return PosY;
+		}
+
+		public Vec2l getConstantPos()
+		{
+			BCExpression xx = getX();
+			BCExpression yy = getX();
+
+			if (xx == null || yy == null || !(xx is ExpressionConstant) || !(yy is ExpressionConstant))
+				return null;
+			else
+				return new Vec2l(getX().Calculate(), getY().Calculate());
+		}
+
+		public override bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			bool found = false;
+
+			if (prerequisite(PosX))
+			{
+				PosX = replacement(PosX);
+				found = true;
+			}
+			if (PosX.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			if (prerequisite(PosY))
+			{
+				PosY = replacement(PosY);
+				found = true;
+			}
+			if (PosY.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 	}
 }

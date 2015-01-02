@@ -1,4 +1,5 @@
-﻿using BefunCompile.Math;
+﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,11 @@ namespace BefunCompile.Graph.Vertex
 			if (children.Count > 1)
 				throw new ArgumentException("#");
 			return children.FirstOrDefault();
+		}
+
+		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			return false;
 		}
 	}
 }

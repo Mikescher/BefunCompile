@@ -1,10 +1,11 @@
 ﻿
+using System;
 using System.Collections.Generic;
 namespace BefunCompile.Graph.Expression
 {
 	public class ExpressionNot : BCExpression
 	{
-		public readonly BCExpression Value;
+		public BCExpression Value;
 
 		private ExpressionNot(BCExpression v)
 		{
@@ -39,6 +40,23 @@ namespace BefunCompile.Graph.Expression
 		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
 		{
 			return Value.listDynamicVariableAccess();
+		}
+
+		public override bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			bool found = false;
+
+			if (prerequisite(Value))
+			{
+				Value = replacement(Value);
+				found = true;
+			}
+			if (Value.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 	}
 }

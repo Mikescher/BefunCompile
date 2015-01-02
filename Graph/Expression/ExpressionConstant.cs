@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 namespace BefunCompile.Graph.Expression
@@ -35,6 +36,11 @@ namespace BefunCompile.Graph.Expression
 		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
 		{
 			return Enumerable.Empty<MemoryAccess>();
+		}
+
+		public override bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			return false;
 		}
 	}
 }

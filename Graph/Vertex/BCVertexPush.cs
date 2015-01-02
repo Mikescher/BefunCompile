@@ -9,7 +9,7 @@ namespace BefunCompile.Graph.Vertex
 {
 	public class BCVertexPush : BCVertex
 	{
-		public readonly BCExpression Value;
+		public BCExpression Value;
 
 		public BCVertexPush(BCDirection d, Vec2i pos, BCExpression val)
 			: base(d, new Vec2i[] { pos })
@@ -50,6 +50,23 @@ namespace BefunCompile.Graph.Vertex
 			if (children.Count > 1)
 				throw new ArgumentException("#");
 			return children.FirstOrDefault();
+		}
+
+		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			bool found = false;
+
+			if (prerequisite(Value))
+			{
+				Value = replacement(Value);
+				found = true;
+			}
+			if (Value.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 	}
 }

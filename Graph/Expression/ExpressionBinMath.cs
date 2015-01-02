@@ -7,8 +7,8 @@ namespace BefunCompile.Graph.Expression
 {
 	public class ExpressionBinMath : BCExpression
 	{
-		public readonly BCExpression ValueA;
-		public readonly BCExpression ValueB;
+		public BCExpression ValueA;
+		public BCExpression ValueB;
 
 		public readonly BinaryMathType Type;
 
@@ -55,7 +55,31 @@ namespace BefunCompile.Graph.Expression
 
 		public override string getRepresentation()
 		{
-			return "(" + ValueA.getRepresentation() + " + " + ValueB.getRepresentation() + ")";
+			char op;
+			switch (Type)
+			{
+				case BinaryMathType.ADD:
+					op = '+';
+					break;
+				case BinaryMathType.SUB:
+					op = '-';
+					break;
+				case BinaryMathType.MUL:
+					op = '*';
+					break;
+				case BinaryMathType.DIV:
+					op = '/';
+					break;
+				case BinaryMathType.GT:
+					op = '>';
+					break;
+				case BinaryMathType.MOD:
+					op = '%';
+					break;
+				default:
+					throw new ArgumentException();
+			}
+			return "(" + ValueA.getRepresentation() + " " + op.ToString() + " " + ValueB.getRepresentation() + ")";
 		}
 
 		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
@@ -66,6 +90,33 @@ namespace BefunCompile.Graph.Expression
 		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
 		{
 			return ValueA.listDynamicVariableAccess().Concat(ValueB.listDynamicVariableAccess());
+		}
+
+		public override bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			bool found = false;
+
+			if (prerequisite(ValueA))
+			{
+				ValueA = replacement(ValueA);
+				found = true;
+			}
+			if (ValueA.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			if (prerequisite(ValueB))
+			{
+				ValueB = replacement(ValueB);
+				found = true;
+			}
+			if (ValueB.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 	}
 }
