@@ -40,6 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BefunCompiler.cs" />
+    <Compile Include="Exceptions\CodeGenException.cs" />
+    <Compile Include="Exceptions\SelfModificationException.cs" />
+    <Compile Include="Exceptions\GraphGenException.cs" />
     <Compile Include="Graph\BCDirection.cs" />
     <Compile Include="Graph\BCExprModRule.cs" />
     <Compile Include="Graph\BCGraph.cs" />
@@ -75,6 +78,7 @@
     <Compile Include="Graph\Vertex\BCVertexFullVarGet.cs" />
     <Compile Include="Graph\Vertex\BCVertexFullVarSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexTotalVarSet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexRandom.cs" />
     <Compile Include="Math\Vec2l.cs" />
     <Compile Include="Math\CustomLinq.cs" />
     <Compile Include="Math\Vec2i.cs" />

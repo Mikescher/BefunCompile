@@ -1,4 +1,5 @@
-﻿using BefunCompile.Graph;
+﻿using BefunCompile.Exceptions;
+using BefunCompile.Graph;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -13,18 +14,26 @@ namespace BefunCompile
 		private int width;
 		private int height;
 
+		public readonly bool ignoreSelfModification;
+		public readonly bool implementSafeStackAccess;
+		public readonly bool implementSafeGridAccess;
+
 		public int log_Cycles_Minimize { get; private set; }
 		public int log_Cycles_Substitute { get; private set; }
 		public int log_Cycles_Flatten { get; private set; }
 		public int log_Cycles_Variablize { get; private set; }
 
-		public BefunCompiler(string befsource)
+		public BefunCompiler(string befsource, bool ignoreSelfMod, bool safeStackAcc, bool safeGridAcc)
 		{
 			this.source = befsource;
 			this.sourceGrid = stringToCharArr(source);
 
 			width = sourceGrid.GetLength(0);
 			height = sourceGrid.GetLength(1);
+
+			this.ignoreSelfModification = ignoreSelfMod;
+			this.implementSafeStackAccess = safeStackAcc;
+			this.implementSafeGridAccess = safeGridAcc;
 		}
 
 		private long[,] stringToCharArr(string str)
@@ -54,6 +63,16 @@ namespace BefunCompile
 				return 0;
 			else
 				return sourceGrid[x, y];
+		}
+
+		public BCGraph generateGraph()
+		{
+			return generateVariablizedGraph(-1);
+		}
+
+		public string GenerateCode()
+		{
+			return generateGraph().GenerateCode(implementSafeGridAccess, implementSafeStackAccess);
 		}
 
 		public BCGraph generateUntouchedGraph() // O:0
@@ -180,6 +199,14 @@ namespace BefunCompile
 
 			var constGets = graph.listConstantVariableAccess().ToList();
 			var dynamGets = graph.listDynamicVariableAccess().ToList();
+
+			var accessPositions = constGets.Select(p => p.getConstantPos()).ToList();
+			var codePositions = graph.getAllCodePositions().ToList();
+
+			if (!ignoreSelfModification && accessPositions.Any(p => codePositions.Contains(p)))
+			{
+				throw new SelfModificationException();
+			}
 
 			if (dynamGets.Count == 0)
 				graph.SubstituteConstMemoryAccess(GetGridValue);

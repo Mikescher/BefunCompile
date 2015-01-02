@@ -127,7 +127,7 @@ namespace BefunCompile.Graph
 					return new BCVertexNOP(d, pos);
 				case '?':
 					outgoingEdges = new BCDirection[] { BCDirection.FROM_LEFT, BCDirection.FROM_TOP, BCDirection.FROM_RIGHT, BCDirection.FROM_BOTTOM };
-					return new BCVertexNOP(d, pos);
+					return new BCVertexRandom(d, pos);
 
 				case '.':
 				case ',':

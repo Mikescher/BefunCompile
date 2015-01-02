@@ -4,6 +4,7 @@ using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace BefunCompile.Graph
 {
@@ -62,6 +63,9 @@ namespace BefunCompile.Graph
 			{
 				if (!v.TestParents())
 					return false;
+
+				if (v is BCVertexRandom && v.children.Count != 4)
+					return false;
 			}
 
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
@@ -87,9 +91,9 @@ namespace BefunCompile.Graph
 			return true;
 		}
 
-		public List<Vec2i> getAllCodePositions()
+		public List<Vec2l> getAllCodePositions()
 		{
-			return vertices.SelectMany(p => p.positions).Distinct().ToList();
+			return vertices.SelectMany(p => p.positions).Select(p => new Vec2l(p.X, p.Y)).Distinct().ToList();
 		}
 
 		#region O:1 Minimize
@@ -374,7 +378,7 @@ namespace BefunCompile.Graph
 			rule4.AddRep((l, p) => { var v = l[0].Duplicate(); v.positions = p; return v; });
 
 			var rule5 = new BCModRule();
-			rule5.AddPreq(v => !(v is BCVertexDecision || v is BCVertexFullDecision) && v.isOnlyStackManipulation());
+			rule5.AddPreq(v => !(v is BCVertexDecision || v is BCVertexFullDecision || v is BCVertexRandom) && v.isOnlyStackManipulation());
 			rule5.AddPreq(v => (v is BCVertexTotalSet || v is BCVertexTotalVarSet));
 			rule5.AddRep((l, p) => l[1].Duplicate());
 			rule5.AddRep((l, p) => l[0].Duplicate());
@@ -522,6 +526,68 @@ namespace BefunCompile.Graph
 					changed = b1 || b2 || b3 || b4;
 				}
 			}
+		}
+
+		#endregion
+
+		#region CodeGeneration
+
+		public string GenerateCode(bool implementSafeStackAccess, bool implementSafeGridAccess)
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			codebuilder.Append(GenerateGridAccess(implementSafeGridAccess));
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateGridAccess(bool implementSafeGridAccess)
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			codebuilder.AppendLine(@"private static readonly Int64[,] g = " + GenerateGridInitializer() + ";");
+
+			if (implementSafeGridAccess)
+			{
+				string w = Width.ToString("X");
+				string h = Height.ToString("X");
+
+				codebuilder.AppendLine(@"private static long ga(Int64 x, Int64 y) { (x>=0&&y>=0&&x<gw&&y<gw)?(return g[y, x]):0; }".Replace("gw", w).Replace("gh", h));
+				codebuilder.AppendLine(@"private static void ga(Int64 x,Int64 y,Int64 v){if(x>=0&&y>=0&&x<gw&&y<gw)g[y, x]=v;}".Replace("gw", w).Replace("gh", h));
+			}
+			else
+			{
+				codebuilder.AppendLine(@"private static Int64 ga(Int64 x,Int64 y) {return g[y, x];}");
+				codebuilder.AppendLine(@"private static void ga(Int64 x,Int64 y,Int64 v){g[y, x]=v;}");
+			}
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateGridInitializer()
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			codebuilder.Append('{');
+			for (int y = 0; y < Height; y++)
+			{
+				if (y != 0)
+					codebuilder.Append(',');
+
+				codebuilder.Append('{');
+				for (int x = 0; x < Width; x++)
+				{
+					if (x != 0)
+						codebuilder.Append(',');
+
+					codebuilder.Append("0x");
+					codebuilder.Append(SourceGrid[x, y].ToString("X"));
+				}
+				codebuilder.Append('}');
+			}
+			codebuilder.Append('}');
+
+			return codebuilder.ToString();
 		}
 
 		#endregion
