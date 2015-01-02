@@ -132,7 +132,7 @@ namespace BefunCompile.Graph.Expression
 				case BinaryMathType.DIV:
 					return "td(" + ValueA.GenerateCode(g) + "," + ValueB.GenerateCode(g) + ")";
 				case BinaryMathType.GT:
-					return "(((" + ValueA.GenerateCode(g) + ")>(" + ValueB.GenerateCode(g) + "))>0?1:0)";
+					return "(((" + ValueA.GenerateCode(g) + ")>(" + ValueB.GenerateCode(g) + "))?1:0)";
 				case BinaryMathType.MOD:
 					return "tm(" + ValueA.GenerateCode(g) + "," + ValueB.GenerateCode(g) + ")";
 				default:

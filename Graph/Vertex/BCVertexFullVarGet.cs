@@ -25,7 +25,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return Variable.getRepresentation();
+			return "GET(" + Variable.getRepresentation() + ")";
 		}
 
 		public override BCVertex Duplicate()

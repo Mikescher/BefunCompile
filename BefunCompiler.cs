@@ -17,6 +17,7 @@ namespace BefunCompile
 		public readonly bool ignoreSelfModification;
 		public readonly bool implementSafeStackAccess;
 		public readonly bool implementSafeGridAccess;
+		public readonly bool formatOutput;
 
 		public int log_Cycles_Minimize { get; private set; }
 		public int log_Cycles_Substitute { get; private set; }
@@ -24,7 +25,7 @@ namespace BefunCompile
 		public int log_Cycles_Variablize { get; private set; }
 		public int log_Cycles_CombineBlocks { get; private set; }
 
-		public BefunCompiler(string befsource, bool ignoreSelfMod, bool safeStackAcc, bool safeGridAcc)
+		public BefunCompiler(string befsource, bool fmtOut, bool ignoreSelfMod, bool safeStackAcc, bool safeGridAcc)
 		{
 			this.source = befsource;
 			this.sourceGrid = stringToCharArr(source);
@@ -35,6 +36,7 @@ namespace BefunCompile
 			this.ignoreSelfModification = ignoreSelfMod;
 			this.implementSafeStackAccess = safeStackAcc;
 			this.implementSafeGridAccess = safeGridAcc;
+			this.formatOutput = fmtOut;
 		}
 
 		private long[,] stringToCharArr(string str)
@@ -73,7 +75,7 @@ namespace BefunCompile
 
 		public string GenerateCode()
 		{
-			return generateGraph().GenerateCode(implementSafeGridAccess, implementSafeStackAccess);
+			return generateGraph().GenerateCode(formatOutput, implementSafeGridAccess, implementSafeStackAccess);
 		}
 
 		public BCGraph generateUntouchedGraph() // O:0

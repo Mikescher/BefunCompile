@@ -562,8 +562,17 @@ namespace BefunCompile.Graph
 
 		#region CodeGeneration
 
-		public string GenerateCode(bool implementSafeStackAccess, bool implementSafeGridAccess)
+		public string GenerateCode(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
 		{
+			string indent1 = "    ";
+			string indent2 = "    " + "    ";
+
+			if (!fmtOutput)
+			{
+				indent1 = "";
+				indent2 = "";
+			}
+
 			StringBuilder codebuilder = new StringBuilder();
 
 			if (listDynamicVariableAccess().Count() > 0)
@@ -571,32 +580,36 @@ namespace BefunCompile.Graph
 			codebuilder.Append(GenerateStackAccess(implementSafeStackAccess));
 			codebuilder.Append(GenerateHelperMethods());
 
-
 			codebuilder.AppendLine("static void Main(string[] args)");
 			codebuilder.AppendLine("{");
 
 			foreach (var variable in variables)
 			{
-				codebuilder.AppendLine("long " + variable.Identifier + "=0x" + variable.initial.ToString("X") + ";");
+				codebuilder.AppendLine(indent2 + "long " + variable.Identifier + "=0x" + variable.initial.ToString("X") + ";");
 			}
 
-			codebuilder.AppendLine("goto _" + vertices.IndexOf(root) + ";");
+			codebuilder.AppendLine(indent2 + "goto _" + vertices.IndexOf(root) + ";");
 
 			for (int i = 0; i < vertices.Count; i++)
 			{
-				codebuilder.AppendLine("_" + i + ":");
+				codebuilder.AppendLine(indent1 + "_" + i + ":");
 
-				codebuilder.AppendLine(vertices[i].GenerateCode(this));
+				codebuilder.AppendLine(indent(vertices[i].GenerateCode(this), indent2));
 
 				if (vertices[i].children.Count == 1)
-					codebuilder.AppendLine("goto _" + vertices.IndexOf(vertices[i].children[0]) + ";");
+					codebuilder.AppendLine(indent2 + "goto _" + vertices.IndexOf(vertices[i].children[0]) + ";");
 				else if (vertices[i].children.Count == 0)
-					codebuilder.AppendLine("return;");
+					codebuilder.AppendLine(indent2 + "return;");
 			}
 
 			codebuilder.AppendLine("}");
 
-			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries));
+			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
+		}
+
+		private string indent(string code, string indent)
+		{
+			return string.Join(Environment.NewLine, code.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).Select(p => indent + p));
 		}
 
 		private string GenerateHelperMethods()

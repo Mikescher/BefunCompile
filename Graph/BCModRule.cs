@@ -89,7 +89,7 @@ namespace BefunCompile.Graph
 			bool isRoot = (chainFirst == g.root);
 			bool isLeaf = (chainLast.children.Count == 0);
 
-			if (repChain.Length == 0 && isRoot && isLeaf)
+			if (repChain.Length == 0 && (isRoot || isLeaf))
 				repChain = new BCVertex[] { new BCVertexNOP(BCDirection.UNKNOWN, posarr) };
 
 			if (chainLast.children.Contains(chainFirst))
@@ -169,7 +169,7 @@ namespace BefunCompile.Graph
 				}
 
 				if (isRoot)
-					g.root = repChainFirst;
+					g.root = next[0];
 			}
 
 			g.vertices.RemoveAll(p => chain.Contains(p));
