@@ -17,14 +17,14 @@ namespace BefunCompile.Graph.Expression
 			ExpressionNot r = new ExpressionNot(v);
 
 			if (v is ExpressionConstant)
-				return ExpressionConstant.Create(r.Calculate());
+				return ExpressionConstant.Create(r.Calculate(null));
 			else
 				return r;
 		}
 
-		public override long Calculate()
+		public override long Calculate(CalculateInterface ci)
 		{
-			return (Value.Calculate() != 0) ? (0) : (1);
+			return (Value.Calculate(ci) != 0) ? (0) : (1);
 		}
 
 		public override string getRepresentation()

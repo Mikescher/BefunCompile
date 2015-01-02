@@ -53,12 +53,12 @@ namespace BefunCompile.Graph.Vertex
 			return Value.listDynamicVariableAccess();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
 			if (ModeInteger)
-				outbuilder.Append(Value.Calculate());
+				outbuilder.Append(Value.Calculate(ci));
 			else
-				outbuilder.Append((char)(Value.Calculate()));
+				outbuilder.Append((char)(Value.Calculate(ci)));
 
 			if (children.Count > 1)
 				throw new ArgumentException("#");
@@ -81,6 +81,11 @@ namespace BefunCompile.Graph.Vertex
 			}
 
 			return found;
+		}
+
+		public override bool isOnlyStackManipulation()
+		{
+			return false;
 		}
 	}
 }

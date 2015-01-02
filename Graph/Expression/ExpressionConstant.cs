@@ -18,7 +18,7 @@ namespace BefunCompile.Graph.Expression
 			return new ExpressionConstant(v);
 		}
 
-		public override long Calculate()
+		public override long Calculate(CalculateInterface ci)
 		{
 			return Value;
 		}

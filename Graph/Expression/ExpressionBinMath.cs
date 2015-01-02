@@ -24,15 +24,15 @@ namespace BefunCompile.Graph.Expression
 			ExpressionBinMath r = new ExpressionBinMath(a, b, t);
 
 			if (a is ExpressionConstant && b is ExpressionConstant)
-				return ExpressionConstant.Create(r.Calculate());
+				return ExpressionConstant.Create(r.Calculate(null));
 			else
 				return r;
 		}
 
-		public override long Calculate()
+		public override long Calculate(CalculateInterface ci)
 		{
-			long cA = ValueA.Calculate();
-			long cB = ValueB.Calculate();
+			long cA = ValueA.Calculate(ci);
+			long cB = ValueB.Calculate(ci);
 
 			switch (Type)
 			{

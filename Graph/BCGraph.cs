@@ -15,6 +15,17 @@ namespace BefunCompile.Graph
 
 		public List<ExpressionVariable> variables = new List<ExpressionVariable>();
 
+		public readonly long[,] SourceGrid;
+		public readonly long Width;
+		public readonly long Height;
+
+		public BCGraph(long[,] sg, long w, long h)
+		{
+			this.SourceGrid = sg;
+			this.Width = w;
+			this.Height = h;
+		}
+
 		public BCVertex getVertex(Vec2i pos, BCDirection dir)
 		{
 			return vertices.FirstOrDefault(p =>
@@ -348,8 +359,8 @@ namespace BefunCompile.Graph
 			rule4.AddRep((l, p) => l[0].Duplicate());
 
 			var rule5 = new BCModRule();
-			rule5.AddPreq(v => !(v is BCVertexDecision || v is BCVertexFullDecision || v is BCVertexTotalSet));
-			rule5.AddPreq(v => v is BCVertexTotalSet);
+			rule5.AddPreq(v => !(v is BCVertexDecision || v is BCVertexFullDecision) && v.isOnlyStackManipulation());
+			rule5.AddPreq(v => (v is BCVertexTotalSet || v is BCVertexTotalVarSet));
 			rule5.AddRep((l, p) => l[1].Duplicate());
 			rule5.AddRep((l, p) => l[0].Duplicate());
 
@@ -458,7 +469,7 @@ namespace BefunCompile.Graph
 			var ios = listConstantVariableAccess().ToList();
 
 			variables = ios
-				.Select(p => new Vec2l(p.getX().Calculate(), p.getY().Calculate()))
+				.Select(p => new Vec2l(p.getX().Calculate(null), p.getY().Calculate(null)))
 				.Distinct()
 				.Select((p, i) => ExpressionVariable.Create("var" + i, gridGetter(p.X, p.Y), p))
 				.ToList();

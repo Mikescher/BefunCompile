@@ -41,9 +41,16 @@ namespace BefunCompile.Graph.Vertex
 			return new MemoryAccess[] { this };
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
-			throw new System.NotImplementedException();
+			var yy = stackbuilder.Pop();
+			var xx = stackbuilder.Pop();
+
+			stackbuilder.Push(ci.GetGridValue(xx, yy));
+
+			if (children.Count > 1)
+				throw new ArgumentException("#");
+			return children.FirstOrDefault();
 		}
 
 		public BCExpression getX()
@@ -59,15 +66,20 @@ namespace BefunCompile.Graph.Vertex
 		public Vec2l getConstantPos()
 		{
 			BCExpression xx = getX();
-			BCExpression yy = getX();
+			BCExpression yy = getY();
 
 			if (xx == null || yy == null || !(xx is ExpressionConstant) || !(yy is ExpressionConstant))
 				return null;
 			else
-				return new Vec2l(getX().Calculate(), getY().Calculate());
+				return new Vec2l(getX().Calculate(null), getY().Calculate(null));
 		}
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
+		{
+			return false;
+		}
+
+		public override bool isOnlyStackManipulation()
 		{
 			return false;
 		}

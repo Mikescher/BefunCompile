@@ -159,11 +159,13 @@ namespace BefunCompile.Graph
 		}
 
 		public abstract BCVertex Duplicate();
-		public abstract BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder);
+		public abstract BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci);
 
 		public abstract IEnumerable<MemoryAccess> listConstantVariableAccess();
 		public abstract IEnumerable<MemoryAccess> listDynamicVariableAccess();
 
 		public abstract bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
+
+		public abstract bool isOnlyStackManipulation();
 	}
 }

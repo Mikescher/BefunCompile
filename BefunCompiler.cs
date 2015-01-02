@@ -61,10 +61,7 @@ namespace BefunCompile
 			List<BCVertex> all = new List<BCVertex>();
 			var unfinished = new Stack<Tuple<BCVertex, Vec2i, BCDirection>>(); /*<parent, position, direction>*/
 
-			int width = sourceGrid.GetLength(0);
-			int height = sourceGrid.GetLength(1);
-
-			BCGraph graph = new BCGraph();
+			BCGraph graph = new BCGraph(sourceGrid, width, height);
 
 			{
 				BCDirection[] next;

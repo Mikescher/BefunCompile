@@ -88,12 +88,6 @@ namespace BefunCompile.Graph.Vertex
 			return mtype.ToString();
 		}
 
-
-		public long Calc(BCVertexPush a, BCVertexPush b) // Reihenfolge:   a  b  +
-		{
-			return Calc(a.Value.Calculate(), b.Value.Calculate());
-		}
-
 		public long Calc(long a, long b) // Reihenfolge:   a  b  +
 		{
 			switch (mtype)
@@ -130,7 +124,7 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
 			var b = stackbuilder.Pop();
 			var a = stackbuilder.Pop();
@@ -145,6 +139,11 @@ namespace BefunCompile.Graph.Vertex
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
 		{
 			return false;
+		}
+
+		public override bool isOnlyStackManipulation()
+		{
+			return true;
 		}
 	}
 }

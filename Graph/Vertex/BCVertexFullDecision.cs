@@ -49,9 +49,9 @@ namespace BefunCompile.Graph.Vertex
 			return Value.listDynamicVariableAccess();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
-			var v = Value.Calculate() != 0;
+			var v = Value.Calculate(ci) != 0;
 
 			return v ? edgeTrue : edgeFalse;
 		}
@@ -72,6 +72,11 @@ namespace BefunCompile.Graph.Vertex
 			}
 
 			return found;
+		}
+
+		public override bool isOnlyStackManipulation()
+		{
+			return false;
 		}
 	}
 }

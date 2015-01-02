@@ -24,9 +24,9 @@ namespace BefunCompile.Graph.Expression
 			return new ExpressionVariable(ident, init, pos);
 		}
 
-		public override long Calculate()
+		public override long Calculate(CalculateInterface ci)
 		{
-			throw new NotImplementedException();
+			return ci.GetVariableValue(this);
 		}
 
 		public override string getRepresentation()
@@ -57,12 +57,12 @@ namespace BefunCompile.Graph.Expression
 		public Vec2l getConstantPos()
 		{
 			BCExpression xx = getX();
-			BCExpression yy = getX();
+			BCExpression yy = getY();
 
 			if (xx == null || yy == null || !(xx is ExpressionConstant) || !(yy is ExpressionConstant))
 				return null;
 			else
-				return new Vec2l(getX().Calculate(), getY().Calculate());
+				return new Vec2l(getX().Calculate(null), getY().Calculate(null));
 		}
 
 		public override bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)

@@ -6,7 +6,12 @@ namespace BefunCompile.Graph.Expression
 	public abstract class BCExpression
 	{
 		public abstract String getRepresentation();
-		public abstract long Calculate();
+
+		//public long Calculate()
+		//{
+		//	return Calculate(null);
+		//}
+		public abstract long Calculate(CalculateInterface ci);
 
 		public abstract IEnumerable<MemoryAccess> listConstantVariableAccess();
 		public abstract IEnumerable<MemoryAccess> listDynamicVariableAccess();

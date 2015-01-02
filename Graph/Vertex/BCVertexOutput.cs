@@ -49,7 +49,7 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
 			var c = stackbuilder.Pop();
 
@@ -66,6 +66,11 @@ namespace BefunCompile.Graph.Vertex
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
 		{
 			return false;
+		}
+
+		public override bool isOnlyStackManipulation()
+		{
+			return true;
 		}
 	}
 }
