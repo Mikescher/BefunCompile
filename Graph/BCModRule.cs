@@ -165,6 +165,16 @@ namespace BefunCompile.Graph
 			g.vertices.RemoveAll(p => chain.Contains(p));
 			g.vertices.AddRange(repChain);
 
+			if (repChain.Length == 0)
+			{
+				if (next.Length > 0)
+					next[0].positions = next[0].positions.Concat(posarr).Distinct().ToArray();
+				else if (prev.Length > 0)
+					prev[0].positions = prev[0].positions.Concat(posarr).Distinct().ToArray();
+				else
+					throw new ArgumentException("We lost a code point :( ");
+			}
+
 			return true;
 		}
 

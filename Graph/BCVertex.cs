@@ -10,7 +10,7 @@ namespace BefunCompile.Graph
 	public abstract class BCVertex
 	{
 		public readonly BCDirection direction;
-		public readonly Vec2i[] positions;
+		public Vec2i[] positions;
 
 		public List<BCVertex> children = new List<BCVertex>();
 

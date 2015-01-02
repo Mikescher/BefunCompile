@@ -87,7 +87,12 @@ namespace BefunCompile.Graph
 			return true;
 		}
 
-		#region Minimize
+		public List<Vec2i> getAllCodePositions()
+		{
+			return vertices.SelectMany(p => p.positions).Distinct().ToList();
+		}
+
+		#region O:1 Minimize
 
 		public bool Minimize()
 		{
@@ -133,6 +138,8 @@ namespace BefunCompile.Graph
 					prev.children.Add(next);
 					next.parents.Add(prev);
 
+					next.positions = next.positions.Concat(vertex.positions).Distinct().ToArray();
+
 					if (vertex == root)
 						root = next;
 				}
@@ -177,6 +184,8 @@ namespace BefunCompile.Graph
 						next.parents.Add(pvertex);
 					}
 
+					next.positions = next.positions.Concat(vertex.positions).Distinct().ToArray();
+
 					if (vertex == root)
 						root = next;
 				}
@@ -202,6 +211,8 @@ namespace BefunCompile.Graph
 
 				vertices.Remove(vertex);
 
+				vertex.children[0].positions = vertex.children[0].positions.Concat(vertex.positions).ToArray();
+
 				vertex.children[0].parents.Clear();
 				root = vertex.children[0];
 			}
@@ -221,6 +232,8 @@ namespace BefunCompile.Graph
 					removed.Add(vertex);
 					vertex.children.Clear();
 					vertex.parents.Clear();
+
+					prev.positions = prev.positions.Concat(vertex.positions).Distinct().ToArray();
 
 					prev.children.Remove(vertex);
 				}
@@ -263,6 +276,8 @@ namespace BefunCompile.Graph
 					prev.children.Add(next);
 					next.parents.Add(prev);
 
+					next.positions = next.positions.Concat(vertex.positions).Distinct().ToArray();
+
 					if (isDTrue)
 						prev.edgeTrue = next;
 					else
@@ -283,7 +298,7 @@ namespace BefunCompile.Graph
 
 		#endregion
 
-		#region Substitute
+		#region O:2 Substitute
 
 		public bool Substitute()
 		{
@@ -331,7 +346,7 @@ namespace BefunCompile.Graph
 
 		#endregion
 
-		#region Flatten
+		#region O:3 Flatten
 
 		public bool FlattenStack()
 		{
@@ -356,7 +371,7 @@ namespace BefunCompile.Graph
 			rule4.AddPreq(v => v is BCVertexFullGet);
 			rule4.AddPreq(v => v is BCVertexDup);
 			rule4.AddRep((l, p) => l[0].Duplicate());
-			rule4.AddRep((l, p) => l[0].Duplicate());
+			rule4.AddRep((l, p) => { var v = l[0].Duplicate(); v.positions = p; return v; });
 
 			var rule5 = new BCModRule();
 			rule5.AddPreq(v => !(v is BCVertexDecision || v is BCVertexFullDecision) && v.isOnlyStackManipulation());
@@ -452,7 +467,7 @@ namespace BefunCompile.Graph
 
 		#endregion
 
-		#region Variablize
+		#region O:4 Variablize
 
 		public IEnumerable<MemoryAccess> listConstantVariableAccess()
 		{
