@@ -16,7 +16,10 @@ namespace BefunCompile.Graph.Expression
 		public abstract IEnumerable<MemoryAccess> listConstantVariableAccess();
 		public abstract IEnumerable<MemoryAccess> listDynamicVariableAccess();
 
+		public abstract bool isOnlyStackManipulation();
 		public abstract bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
+
+		public abstract string GenerateCode(BCGraph g);
 
 		public override string ToString()
 		{

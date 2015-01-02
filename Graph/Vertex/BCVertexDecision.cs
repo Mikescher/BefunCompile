@@ -31,8 +31,8 @@ namespace BefunCompile.Graph.Vertex
 			if (children.Count != 2)
 				throw new Exception("Decision needs 2 children");
 
-			edgeTrue = children.First(p => p.direction == BCDirection.FROM_RIGHT || p.direction == BCDirection.FROM_BOTTOM);
-			edgeFalse = children.First(p => p.direction == BCDirection.FROM_LEFT || p.direction == BCDirection.FROM_TOP);
+			edgeTrue = children.First(p => p.positions[0].X < positions[0].X || p.positions[0].Y < positions[0].Y);
+			edgeFalse = children.First(p => p.positions[0].X > positions[0].X || p.positions[0].Y > positions[0].Y);
 		}
 
 		public override string ToString()
@@ -70,6 +70,11 @@ namespace BefunCompile.Graph.Vertex
 		public override bool isOnlyStackManipulation()
 		{
 			return false;
+		}
+
+		public override string GenerateCode(BCGraph g)
+		{
+			return string.Format("if(sp()!=0)goto _{0}; else goto _{1};", g.vertices.IndexOf(edgeTrue), g.vertices.IndexOf(edgeFalse));
 		}
 	}
 }

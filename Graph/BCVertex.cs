@@ -167,5 +167,6 @@ namespace BefunCompile.Graph
 		public abstract bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
 
 		public abstract bool isOnlyStackManipulation();
+		public abstract string GenerateCode(BCGraph g);
 	}
 }

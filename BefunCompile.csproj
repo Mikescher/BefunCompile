@@ -79,6 +79,7 @@
     <Compile Include="Graph\Vertex\BCVertexFullVarSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexTotalVarSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexRandom.cs" />
+    <Compile Include="Graph\Vertex\BCVertexBlock.cs" />
     <Compile Include="Math\Vec2l.cs" />
     <Compile Include="Math\CustomLinq.cs" />
     <Compile Include="Math\Vec2i.cs" />

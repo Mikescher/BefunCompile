@@ -66,6 +66,12 @@ namespace BefunCompile.Graph
 
 				if (v is BCVertexRandom && v.children.Count != 4)
 					return false;
+
+				if (v is BCVertexDecision && !v.children.Contains((v as BCVertexDecision).edgeTrue))
+					return false;
+
+				if (v is BCVertexDecision && !v.children.Contains((v as BCVertexDecision).edgeFalse))
+					return false;
 			}
 
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
@@ -83,6 +89,9 @@ namespace BefunCompile.Graph
 			}
 
 			if (travelled.Count != vertices.Count)
+				return false;
+
+			if (travelled.Any(p => !vertices.Contains(p)))
 				return false;
 
 			if (vertices.Count(p => p.parents.Count == 0) > 1)
@@ -478,7 +487,7 @@ namespace BefunCompile.Graph
 			return vertices.SelectMany(p => p.listConstantVariableAccess());
 		}
 
-		public IEnumerable<MemoryAccess> listDynamicVariableAccess() // auch gets intern beachten
+		public IEnumerable<MemoryAccess> listDynamicVariableAccess()
 		{
 			return vertices.SelectMany(p => p.listDynamicVariableAccess());
 		}
@@ -490,7 +499,7 @@ namespace BefunCompile.Graph
 			variables = ios
 				.Select(p => new Vec2l(p.getX().Calculate(null), p.getY().Calculate(null)))
 				.Distinct()
-				.Select((p, i) => ExpressionVariable.Create("var" + i, gridGetter(p.X, p.Y), p))
+				.Select((p, i) => ExpressionVariable.Create("x" + i, gridGetter(p.X, p.Y), p))
 				.ToList();
 
 			Dictionary<Vec2l, ExpressionVariable> vardic = new Dictionary<Vec2l, ExpressionVariable>();
@@ -530,13 +539,96 @@ namespace BefunCompile.Graph
 
 		#endregion
 
+		#region O:5 Combination
+
+		public bool CombineBlocks()
+		{
+			var ruleSubstitute = new BCModRule(false);
+			ruleSubstitute.AddPreq(v => v.children.Count <= 1 && !(v is BCVertexBlock));
+			ruleSubstitute.AddRep((l, p) => new BCVertexBlock(BCDirection.UNKNOWN, p, l[0]));
+
+			var ruleCombine = new BCModRule(false);
+			ruleCombine.AddPreq(v => v is BCVertexBlock);
+			ruleCombine.AddPreq(v => v is BCVertexBlock);
+			ruleCombine.AddRep((l, p) => new BCVertexBlock(BCDirection.UNKNOWN, p, l[0] as BCVertexBlock, l[1] as BCVertexBlock));
+
+			bool b1 = ruleSubstitute.Execute(this);
+			bool b2 = ruleCombine.Execute(this);
+
+			return b1 || b2;
+		}
+
+		#endregion
+
 		#region CodeGeneration
 
 		public string GenerateCode(bool implementSafeStackAccess, bool implementSafeGridAccess)
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			codebuilder.Append(GenerateGridAccess(implementSafeGridAccess));
+			if (listDynamicVariableAccess().Count() > 0)
+				codebuilder.Append(GenerateGridAccess(implementSafeGridAccess));
+			codebuilder.Append(GenerateStackAccess(implementSafeStackAccess));
+			codebuilder.Append(GenerateHelperMethods());
+
+
+			codebuilder.AppendLine("static void Main(string[] args)");
+			codebuilder.AppendLine("{");
+
+			foreach (var variable in variables)
+			{
+				codebuilder.AppendLine("long " + variable.Identifier + "=0x" + variable.initial.ToString("X") + ";");
+			}
+
+			codebuilder.AppendLine("goto _" + vertices.IndexOf(root) + ";");
+
+			for (int i = 0; i < vertices.Count; i++)
+			{
+				codebuilder.AppendLine("_" + i + ":");
+
+				codebuilder.AppendLine(vertices[i].GenerateCode(this));
+
+				if (vertices[i].children.Count == 1)
+					codebuilder.AppendLine("goto _" + vertices.IndexOf(vertices[i].children[0]) + ";");
+				else if (vertices[i].children.Count == 0)
+					codebuilder.AppendLine("return;");
+			}
+
+			codebuilder.AppendLine("}");
+
+			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries));
+		}
+
+		private string GenerateHelperMethods()
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			codebuilder.AppendLine(@"private static readonly System.Random r = new System.Random();");
+			codebuilder.AppendLine(@"private static bool rd(){ return r.Next(2)!=0; }");
+
+			codebuilder.AppendLine(@"private static long td(long a,long b){ return (b==0)?0:(a/b); }");
+			codebuilder.AppendLine(@"private static long tm(long a,long b){ return (b==0)?0:(a%b); }");
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateStackAccess(bool implementSafeStackAccess)
+		{
+			var codebuilder = new StringBuilder();
+
+			codebuilder.AppendLine("private static System.Collections.Generic.Stack<long> s=new System.Collections.Generic.Stack<long>();");
+
+			if (implementSafeStackAccess)
+			{
+				throw new NotImplementedException();
+				//TODO dodo
+			}
+			else
+			{
+				codebuilder.AppendLine(@"private static long sp(){ return s.Pop(); }");
+				codebuilder.AppendLine(@"private static void sa(long v){ s.Push(v); }");
+				codebuilder.AppendLine(@"private static long sr(){ return s.Peek(); }");
+			}
 
 			return codebuilder.ToString();
 		}
@@ -545,20 +637,20 @@ namespace BefunCompile.Graph
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(@"private static readonly Int64[,] g = " + GenerateGridInitializer() + ";");
+			codebuilder.AppendLine(@"private static readonly long[,] g = " + GenerateGridInitializer() + ";");
 
 			if (implementSafeGridAccess)
 			{
 				string w = Width.ToString("X");
 				string h = Height.ToString("X");
 
-				codebuilder.AppendLine(@"private static long ga(Int64 x, Int64 y) { (x>=0&&y>=0&&x<gw&&y<gw)?(return g[y, x]):0; }".Replace("gw", w).Replace("gh", h));
-				codebuilder.AppendLine(@"private static void ga(Int64 x,Int64 y,Int64 v){if(x>=0&&y>=0&&x<gw&&y<gw)g[y, x]=v;}".Replace("gw", w).Replace("gh", h));
+				codebuilder.AppendLine(@"private static long gr(long x,long y){ (x>=0&&y>=0&&x<gw&&y<gw)?(return g[y, x]):0; }".Replace("gw", w).Replace("gh", h));
+				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){if(x>=0&&y>=0&&x<gw&&y<gw)g[y, x]=v;}".Replace("gw", w).Replace("gh", h));
 			}
 			else
 			{
-				codebuilder.AppendLine(@"private static Int64 ga(Int64 x,Int64 y) {return g[y, x];}");
-				codebuilder.AppendLine(@"private static void ga(Int64 x,Int64 y,Int64 v){g[y, x]=v;}");
+				codebuilder.AppendLine(@"private static long gr(long x,long y) {return g[y, x];}");
+				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){g[y, x]=v;}");
 			}
 
 			return codebuilder.ToString();

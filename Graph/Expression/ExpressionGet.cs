@@ -7,13 +7,13 @@ namespace BefunCompile.Graph.Expression
 {
 	public class ExpressionGet : BCExpression, MemoryAccess
 	{
-		public BCExpression PosX;
-		public BCExpression PosY;
+		public BCExpression X;
+		public BCExpression Y;
 
 		private ExpressionGet(BCExpression xx, BCExpression yy)
 		{
-			this.PosX = xx;
-			this.PosY = yy;
+			this.X = xx;
+			this.Y = yy;
 		}
 
 		public static BCExpression Create(BCExpression xx, BCExpression yy)
@@ -23,38 +23,38 @@ namespace BefunCompile.Graph.Expression
 
 		public override long Calculate(CalculateInterface ci)
 		{
-			return ci.GetGridValue(PosX.Calculate(ci), PosY.Calculate(ci));
+			return ci.GetGridValue(X.Calculate(ci), Y.Calculate(ci));
 		}
 
 		public override string getRepresentation()
 		{
-			return "GET(" + PosX.getRepresentation() + ", " + PosY.getRepresentation() + ")";
+			return "GET(" + X.getRepresentation() + ", " + Y.getRepresentation() + ")";
 		}
 
 		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
 		{
-			if (PosX is ExpressionConstant && PosY is ExpressionConstant)
-				return new MemoryAccess[] { this }.Concat(PosX.listConstantVariableAccess()).Concat(PosY.listConstantVariableAccess());
+			if (X is ExpressionConstant && Y is ExpressionConstant)
+				return new MemoryAccess[] { this }.Concat(X.listConstantVariableAccess()).Concat(Y.listConstantVariableAccess());
 			else
-				return PosX.listConstantVariableAccess().Concat(PosY.listConstantVariableAccess());
+				return X.listConstantVariableAccess().Concat(Y.listConstantVariableAccess());
 		}
 
 		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
 		{
-			if (PosX is ExpressionConstant && PosY is ExpressionConstant)
-				return PosX.listDynamicVariableAccess().Concat(PosY.listDynamicVariableAccess());
+			if (X is ExpressionConstant && Y is ExpressionConstant)
+				return X.listDynamicVariableAccess().Concat(Y.listDynamicVariableAccess());
 			else
-				return new MemoryAccess[] { this }.Concat(PosX.listDynamicVariableAccess()).Concat(PosY.listDynamicVariableAccess());
+				return new MemoryAccess[] { this }.Concat(X.listDynamicVariableAccess()).Concat(Y.listDynamicVariableAccess());
 		}
 
 		public BCExpression getX()
 		{
-			return PosX;
+			return X;
 		}
 
 		public BCExpression getY()
 		{
-			return PosY;
+			return Y;
 		}
 
 		public Vec2l getConstantPos()
@@ -72,27 +72,37 @@ namespace BefunCompile.Graph.Expression
 		{
 			bool found = false;
 
-			if (prerequisite(PosX))
+			if (prerequisite(X))
 			{
-				PosX = replacement(PosX);
+				X = replacement(X);
 				found = true;
 			}
-			if (PosX.Subsitute(prerequisite, replacement))
+			if (X.Subsitute(prerequisite, replacement))
 			{
 				found = true;
 			}
 
-			if (prerequisite(PosY))
+			if (prerequisite(Y))
 			{
-				PosY = replacement(PosY);
+				Y = replacement(Y);
 				found = true;
 			}
-			if (PosY.Subsitute(prerequisite, replacement))
+			if (Y.Subsitute(prerequisite, replacement))
 			{
 				found = true;
 			}
 
 			return found;
+		}
+
+		public override string GenerateCode(BCGraph g)
+		{
+			return string.Format("gr({0},{1})", X.GenerateCode(g), Y.GenerateCode(g));
+		}
+
+		public override bool isOnlyStackManipulation()
+		{
+			return false;
 		}
 	}
 }

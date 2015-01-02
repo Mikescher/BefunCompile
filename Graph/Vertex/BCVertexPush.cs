@@ -71,7 +71,12 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool isOnlyStackManipulation()
 		{
-			return false;
+			return Value.isOnlyStackManipulation();
+		}
+
+		public override string GenerateCode(BCGraph g)
+		{
+			return string.Format("sa({0});", Value.GenerateCode(g));
 		}
 	}
 }

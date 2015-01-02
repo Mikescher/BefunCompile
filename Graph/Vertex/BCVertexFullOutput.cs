@@ -87,5 +87,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return false;
 		}
+
+		public override string GenerateCode(BCGraph g)
+		{
+			return string.Format("Console.Out.WriteLine(({0})({1}));", ModeInteger ? "long" : "bool", Value.GenerateCode(g));
+		}
 	}
 }

@@ -63,5 +63,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return true;
 		}
+
+		public override string GenerateCode(BCGraph g)
+		{
+			throw new NotImplementedException();//todo to
+		}
 	}
 }

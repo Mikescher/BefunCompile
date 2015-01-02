@@ -42,5 +42,15 @@ namespace BefunCompile.Graph.Expression
 		{
 			return false;
 		}
+
+		public override string GenerateCode(BCGraph g)
+		{
+			return "0x" + Value.ToString("X");
+		}
+
+		public override bool isOnlyStackManipulation()
+		{
+			return true;
+		}
 	}
 }

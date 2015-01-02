@@ -1,4 +1,5 @@
-﻿using BefunCompile.Graph.Vertex;
+﻿using BefunCompile.Exceptions;
+using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,11 @@ namespace BefunCompile.Graph
 		private List<Func<BCVertex, bool>> prerequisites = new List<Func<BCVertex, bool>>();
 		private List<Func<BCVertex[], Vec2i[], BCVertex>> replacements = new List<Func<BCVertex[], Vec2i[], BCVertex>>();
 
-		public BCModRule()
+		private readonly bool allowPathExtraction;
+
+		public BCModRule(bool allowExtr = true)
 		{
-			//
+			this.allowPathExtraction = allowExtr;
 		}
 
 		public void AddPreq(params Func<BCVertex, bool>[] p)
@@ -59,7 +62,7 @@ namespace BefunCompile.Graph
 
 		public bool Execute(BCGraph g, BCVertex v)
 		{
-			var chainlist = GetMatchingExtractedChain(g, v);
+			var chainlist = allowPathExtraction ? GetMatchingExtractedChain(g, v) : GetMatchingChain(v);
 
 			if (chainlist == null)
 				return false;
@@ -98,6 +101,9 @@ namespace BefunCompile.Graph
 			BCVertex[] prev = chainFirst.parents.ToArray();
 			BCVertex[] next = chainLast.children.ToArray();
 
+			if (repChain.Length == 0 && prev.Any(p => p is BCVertexDecision) && next.Length == 0)
+				repChain = new BCVertex[] { new BCVertexNOP(BCDirection.UNKNOWN, posarr) };
+
 			if (next.Length > 1)
 				return false;
 
@@ -129,8 +135,10 @@ namespace BefunCompile.Graph
 					{
 						if ((sprev as BCVertexDecision).edgeTrue == chainFirst)
 							(sprev as BCVertexDecision).edgeTrue = repChainFirst;
-						if ((sprev as BCVertexDecision).edgeFalse == chainFirst)
+						else if ((sprev as BCVertexDecision).edgeFalse == chainFirst)
 							(sprev as BCVertexDecision).edgeFalse = repChainFirst;
+						else
+							throw new CodeGenException();
 					}
 				}
 
@@ -153,8 +161,10 @@ namespace BefunCompile.Graph
 					{
 						if ((sprev as BCVertexDecision).edgeTrue == chainFirst)
 							(sprev as BCVertexDecision).edgeTrue = next[0];
-						if ((sprev as BCVertexDecision).edgeFalse == chainFirst)
+						else if ((sprev as BCVertexDecision).edgeFalse == chainFirst)
 							(sprev as BCVertexDecision).edgeFalse = next[0];
+						else
+							throw new CodeGenException();
 					}
 				}
 
@@ -203,6 +213,11 @@ namespace BefunCompile.Graph
 			}
 
 			return null;
+		}
+
+		private List<BCVertex> GetMatchingChain(BCVertex v)
+		{
+			return GetMatchingChain(0, v);
 		}
 
 		private List<BCVertex> GetMatchingExtractedChain(BCGraph g, BCVertex v)
@@ -281,6 +296,17 @@ namespace BefunCompile.Graph
 
 				cutCurr.children.Add(newVertex);
 				newVertex.parents.Add(cutCurr);
+
+				if (cutCurr is BCVertexDecision)
+				{
+					if ((cutCurr as BCVertexDecision).edgeTrue == cut)
+						(cutCurr as BCVertexDecision).edgeTrue = newVertex;
+					else if ((cutCurr as BCVertexDecision).edgeFalse == cut)
+						(cutCurr as BCVertexDecision).edgeFalse = newVertex;
+					else
+						throw new ArgumentException("We lost a code point :( ");
+				}
+
 				cutCurr = newVertex;
 			}
 			if (next != null)

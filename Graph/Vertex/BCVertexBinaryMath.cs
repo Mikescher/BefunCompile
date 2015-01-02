@@ -145,5 +145,37 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return true;
 		}
+
+		public override string GenerateCode(BCGraph g)
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+
+			switch (mtype)
+			{
+				case BinaryMathType.ADD:
+					codebuilder.AppendLine("sa(sp()+sp());");
+					break;
+				case BinaryMathType.SUB:
+					codebuilder.AppendLine("{long v0=sp();sa(sp()-v0);}");
+					break;
+				case BinaryMathType.MUL:
+					codebuilder.AppendLine("sa(sp()*sp());");
+					break;
+				case BinaryMathType.DIV:
+					codebuilder.AppendLine("{long v0=sp();sa((v0==0)?0:(sp()/v0));}");
+					break;
+				case BinaryMathType.GT:
+					codebuilder.AppendLine("{long v0=sp();sa((sp()>v0)?1:0);}");
+					break;
+				case BinaryMathType.MOD:
+					codebuilder.AppendLine("{long v0=sp();sa((v0==0)?0:(sp()%v0));}");
+					break;
+				default:
+					throw new Exception("uwotm8");
+			}
+
+			return codebuilder.ToString();
+		}
 	}
 }

@@ -22,6 +22,7 @@ namespace BefunCompile
 		public int log_Cycles_Substitute { get; private set; }
 		public int log_Cycles_Flatten { get; private set; }
 		public int log_Cycles_Variablize { get; private set; }
+		public int log_Cycles_CombineBlocks { get; private set; }
 
 		public BefunCompiler(string befsource, bool ignoreSelfMod, bool safeStackAcc, bool safeGridAcc)
 		{
@@ -67,7 +68,7 @@ namespace BefunCompile
 
 		public BCGraph generateGraph()
 		{
-			return generateVariablizedGraph(-1);
+			return generateBlockCombinedGraph(-1);
 		}
 
 		public string GenerateCode()
@@ -121,7 +122,7 @@ namespace BefunCompile
 			graph.AfterGen();
 			graph.UpdateParents();
 
-			if (!graph.TestGraph())// TODO REM  ??
+			if (!graph.TestGraph())
 				throw new Exception("Internal Parent Exception :( ");
 
 			return graph;
@@ -135,7 +136,7 @@ namespace BefunCompile
 			{
 				bool op = graph.Minimize();
 
-				if (!graph.TestGraph())// TODO REM  ??
+				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
 
 				if (!op)
@@ -157,7 +158,7 @@ namespace BefunCompile
 			{
 				bool op = graph.Substitute();
 
-				if (!graph.TestGraph())// TODO REM  ??
+				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
 
 				if (!op)
@@ -179,7 +180,7 @@ namespace BefunCompile
 			{
 				bool op = graph.FlattenStack();
 
-				if (!graph.TestGraph())// TODO REM  ??
+				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
 
 				if (!op)
@@ -213,5 +214,28 @@ namespace BefunCompile
 
 			return graph;
 		}
+
+		public BCGraph generateBlockCombinedGraph(int level = -1) // O:5
+		{
+			BCGraph graph = generateVariablizedGraph(-1);
+
+			for (int i = level; i != 0; i--)
+			{
+				bool op = graph.CombineBlocks();
+
+				if (!graph.TestGraph())
+					throw new Exception("Internal Parent Exception :( ");
+
+				if (!op)
+				{
+					log_Cycles_CombineBlocks = level - i;
+
+					break;
+				}
+			}
+
+			return graph;
+		}
+
 	}
 }
