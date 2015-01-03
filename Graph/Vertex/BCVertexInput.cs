@@ -66,7 +66,10 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCode(BCGraph g)
 		{
-			throw new NotImplementedException();//todo to
+			if (modeInteger)
+				return "sa(int.Parse(System.Console.ReadLine()));";
+			else
+				return "sa(System.Console.ReadLine());";
 		}
 	}
 }

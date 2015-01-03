@@ -633,8 +633,9 @@ namespace BefunCompile.Graph
 
 			if (implementSafeStackAccess)
 			{
-				throw new NotImplementedException();
-				//TODO dodo
+				codebuilder.AppendLine(@"private static long sp(){ return (s.Count==0)?0:s.Pop(); }");
+				codebuilder.AppendLine(@"private static void sa(long v){ s.Push(v); }");
+				codebuilder.AppendLine(@"private static long sr(){ return (s.Count==0)?0:s.Peek(); }");
 			}
 			else
 			{
