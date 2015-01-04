@@ -83,6 +83,7 @@
     <Compile Include="Math\Vec2l.cs" />
     <Compile Include="Math\CustomLinq.cs" />
     <Compile Include="Math\Vec2i.cs" />
+    <Compile Include="OutputLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

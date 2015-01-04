@@ -70,7 +70,7 @@ namespace BefunCompile.Graph.Expression
 			return false;
 		}
 
-		public override string GenerateCode(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return Identifier;
 		}

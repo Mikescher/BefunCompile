@@ -487,7 +487,7 @@ namespace BefunCompile.Graph
 			return vertices.SelectMany(p => p.listConstantVariableAccess());
 		}
 
-		public IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public IEnumerable<MemoryAccess> listDynamicVariableAccessCSharp()
 		{
 			return vertices.SelectMany(p => p.listDynamicVariableAccess());
 		}
@@ -562,7 +562,14 @@ namespace BefunCompile.Graph
 
 		#region CodeGeneration
 
-		public string GenerateCode(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
+		private string indent(string code, string indent)
+		{
+			return string.Join(Environment.NewLine, code.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).Select(p => indent + p));
+		}
+
+		#region CodeGeneration (C#)
+
+		public string GenerateCodeCSharp(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
 		{
 			string indent1 = "    ";
 			string indent2 = "    " + "    ";
@@ -575,10 +582,10 @@ namespace BefunCompile.Graph
 
 			StringBuilder codebuilder = new StringBuilder();
 
-			if (listDynamicVariableAccess().Count() > 0)
-				codebuilder.Append(GenerateGridAccess(implementSafeGridAccess));
-			codebuilder.Append(GenerateStackAccess(implementSafeStackAccess));
-			codebuilder.Append(GenerateHelperMethods());
+			if (listDynamicVariableAccessCSharp().Count() > 0)
+				codebuilder.Append(GenerateGridAccessCSharp(implementSafeGridAccess));
+			codebuilder.Append(GenerateStackAccessCSharp(implementSafeStackAccess));
+			codebuilder.Append(GenerateHelperMethodsCSharp());
 
 			codebuilder.AppendLine("static void Main(string[] args)");
 			codebuilder.AppendLine("{");
@@ -594,7 +601,7 @@ namespace BefunCompile.Graph
 			{
 				codebuilder.AppendLine(indent1 + "_" + i + ":");
 
-				codebuilder.AppendLine(indent(vertices[i].GenerateCode(this), indent2));
+				codebuilder.AppendLine(indent(vertices[i].GenerateCodeCSharp(this), indent2));
 
 				if (vertices[i].children.Count == 1)
 					codebuilder.AppendLine(indent2 + "goto _" + vertices.IndexOf(vertices[i].children[0]) + ";");
@@ -607,12 +614,7 @@ namespace BefunCompile.Graph
 			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
 		}
 
-		private string indent(string code, string indent)
-		{
-			return string.Join(Environment.NewLine, code.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).Select(p => indent + p));
-		}
-
-		private string GenerateHelperMethods()
+		private string GenerateHelperMethodsCSharp()
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
@@ -625,7 +627,7 @@ namespace BefunCompile.Graph
 			return codebuilder.ToString();
 		}
 
-		private string GenerateStackAccess(bool implementSafeStackAccess)
+		private string GenerateStackAccessCSharp(bool implementSafeStackAccess)
 		{
 			var codebuilder = new StringBuilder();
 
@@ -647,11 +649,11 @@ namespace BefunCompile.Graph
 			return codebuilder.ToString();
 		}
 
-		private string GenerateGridAccess(bool implementSafeGridAccess)
+		private string GenerateGridAccessCSharp(bool implementSafeGridAccess)
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(@"private static readonly long[,] g = " + GenerateGridInitializer() + ";");
+			codebuilder.AppendLine(@"private static readonly long[,] g = " + GenerateGridInitializerCSharp() + ";");
 
 			if (implementSafeGridAccess)
 			{
@@ -670,7 +672,7 @@ namespace BefunCompile.Graph
 			return codebuilder.ToString();
 		}
 
-		private string GenerateGridInitializer()
+		private string GenerateGridInitializerCSharp()
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
@@ -695,6 +697,98 @@ namespace BefunCompile.Graph
 
 			return codebuilder.ToString();
 		}
+
+		#endregion
+
+		#region CodeGeneration (C)
+
+		public string GenerateCodeC(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
+		{
+			string indent1 = "    ";
+
+			if (!fmtOutput)
+				indent1 = "";
+
+			StringBuilder codebuilder = new StringBuilder();
+
+			codebuilder.AppendLine("#include <time.h>");
+			codebuilder.AppendLine("#include <stdio.h>");
+			codebuilder.AppendLine("#include <stdlib.h>");
+
+			if (listDynamicVariableAccessCSharp().Count() > 0)
+				codebuilder.Append(GenerateGridAccessC(implementSafeGridAccess));
+			codebuilder.Append(GenerateHelperMethodsC());
+			codebuilder.Append(GenerateStackAccessC(implementSafeStackAccess));
+
+			codebuilder.AppendLine("int Main(void)");
+			codebuilder.AppendLine("{");
+
+			codebuilder.AppendLine(indent1 + "srand(time(NULL));");
+
+			//--
+
+			codebuilder.AppendLine("}");
+
+			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
+		}
+
+		private string GenerateStackAccessC(bool implementSafeStackAccess)
+		{
+			var codebuilder = new StringBuilder();
+
+			codebuilder.AppendLine("struct stackvalue{stackvalue* head; long value;};");
+			codebuilder.AppendLine("struct stackvalue* stack_ptr = NULL;");
+
+			if (implementSafeStackAccess)
+			{
+				codebuilder.AppendLine(@"void push(long v) { stackvalue* n = (stackvalue*)malloc(sizeof(stackvalue)); n->value = v; n->head = stack_ptr; stack_ptr = n; }");
+				codebuilder.AppendLine(@"long pop() { if (stack_ptr == NULL) return 0; long r = stack_ptr->value; stack_ptr = stack_ptr->head; return r; }");
+				codebuilder.AppendLine(@"long peek() { if (stack_ptr == NULL) return 0; return stack_ptr->value; }");
+			}
+			else
+			{
+				codebuilder.AppendLine(@"void push(long v) { stackvalue* n = (stackvalue*)malloc(sizeof(stackvalue)); n->value = v; n->head = stack_ptr; stack_ptr = n; }");
+				codebuilder.AppendLine(@"long pop() { long r = stack_ptr->value; stack_ptr = stack_ptr->head; return r; }");
+				codebuilder.AppendLine(@"long peek() { return stack_ptr->value; }");
+			}
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateHelperMethodsC()
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			codebuilder.AppendLine(@"bool random(){return rand()%2==0;}");
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateGridAccessC(bool implementSafeGridAccess)
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			string w = Width.ToString("X");
+			string h = Height.ToString("X");
+
+			codebuilder.AppendLine(@"long grid[0x" + h + "][0x" + w + "] = " + GenerateGridInitializerCSharp() + ";");
+
+			if (implementSafeGridAccess)
+			{
+
+				codebuilder.AppendLine(@"long getGrid(long x,long y){if(x>=0&&y>=0&&x<gw&&y<gw){return grid[y][x];}else{return 0;}}".Replace("gw", w).Replace("gh", h));
+				codebuilder.AppendLine(@"void setGrid(long x,long y,long v){if(x>=0&&y>=0&&x<gw&&y<gw){grid[y][x]=v;}}".Replace("gw", w).Replace("gh", h));
+			}
+			else
+			{
+				codebuilder.AppendLine(@"long getGrid(long x,long y){return grid[y][x];}");
+				codebuilder.AppendLine(@"void setGrid(long x,long y,long v){grid[y][x]=v;}");
+			}
+
+			return codebuilder.ToString();
+		}
+
+		#endregion
 
 		#endregion
 	}

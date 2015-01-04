@@ -84,7 +84,7 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
-		public override string GenerateCode(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return "{long v0=sp();sa(gr(sp(),v0))}";
 		}

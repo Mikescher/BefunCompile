@@ -95,9 +95,9 @@ namespace BefunCompile.Graph.Expression
 			return found;
 		}
 
-		public override string GenerateCode(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("gr({0},{1})", X.GenerateCode(g), Y.GenerateCode(g));
+			return string.Format("gr({0},{1})", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
 		}
 
 		public override bool isOnlyStackManipulation()

@@ -73,12 +73,22 @@ namespace BefunCompile
 			return generateBlockCombinedGraph(-1);
 		}
 
-		public string GenerateCode()
+		public string GenerateCode(OutputLanguage lang)
 		{
-			return generateGraph().GenerateCode(formatOutput, implementSafeGridAccess, implementSafeStackAccess);
+			switch (lang)
+			{
+				case OutputLanguage.CSharp:
+					return generateGraph().GenerateCodeCSharp(formatOutput, implementSafeGridAccess, implementSafeStackAccess);
+				case OutputLanguage.C:
+					return generateGraph().GenerateCodeC(formatOutput, implementSafeGridAccess, implementSafeStackAccess);
+				case OutputLanguage.Python:
+					throw new NotImplementedException();
+				default:
+					return null;
+			}
 		}
 
-		public BCGraph generateUntouchedGraph() // O:0
+		public BCGraph generateUntouchedGraph() // O:0 
 		{
 			List<BCVertex> all = new List<BCVertex>();
 			var unfinished = new Stack<Tuple<BCVertex, Vec2i, BCDirection>>(); /*<parent, position, direction>*/
@@ -130,7 +140,7 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateMinimizedGraph(int level = -1) // O:1
+		public BCGraph generateMinimizedGraph(int level = -1) // O:1 
 		{
 			BCGraph graph = generateUntouchedGraph();
 
@@ -152,7 +162,7 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateSubstitutedGraph(int level = -1) // O:2
+		public BCGraph generateSubstitutedGraph(int level = -1) // O:2 
 		{
 			BCGraph graph = generateMinimizedGraph(-1);
 
@@ -174,7 +184,7 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateFlattenedGraph(int level = -1) // O:3
+		public BCGraph generateFlattenedGraph(int level = -1) // O:3 
 		{
 			BCGraph graph = generateSubstitutedGraph(-1);
 
@@ -196,12 +206,12 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateVariablizedGraph(int level = -1) // O:4
+		public BCGraph generateVariablizedGraph(int level = -1) // O:4 
 		{
 			BCGraph graph = generateFlattenedGraph(-1);
 
 			var constGets = graph.listConstantVariableAccess().ToList();
-			var dynamGets = graph.listDynamicVariableAccess().ToList();
+			var dynamGets = graph.listDynamicVariableAccessCSharp().ToList();
 
 			var accessPositions = constGets.Select(p => p.getConstantPos()).ToList();
 			var codePositions = graph.getAllCodePositions().ToList();
@@ -217,7 +227,7 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateBlockCombinedGraph(int level = -1) // O:5
+		public BCGraph generateBlockCombinedGraph(int level = -1) // O:5 
 		{
 			BCGraph graph = generateVariablizedGraph(-1);
 

@@ -58,7 +58,7 @@ namespace BefunCompile.Graph.Vertex
 			return true;
 		}
 
-		public override string GenerateCode(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"
 				.Replace("g0", "_" + g.vertices.IndexOf(children[0]))

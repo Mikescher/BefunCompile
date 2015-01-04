@@ -85,9 +85,9 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
-		public override string GenerateCode(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Join("", nodes.Select(p => p.GenerateCode(g) + Environment.NewLine));
+			return string.Join("", nodes.Select(p => p.GenerateCodeCSharp(g) + Environment.NewLine));
 		}
 	}
 }

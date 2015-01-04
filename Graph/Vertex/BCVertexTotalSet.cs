@@ -139,9 +139,9 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
-		public override string GenerateCode(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("gw({0},{1},{2});", X.GenerateCode(g), Y.GenerateCode(g), Value.GenerateCode(g));
+			return string.Format("gw({0},{1},{2});", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g), Value.GenerateCodeCSharp(g));
 		}
 	}
 }

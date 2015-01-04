@@ -146,7 +146,7 @@ namespace BefunCompile.Graph.Vertex
 			return true;
 		}
 
-		public override string GenerateCode(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			StringBuilder codebuilder = new StringBuilder();
 

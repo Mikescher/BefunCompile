@@ -64,7 +64,7 @@ namespace BefunCompile.Graph.Vertex
 			return true;
 		}
 
-		public override string GenerateCode(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			if (modeInteger)
 				return "sa(int.Parse(System.Console.ReadLine()));";

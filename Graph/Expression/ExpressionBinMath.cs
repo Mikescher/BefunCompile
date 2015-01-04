@@ -119,22 +119,22 @@ namespace BefunCompile.Graph.Expression
 			return found;
 		}
 
-		public override string GenerateCode(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			switch (Type)
 			{
 				case BinaryMathType.ADD:
-					return "((" + ValueA.GenerateCode(g) + ")+(" + ValueB.GenerateCode(g) + "))";
+					return "((" + ValueA.GenerateCodeCSharp(g) + ")+(" + ValueB.GenerateCodeCSharp(g) + "))";
 				case BinaryMathType.SUB:
-					return "((" + ValueA.GenerateCode(g) + ")-(" + ValueB.GenerateCode(g) + "))";
+					return "((" + ValueA.GenerateCodeCSharp(g) + ")-(" + ValueB.GenerateCodeCSharp(g) + "))";
 				case BinaryMathType.MUL:
-					return "((" + ValueA.GenerateCode(g) + ")*(" + ValueB.GenerateCode(g) + "))";
+					return "((" + ValueA.GenerateCodeCSharp(g) + ")*(" + ValueB.GenerateCodeCSharp(g) + "))";
 				case BinaryMathType.DIV:
-					return "td(" + ValueA.GenerateCode(g) + "," + ValueB.GenerateCode(g) + ")";
+					return "td(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")";
 				case BinaryMathType.GT:
-					return "(((" + ValueA.GenerateCode(g) + ")>(" + ValueB.GenerateCode(g) + "))?1:0)";
+					return "(((" + ValueA.GenerateCodeCSharp(g) + ")>(" + ValueB.GenerateCodeCSharp(g) + "))?1:0)";
 				case BinaryMathType.MOD:
-					return "tm(" + ValueA.GenerateCode(g) + "," + ValueB.GenerateCode(g) + ")";
+					return "tm(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")";
 				default:
 					throw new ArgumentException();
 			}
