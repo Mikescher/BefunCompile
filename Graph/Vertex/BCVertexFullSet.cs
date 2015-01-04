@@ -118,5 +118,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return string.Format("gw({0},{1},sp());", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
 		}
+
+		public override string GenerateCodeC(BCGraph g)
+		{
+			return string.Format("gw({0},{1},sp());", X.GenerateCodeC(g), Y.GenerateCodeC(g));
+		}
 	}
 }

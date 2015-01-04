@@ -20,6 +20,7 @@ namespace BefunCompile.Graph.Expression
 		public abstract bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
 
 		public abstract string GenerateCodeCSharp(BCGraph g);
+		public abstract string GenerateCodeC(BCGraph g);
 
 		public override string ToString()
 		{

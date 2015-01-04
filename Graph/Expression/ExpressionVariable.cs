@@ -75,6 +75,11 @@ namespace BefunCompile.Graph.Expression
 			return Identifier;
 		}
 
+		public override string GenerateCodeC(BCGraph g)
+		{
+			return Identifier;
+		}
+
 		public override bool isOnlyStackManipulation()
 		{
 			return true;

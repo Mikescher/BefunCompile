@@ -78,11 +78,11 @@ namespace BefunCompile
 			switch (lang)
 			{
 				case OutputLanguage.CSharp:
-					return generateGraph().GenerateCodeCSharp(formatOutput, implementSafeGridAccess, implementSafeStackAccess);
+					return generateGraph().GenerateCodeCSharp(formatOutput, implementSafeStackAccess, implementSafeGridAccess);
 				case OutputLanguage.C:
-					return generateGraph().GenerateCodeC(formatOutput, implementSafeGridAccess, implementSafeStackAccess);
+					return generateGraph().GenerateCodeC(formatOutput, implementSafeStackAccess, implementSafeGridAccess);
 				case OutputLanguage.Python:
-					throw new NotImplementedException();
+					return generateGraph().GenerateCodePython(formatOutput, implementSafeStackAccess, implementSafeGridAccess);
 				default:
 					return null;
 			}

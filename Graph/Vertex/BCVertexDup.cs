@@ -63,5 +63,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "sa(sr());";
 		}
+
+		public override string GenerateCodeC(BCGraph g)
+		{
+			return "sa(sr());";
+		}
 	}
 }

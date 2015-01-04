@@ -48,6 +48,11 @@ namespace BefunCompile.Graph.Expression
 			return "0x" + Value.ToString("X");
 		}
 
+		public override string GenerateCodeC(BCGraph g)
+		{
+			return "0x" + Value.ToString("X");
+		}
+
 		public override bool isOnlyStackManipulation()
 		{
 			return true;

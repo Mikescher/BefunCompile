@@ -100,5 +100,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return string.Format("{0}=sp();", Variable.Identifier);
 		}
+
+		public override string GenerateCodeC(BCGraph g)
+		{
+			return string.Format("{0}=sp();", Variable.Identifier);
+		}
 	}
 }

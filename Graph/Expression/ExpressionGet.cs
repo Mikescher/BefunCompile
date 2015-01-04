@@ -100,6 +100,11 @@ namespace BefunCompile.Graph.Expression
 			return string.Format("gr({0},{1})", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
 		}
 
+		public override string GenerateCodeC(BCGraph g)
+		{
+			return string.Format("gr({0},{1})", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
+		}
+
 		public override bool isOnlyStackManipulation()
 		{
 			return false;

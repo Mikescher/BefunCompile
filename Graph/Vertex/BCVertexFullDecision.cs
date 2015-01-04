@@ -83,5 +83,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeCSharp(g), g.vertices.IndexOf(edgeTrue), g.vertices.IndexOf(edgeFalse));
 		}
+
+		public override string GenerateCodeC(BCGraph g)
+		{
+			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeC(g), g.vertices.IndexOf(edgeTrue), g.vertices.IndexOf(edgeFalse));
+		}
 	}
 }

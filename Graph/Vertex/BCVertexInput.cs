@@ -67,9 +67,17 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			if (modeInteger)
-				return "sa(int.Parse(System.Console.ReadLine()));";
+				return "{long v0;while(long.TryParse(System.Console.ReadLine(),out v0));sa(v0);}";
 			else
 				return "sa(System.Console.ReadLine());";
+		}
+
+		public override string GenerateCodeC(BCGraph g)
+		{
+			if (modeInteger)
+				return "{char v0[128];long v1;fgets(v0,sizeof(v0),stdin);sscanf(v0,\"%ld\",&v1);sa(v1);}";
+			else
+				return "sa(getchar());";
 		}
 	}
 }

@@ -123,5 +123,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return string.Format("sa(gr({0},{1}))", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
 		}
+
+		public override string GenerateCodeC(BCGraph g)
+		{
+			return string.Format("sa(gr({0},{1}))", X.GenerateCodeC(g), Y.GenerateCodeC(g));
+		}
 	}
 }

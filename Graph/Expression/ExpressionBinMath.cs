@@ -140,6 +140,27 @@ namespace BefunCompile.Graph.Expression
 			}
 		}
 
+		public override string GenerateCodeC(BCGraph g)
+		{
+			switch (Type)
+			{
+				case BinaryMathType.ADD:
+					return "((" + ValueA.GenerateCodeCSharp(g) + ")+(" + ValueB.GenerateCodeCSharp(g) + "))";
+				case BinaryMathType.SUB:
+					return "((" + ValueA.GenerateCodeCSharp(g) + ")-(" + ValueB.GenerateCodeCSharp(g) + "))";
+				case BinaryMathType.MUL:
+					return "((" + ValueA.GenerateCodeCSharp(g) + ")*(" + ValueB.GenerateCodeCSharp(g) + "))";
+				case BinaryMathType.DIV:
+					return "td(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")";
+				case BinaryMathType.GT:
+					return "(((" + ValueA.GenerateCodeCSharp(g) + ")>(" + ValueB.GenerateCodeCSharp(g) + "))?1:0)";
+				case BinaryMathType.MOD:
+					return "tm(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")";
+				default:
+					throw new ArgumentException();
+			}
+		}
+
 		public override bool isOnlyStackManipulation()
 		{
 			return ValueA.isOnlyStackManipulation() && ValueB.isOnlyStackManipulation();

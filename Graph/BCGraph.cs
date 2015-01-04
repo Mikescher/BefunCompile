@@ -635,15 +635,15 @@ namespace BefunCompile.Graph
 
 			if (implementSafeStackAccess)
 			{
-				codebuilder.AppendLine(@"private static long sp(){ return (s.Count==0)?0:s.Pop(); }");
-				codebuilder.AppendLine(@"private static void sa(long v){ s.Push(v); }");
-				codebuilder.AppendLine(@"private static long sr(){ return (s.Count==0)?0:s.Peek(); }");
+				codebuilder.AppendLine(@"private static long sp(){ return (s.Count==0)?0:s.Pop(); }");	  //sp = pop
+				codebuilder.AppendLine(@"private static void sa(long v){ s.Push(v); }");				  //sa = push
+				codebuilder.AppendLine(@"private static long sr(){ return (s.Count==0)?0:s.Peek(); }");	  //sr = peek
 			}
 			else
 			{
-				codebuilder.AppendLine(@"private static long sp(){ return s.Pop(); }");
-				codebuilder.AppendLine(@"private static void sa(long v){ s.Push(v); }");
-				codebuilder.AppendLine(@"private static long sr(){ return s.Peek(); }");
+				codebuilder.AppendLine(@"private static long sp(){ return s.Pop(); }");	   //sp = pop
+				codebuilder.AppendLine(@"private static void sa(long v){ s.Push(v); }");   //sa = push
+				codebuilder.AppendLine(@"private static long sr(){ return s.Peek(); }");   //sr = peek
 			}
 
 			return codebuilder.ToString();
@@ -660,8 +660,8 @@ namespace BefunCompile.Graph
 				string w = Width.ToString("X");
 				string h = Height.ToString("X");
 
-				codebuilder.AppendLine(@"private static long gr(long x,long y){ (x>=0&&y>=0&&x<gw&&y<gw)?(return g[y, x]):0; }".Replace("gw", w).Replace("gh", h));
-				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){if(x>=0&&y>=0&&x<gw&&y<gw)g[y, x]=v;}".Replace("gw", w).Replace("gh", h));
+				codebuilder.AppendLine(@"private static long gr(long x,long y){ (x>=0&&y>=0&&x<ggw&&y<ggh)?(return g[y, x]):0; }".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){if(x>=0&&y>=0&&x<ggw&&y<ggh)g[y, x]=v;}".Replace("ggw", w).Replace("ggh", h));
 			}
 			else
 			{
@@ -720,13 +720,32 @@ namespace BefunCompile.Graph
 			codebuilder.Append(GenerateHelperMethodsC());
 			codebuilder.Append(GenerateStackAccessC(implementSafeStackAccess));
 
-			codebuilder.AppendLine("int Main(void)");
+			codebuilder.AppendLine("int main(void)");
 			codebuilder.AppendLine("{");
+
+			foreach (var variable in variables)
+			{
+				codebuilder.AppendLine(indent1 + "long " + variable.Identifier + "=0x" + variable.initial.ToString("X") + ";");
+			}
 
 			codebuilder.AppendLine(indent1 + "srand(time(NULL));");
 
-			//--
+			codebuilder.AppendLine(indent1 + "goto _" + vertices.IndexOf(root) + ";");
 
+			for (int i = 0; i < vertices.Count; i++)
+			{
+				codebuilder.AppendLine("_" + i + ":");
+
+				codebuilder.AppendLine(indent(vertices[i].GenerateCodeC(this), indent1));
+
+				if (vertices[i].children.Count == 1)
+					codebuilder.AppendLine(indent1 + "goto _" + vertices.IndexOf(vertices[i].children[0]) + ";");
+				else if (vertices[i].children.Count == 0)
+					codebuilder.AppendLine(indent1 + "goto __;");
+			}
+
+			codebuilder.AppendLine("__:");
+			codebuilder.AppendLine(indent1 + "return 0;");
 			codebuilder.AppendLine("}");
 
 			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
@@ -736,20 +755,20 @@ namespace BefunCompile.Graph
 		{
 			var codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine("struct stackvalue{stackvalue* head; long value;};");
-			codebuilder.AppendLine("struct stackvalue* stack_ptr = NULL;");
+			codebuilder.AppendLine("struct k{struct k*h;long v;};");
+			codebuilder.AppendLine("struct k*s=NULL;");
 
 			if (implementSafeStackAccess)
 			{
-				codebuilder.AppendLine(@"void push(long v) { stackvalue* n = (stackvalue*)malloc(sizeof(stackvalue)); n->value = v; n->head = stack_ptr; stack_ptr = n; }");
-				codebuilder.AppendLine(@"long pop() { if (stack_ptr == NULL) return 0; long r = stack_ptr->value; stack_ptr = stack_ptr->head; return r; }");
-				codebuilder.AppendLine(@"long peek() { if (stack_ptr == NULL) return 0; return stack_ptr->value; }");
+				codebuilder.AppendLine(@"long sp(){if(s==NULL)return 0;long r=s->v;s=s->h;return r;}");						   //sp = pop
+				codebuilder.AppendLine(@"void sa(long v){struct k*n=(struct k*)malloc(sizeof(struct k));n->v=v;n->h=s;s=n;}"); //sa = push
+				codebuilder.AppendLine(@"long sr(){if(s == NULL)return 0;return s->v;}");									   //sr = peek
 			}
 			else
 			{
-				codebuilder.AppendLine(@"void push(long v) { stackvalue* n = (stackvalue*)malloc(sizeof(stackvalue)); n->value = v; n->head = stack_ptr; stack_ptr = n; }");
-				codebuilder.AppendLine(@"long pop() { long r = stack_ptr->value; stack_ptr = stack_ptr->head; return r; }");
-				codebuilder.AppendLine(@"long peek() { return stack_ptr->value; }");
+				codebuilder.AppendLine(@"long sp(){long r=s->v;s=s->h;return r;}");											   //sp = pop
+				codebuilder.AppendLine(@"void sa(long v){struct k*n=(struct k*)malloc(sizeof(struct k));n->v=v;n->h=s;s=n;}"); //sa = push
+				codebuilder.AppendLine(@"long sr(){return s->v;}");															   //sr = peek
 			}
 
 			return codebuilder.ToString();
@@ -759,7 +778,10 @@ namespace BefunCompile.Graph
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(@"bool random(){return rand()%2==0;}");
+			codebuilder.AppendLine(@"int random(){return rand()%2==0;}");
+
+			codebuilder.AppendLine(@"long td(long a,long b){ return (b==0)?0:(a/b); }");
+			codebuilder.AppendLine(@"long tm(long a,long b){ return (b==0)?0:(a%b); }");
 
 			return codebuilder.ToString();
 		}
@@ -771,21 +793,30 @@ namespace BefunCompile.Graph
 			string w = Width.ToString("X");
 			string h = Height.ToString("X");
 
-			codebuilder.AppendLine(@"long grid[0x" + h + "][0x" + w + "] = " + GenerateGridInitializerCSharp() + ";");
+			codebuilder.AppendLine(@"long g[0x" + h + "][0x" + w + "]=" + GenerateGridInitializerCSharp() + ";");
 
 			if (implementSafeGridAccess)
 			{
 
-				codebuilder.AppendLine(@"long getGrid(long x,long y){if(x>=0&&y>=0&&x<gw&&y<gw){return grid[y][x];}else{return 0;}}".Replace("gw", w).Replace("gh", h));
-				codebuilder.AppendLine(@"void setGrid(long x,long y,long v){if(x>=0&&y>=0&&x<gw&&y<gw){grid[y][x]=v;}}".Replace("gw", w).Replace("gh", h));
+				codebuilder.AppendLine(@"long gr(long x,long y){if(x>=0&&y>=0&&x<ggw&&y<ggh){return g[y][x];}else{return 0;}}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"void gw(long x,long y,long v){if(x>=0&&y>=0&&x<ggw&&y<ggh){g[y][x]=v;}}".Replace("ggw", w).Replace("ggh", h));
 			}
 			else
 			{
-				codebuilder.AppendLine(@"long getGrid(long x,long y){return grid[y][x];}");
-				codebuilder.AppendLine(@"void setGrid(long x,long y,long v){grid[y][x]=v;}");
+				codebuilder.AppendLine(@"long gr(long x,long y){return g[y][x];}");
+				codebuilder.AppendLine(@"void gw(long x,long y,long v){g[y][x]=v;}");
 			}
 
 			return codebuilder.ToString();
+		}
+
+		#endregion
+
+		#region CodeGeneration (Python)
+
+		public string GenerateCodePython(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
+		{
+			throw new NotImplementedException();
 		}
 
 		#endregion
