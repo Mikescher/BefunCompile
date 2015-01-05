@@ -101,7 +101,7 @@ namespace BefunCompile.Graph
 			BCVertex[] prev = chainFirst.parents.ToArray();
 			BCVertex[] next = chainLast.children.ToArray();
 
-			if (repChain.Length == 0 && prev.Any(p => p is BCVertexDecision) && next.Length == 0)
+			if (repChain.Length == 0 && prev.Any(p => p is BCVertexDecision || p is BCVertexFullDecision) && next.Length == 0)
 				repChain = new BCVertex[] { new BCVertexNOP(BCDirection.UNKNOWN, posarr) };
 
 			if (next.Length > 1)
@@ -140,6 +140,16 @@ namespace BefunCompile.Graph
 						else
 							throw new CodeGenException();
 					}
+
+					if (sprev is BCVertexFullDecision)
+					{
+						if ((sprev as BCVertexFullDecision).edgeTrue == chainFirst)
+							(sprev as BCVertexFullDecision).edgeTrue = repChainFirst;
+						else if ((sprev as BCVertexFullDecision).edgeFalse == chainFirst)
+							(sprev as BCVertexFullDecision).edgeFalse = repChainFirst;
+						else
+							throw new CodeGenException();
+					}
 				}
 
 				if (isRoot)
@@ -163,6 +173,16 @@ namespace BefunCompile.Graph
 							(sprev as BCVertexDecision).edgeTrue = next[0];
 						else if ((sprev as BCVertexDecision).edgeFalse == chainFirst)
 							(sprev as BCVertexDecision).edgeFalse = next[0];
+						else
+							throw new CodeGenException();
+					}
+
+					if (sprev is BCVertexFullDecision)
+					{
+						if ((sprev as BCVertexFullDecision).edgeTrue == chainFirst)
+							(sprev as BCVertexFullDecision).edgeTrue = next[0];
+						else if ((sprev as BCVertexFullDecision).edgeFalse == chainFirst)
+							(sprev as BCVertexFullDecision).edgeFalse = next[0];
 						else
 							throw new CodeGenException();
 					}

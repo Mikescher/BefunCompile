@@ -72,6 +72,12 @@ namespace BefunCompile.Graph
 
 				if (v is BCVertexDecision && !v.children.Contains((v as BCVertexDecision).edgeFalse))
 					return false;
+
+				if (v is BCVertexFullDecision && !v.children.Contains((v as BCVertexFullDecision).edgeTrue))
+					return false;
+
+				if (v is BCVertexFullDecision && !v.children.Contains((v as BCVertexFullDecision).edgeFalse))
+					return false;
 			}
 
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
@@ -571,6 +577,8 @@ namespace BefunCompile.Graph
 
 		public string GenerateCodeCSharp(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
 		{
+			TestGraph();
+
 			string indent1 = "    ";
 			string indent2 = "    " + "    ";
 
@@ -704,6 +712,8 @@ namespace BefunCompile.Graph
 
 		public string GenerateCodeC(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
 		{
+			TestGraph();
+
 			string indent1 = "    ";
 
 			if (!fmtOutput)
@@ -760,15 +770,15 @@ namespace BefunCompile.Graph
 
 			if (implementSafeStackAccess)
 			{
-				codebuilder.AppendLine(@"long sp(){if(s==NULL)return 0;long r=s->v;s=s->h;return r;}");						   //sp = pop
-				codebuilder.AppendLine(@"void sa(long v){struct k*n=(struct k*)malloc(sizeof(struct k));n->v=v;n->h=s;s=n;}"); //sa = push
-				codebuilder.AppendLine(@"long sr(){if(s == NULL)return 0;return s->v;}");									   //sr = peek
+				codebuilder.AppendLine(@"long sp(){long r;struct k*o;if(s==NULL)return 0;r=s->v;o=s;s=o->h;free(o);return r;}");	//sp = pop
+				codebuilder.AppendLine(@"void sa(long v){struct k*n=(struct k*)malloc(sizeof(struct k));n->v=v;n->h=s;s=n;}");		//sa = push
+				codebuilder.AppendLine(@"long sr(){if(s == NULL)return 0;return s->v;}");											//sr = peek
 			}
 			else
 			{
-				codebuilder.AppendLine(@"long sp(){long r=s->v;s=s->h;return r;}");											   //sp = pop
-				codebuilder.AppendLine(@"void sa(long v){struct k*n=(struct k*)malloc(sizeof(struct k));n->v=v;n->h=s;s=n;}"); //sa = push
-				codebuilder.AppendLine(@"long sr(){return s->v;}");															   //sr = peek
+				codebuilder.AppendLine(@"long sp(){long r=s->v;struct k*o=s;s=o->h;free(o);return r;}");							//sp = pop
+				codebuilder.AppendLine(@"void sa(long v){struct k*n=(struct k*)malloc(sizeof(struct k));n->v=v;n->h=s;s=n;}");		//sa = push
+				codebuilder.AppendLine(@"long sr(){return s->v;}");																	//sr = peek
 			}
 
 			return codebuilder.ToString();
@@ -816,6 +826,8 @@ namespace BefunCompile.Graph
 
 		public string GenerateCodePython(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
 		{
+			TestGraph();
+
 			throw new NotImplementedException();
 		}
 

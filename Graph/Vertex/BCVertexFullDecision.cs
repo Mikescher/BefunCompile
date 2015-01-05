@@ -8,8 +8,8 @@ namespace BefunCompile.Graph.Vertex
 {
 	public class BCVertexFullDecision : BCVertex
 	{
-		public readonly BCVertex edgeTrue;
-		public readonly BCVertex edgeFalse;
+		public BCVertex edgeTrue;
+		public BCVertex edgeFalse;
 
 		public BCExpression Value;
 
