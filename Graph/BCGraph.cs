@@ -10,6 +10,8 @@ namespace BefunCompile.Graph
 {
 	public class BCGraph
 	{
+		private const int CODEGEN_C_INITIALSTACKSIZE = 16384;
+
 		public BCVertex root = null;
 
 		public List<BCVertex> vertices = new List<BCVertex>();
@@ -739,6 +741,7 @@ namespace BefunCompile.Graph
 			}
 
 			codebuilder.AppendLine(indent1 + "srand(time(NULL));");
+			codebuilder.AppendLine(indent1 + "s=(long*)calloc(q,sizeof(long));");
 
 			codebuilder.AppendLine(indent1 + "goto _" + vertices.IndexOf(root) + ";");
 
@@ -765,20 +768,19 @@ namespace BefunCompile.Graph
 		{
 			var codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine("struct k{struct k*h;long v;};");
-			codebuilder.AppendLine("struct k*s=NULL;");
+			codebuilder.AppendLine(string.Format("long*s;int q={0};int y=0;", "0x" + CODEGEN_C_INITIALSTACKSIZE.ToString("X")));
 
 			if (implementSafeStackAccess)
 			{
-				codebuilder.AppendLine(@"long sp(){long r;struct k*o;if(s==NULL)return 0;r=s->v;o=s;s=o->h;free(o);return r;}");	//sp = pop
-				codebuilder.AppendLine(@"void sa(long v){struct k*n=(struct k*)malloc(sizeof(struct k));n->v=v;n->h=s;s=n;}");		//sa = push
-				codebuilder.AppendLine(@"long sr(){if(s == NULL)return 0;return s->v;}");											//sr = peek
+				codebuilder.AppendLine(@"long sp(){if(!y)return 0;return s[--y];}");										//sp = pop
+				codebuilder.AppendLine(@"void sa(long v){if(q-y<8)s=(long*)realloc(s,(q*=2)*sizeof(long));s[y++]=v;}");		//sa = push
+				codebuilder.AppendLine(@"long sr(){if(!y)return 0;return s[y-1];}");										//sr = peek
 			}
 			else
 			{
-				codebuilder.AppendLine(@"long sp(){long r=s->v;struct k*o=s;s=o->h;free(o);return r;}");							//sp = pop
-				codebuilder.AppendLine(@"void sa(long v){struct k*n=(struct k*)malloc(sizeof(struct k));n->v=v;n->h=s;s=n;}");		//sa = push
-				codebuilder.AppendLine(@"long sr(){return s->v;}");																	//sr = peek
+				codebuilder.AppendLine(@"long sp(){return s[--y];}");														//sp = pop
+				codebuilder.AppendLine(@"void sa(long v){if(q-y<8)s=(long*)realloc(s,(q*=2)*sizeof(long));s[y++]=v;}");		//sa = push
+				codebuilder.AppendLine(@"long sr(){return s[y-1];}");														//sr = peek
 			}
 
 			return codebuilder.ToString();
