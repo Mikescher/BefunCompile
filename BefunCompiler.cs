@@ -124,7 +124,7 @@ namespace BefunCompile
 
 				foreach (var direction in next)
 				{
-					Vec2i newpos = pos.Move(direction, width, height, command == '#');
+					Vec2i newpos = pos.Move(direction, width, height, command == '#' && !BCDirectionHelper.isSMDirection(direction));
 					BCVertex search = graph.getVertex(newpos, direction);
 					if (search == null)
 						unfinished.Push(Tuple.Create(vertex, newpos, direction));

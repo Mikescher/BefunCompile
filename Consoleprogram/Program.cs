@@ -87,7 +87,7 @@ namespace BefunCompile.Consoleprogram
 			if (wc == null || wc == "")
 				return new string[] { };
 
-			Regex rex = new Regex("^" + Regex.Escape(wc).Replace(@"\*", @"[^\/]*") + "$", RegexOptions.Compiled);
+			Regex rex = new Regex("^" + Regex.Escape(wc).Replace(@"\*", @"[^\/]*").Replace(@"\?", @"[^\/]?") + "$", RegexOptions.Compiled);
 
 			return Directory
 				.GetFiles(Path.GetDirectoryName(wc))

@@ -45,12 +45,12 @@ namespace BefunCompile.Graph.Expression
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return "0x" + Value.ToString("X");
+			return Value.ToString();
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return "0x" + Value.ToString("X");
+			return Value.ToString();
 		}
 
 		public override bool isOnlyStackManipulation()

@@ -605,7 +605,7 @@ namespace BefunCompile.Graph
 
 			foreach (var variable in variables)
 			{
-				codebuilder.AppendLine(indent2 + "long " + variable.Identifier + "=0x" + variable.initial.ToString("X") + ";");
+				codebuilder.AppendLine(indent2 + "long " + variable.Identifier + "=" + variable.initial + ";");
 			}
 
 			codebuilder.AppendLine(indent2 + "goto _" + vertices.IndexOf(root) + ";");
@@ -670,10 +670,10 @@ namespace BefunCompile.Graph
 
 			if (implementSafeGridAccess)
 			{
-				string w = Width.ToString("X");
-				string h = Height.ToString("X");
+				string w = Width.ToString();
+				string h = Height.ToString();
 
-				codebuilder.AppendLine(@"private static long gr(long x,long y){ (x>=0&&y>=0&&x<ggw&&y<ggh)?(return g[y, x]):0; }".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static long gr(long x,long y){return(x>=0&&y>=0&&x<ggw&&y<ggh)?g[y, x]:0;}".Replace("ggw", w).Replace("ggh", h));
 				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){if(x>=0&&y>=0&&x<ggw&&y<ggh)g[y, x]=v;}".Replace("ggw", w).Replace("ggh", h));
 			}
 			else
@@ -701,8 +701,7 @@ namespace BefunCompile.Graph
 					if (x != 0)
 						codebuilder.Append(',');
 
-					codebuilder.Append("0x");
-					codebuilder.Append(SourceGrid[x, y].ToString("X"));
+					codebuilder.Append(SourceGrid[x, y]);
 				}
 				codebuilder.Append('}');
 			}
@@ -730,6 +729,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("#include <time.h>");
 			codebuilder.AppendLine("#include <stdio.h>");
 			codebuilder.AppendLine("#include <stdlib.h>");
+			codebuilder.AppendLine("#define long signed long long");
 
 			if (listDynamicVariableAccessCSharp().Count() > 0)
 				codebuilder.Append(GenerateGridAccessC(implementSafeGridAccess));
@@ -741,7 +741,7 @@ namespace BefunCompile.Graph
 
 			foreach (var variable in variables)
 			{
-				codebuilder.AppendLine(indent1 + "long " + variable.Identifier + "=0x" + variable.initial.ToString("X") + ";");
+				codebuilder.AppendLine(indent1 + "long " + variable.Identifier + "=" + variable.initial + ";");
 			}
 
 			codebuilder.AppendLine(indent1 + "srand(time(NULL));");
@@ -772,7 +772,7 @@ namespace BefunCompile.Graph
 		{
 			var codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(string.Format("long*s;int q={0};int y=0;", "0x" + CODEGEN_C_INITIALSTACKSIZE.ToString("X")));
+			codebuilder.AppendLine(string.Format("long*s;int q={0};int y=0;", CODEGEN_C_INITIALSTACKSIZE));
 
 			if (implementSafeStackAccess)
 			{
@@ -806,8 +806,8 @@ namespace BefunCompile.Graph
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			string w = Width.ToString("X");
-			string h = Height.ToString("X");
+			string w = Width.ToString();
+			string h = Height.ToString();
 
 			codebuilder.AppendLine(@"long g[0x" + h + "][0x" + w + "]=" + GenerateGridInitializerCSharp() + ";");
 

@@ -46,6 +46,8 @@
     <Compile Include="Consoleprogram\CommandLineArguments.cs" />
     <Compile Include="Consoleprogram\Program.cs" />
     <Compile Include="Exceptions\CodeGenException.cs" />
+    <Compile Include="Exceptions\CodeParseException.cs" />
+    <Compile Include="Exceptions\UnknownCharacterException.cs" />
     <Compile Include="Exceptions\SelfModificationException.cs" />
     <Compile Include="Exceptions\GraphGenException.cs" />
     <Compile Include="Graph\BCDirection.cs" />

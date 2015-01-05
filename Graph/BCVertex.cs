@@ -1,4 +1,5 @@
-﻿using BefunCompile.Graph.Expression;
+﻿using BefunCompile.Exceptions;
+using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
@@ -155,7 +156,7 @@ namespace BefunCompile.Graph
 					return new BCVertexSet(d, pos);
 
 				default:
-					throw new ArgumentException("[::] Unknown char: " + c);
+					throw new UnknownCharacterException(c);
 			}
 		}
 
