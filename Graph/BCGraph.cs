@@ -184,7 +184,7 @@ namespace BefunCompile.Graph
 				if (!(vertex is BCVertexNOP))
 					continue;
 
-				if (vertex.parents.Count > 1 && vertex.children.Count == 1 && vertex.parents.All(p => !(p is BCVertexDecision || p is BCVertexFullDecision)))
+				if (vertex.parents.Count > 1 && vertex.children.Count == 1 && vertex.parents.All(p => !(p is BCVertexDecision || p is BCVertexFullDecision)) && !vertex.parents.Any(p => p == vertex) && !vertex.children.Any(p => p == vertex))
 				{
 					found = true;
 
