@@ -591,6 +591,9 @@ namespace BefunCompile.Graph
 			}
 
 			StringBuilder codebuilder = new StringBuilder();
+			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
+			codebuilder.AppendLine(@"public static class Program ");
+			codebuilder.AppendLine("{");
 
 			if (listDynamicVariableAccessCSharp().Count() > 0)
 				codebuilder.Append(GenerateGridAccessCSharp(implementSafeGridAccess));
@@ -619,7 +622,7 @@ namespace BefunCompile.Graph
 					codebuilder.AppendLine(indent2 + "return;");
 			}
 
-			codebuilder.AppendLine("}");
+			codebuilder.AppendLine("}}");
 
 			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
 		}
@@ -722,6 +725,7 @@ namespace BefunCompile.Graph
 				indent1 = "";
 
 			StringBuilder codebuilder = new StringBuilder();
+			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
 
 			codebuilder.AppendLine("#include <time.h>");
 			codebuilder.AppendLine("#include <stdio.h>");

@@ -100,6 +100,7 @@ namespace BefunCompile.Graph
 					return new BCVertexNOP(d, pos);
 
 				case ' ':
+				case '\t':
 				case '#':
 					outgoingEdges = new BCDirection[] { d };
 					return new BCVertexNOP(d, pos);

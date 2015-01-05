@@ -21,9 +21,6 @@ namespace BefunCompile.Consoleprogram
 
 		static void Main(string[] args)
 		{
-			if (args.Length > 0 && File.Exists(args[0]))
-				args[0] = "-file=" + args[0];
-
 			cmda = new CommandLineArguments(args);
 
 			if (cmda.Contains("help") || cmda.Contains("h"))
@@ -50,10 +47,10 @@ namespace BefunCompile.Consoleprogram
 
 			outputfileformat = cmda.GetStringDefault("out", null) ?? cmda.GetStringDefault("output", null);
 
-			languages = cmda.GetStringDefault("lang", "").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
-				.Concat(cmda.GetStringDefault("language", "").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-				.Concat(cmda.GetStringDefault("languages", "").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-				.Where(p => new string[] { "cs", "csharp", "c", "ansic", "python" }.Contains(p.ToLower()))
+			languages = cmda.GetStringDefault("lang", "").Replace("all", "cs;c;py").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+				.Concat(cmda.GetStringDefault("language", "").Replace("all", "cs;c;py").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+				.Concat(cmda.GetStringDefault("languages", "").Replace("all", "cs;c;py").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+				.Where(p => new string[] { "cs", "csharp", "c", "ansic", "python", "py" }.Contains(p.ToLower()))
 				.Select(p =>
 				{
 					switch (p.ToLower())
@@ -65,6 +62,7 @@ namespace BefunCompile.Consoleprogram
 						case "ansic":
 							return OutputLanguage.C;
 						case "python":
+						case "py":
 							return OutputLanguage.Python;
 						default:
 							throw new Exception("Should never happen :(");
@@ -189,19 +187,19 @@ namespace BefunCompile.Consoleprogram
 		{
 			if (inputfiles.Length == 0)
 			{
-				Console.WriteLine("No files found.");
+				Console.WriteLine("Error: No files found.");
 				return;
 			}
 
 			if (languages.Length == 0)
 			{
-				Console.WriteLine("No languages specified.");
+				Console.WriteLine("Error: No languages specified.");
 				return;
 			}
 
 			if (outputfileformat == null || outputfileformat == "")
 			{
-				Console.WriteLine("No output file specified.");
+				Console.WriteLine("Error: No output file specified.");
 				return;
 			}
 
@@ -232,17 +230,17 @@ namespace BefunCompile.Consoleprogram
 					}
 					catch (Exception e)
 					{
-						Console.Error.WriteLine("Fatal Failure on file " + Path.GetFileName(input) + ": " + e.ToString());
+						Console.Error.WriteLine("Fatal Failure on file " + Path.GetFileName(input) + ": " + e.GetType().Name);
 						break;
 					}
 
 					if (File.Exists(outputfilename) && !optionOverride)
 					{
-						Console.Error.WriteLine("File " + Path.GetFileName(outputfilename) + " already exists.");
+						Console.Error.WriteLine("Error: File " + Path.GetFileName(outputfilename) + " already exists.");
 						break;
 					}
 
-					Directory.CreateDirectory(outputfilename);
+					Directory.CreateDirectory(Path.GetDirectoryName(outputfilename));
 					File.WriteAllText(outputfilename, code);
 
 					Console.Error.WriteLine(string.Format("[{0:000}]File {1} succesfully compiled to {2}", counter, Path.GetFileName(input), Path.GetFileName(outputfilename)));
