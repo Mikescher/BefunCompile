@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{ECFE8D28-F8A6-4C2B-9202-C0E47A4FF906}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BefunCompile</RootNamespace>
     <AssemblyName>BefunCompile</AssemblyName>
@@ -29,6 +29,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -40,6 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BefunCompiler.cs" />
+    <Compile Include="Consoleprogram\CommandLineArguments.cs" />
+    <Compile Include="Consoleprogram\Program.cs" />
     <Compile Include="Exceptions\CodeGenException.cs" />
     <Compile Include="Exceptions\SelfModificationException.cs" />
     <Compile Include="Exceptions\GraphGenException.cs" />
@@ -86,6 +91,7 @@
     <Compile Include="OutputLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
