@@ -98,8 +98,8 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodeC(BCGraph g)
 		{
 			return string.Format("printf(\"{0}\", ({1})({2}));",
-				ModeInteger ? "%ld" : "%c",
-				ModeInteger ? "long" : "char",
+				ModeInteger ? "%lld" : "%c",
+				ModeInteger ? "int64" : "char",
 				Value.GenerateCodeC(g));
 		}
 	}

@@ -729,7 +729,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("#include <time.h>");
 			codebuilder.AppendLine("#include <stdio.h>");
 			codebuilder.AppendLine("#include <stdlib.h>");
-			codebuilder.AppendLine("#define long signed long long");
+			codebuilder.AppendLine("#define int64 long long");
 
 			if (listDynamicVariableAccessCSharp().Count() > 0)
 				codebuilder.Append(GenerateGridAccessC(implementSafeGridAccess));
@@ -741,11 +741,11 @@ namespace BefunCompile.Graph
 
 			foreach (var variable in variables)
 			{
-				codebuilder.AppendLine(indent1 + "long " + variable.Identifier + "=" + variable.initial + ";");
+				codebuilder.AppendLine(indent1 + "int64 " + variable.Identifier + "=" + variable.initial + ";");
 			}
 
 			codebuilder.AppendLine(indent1 + "srand(time(NULL));");
-			codebuilder.AppendLine(indent1 + "s=(long*)calloc(q,sizeof(long));");
+			codebuilder.AppendLine(indent1 + "s=(int64*)calloc(q,sizeof(int64));");
 
 			codebuilder.AppendLine(indent1 + "goto _" + vertices.IndexOf(root) + ";");
 
@@ -772,19 +772,19 @@ namespace BefunCompile.Graph
 		{
 			var codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(string.Format("long*s;int q={0};int y=0;", CODEGEN_C_INITIALSTACKSIZE));
+			codebuilder.AppendLine(string.Format("int64*s;int q={0};int y=0;", CODEGEN_C_INITIALSTACKSIZE));
 
 			if (implementSafeStackAccess)
 			{
-				codebuilder.AppendLine(@"long sp(){if(!y)return 0;return s[--y];}");										//sp = pop
-				codebuilder.AppendLine(@"void sa(long v){if(q-y<8)s=(long*)realloc(s,(q*=2)*sizeof(long));s[y++]=v;}");		//sa = push
-				codebuilder.AppendLine(@"long sr(){if(!y)return 0;return s[y-1];}");										//sr = peek
+				codebuilder.AppendLine(@"int64 sp(){if(!y)return 0;return s[--y];}");										//sp = pop
+				codebuilder.AppendLine(@"void sa(int64 v){if(q-y<8)s=(int64*)realloc(s,(q*=2)*sizeof(int64));s[y++]=v;}");	//sa = push
+				codebuilder.AppendLine(@"int64 sr(){if(!y)return 0;return s[y-1];}");										//sr = peek
 			}
 			else
 			{
-				codebuilder.AppendLine(@"long sp(){return s[--y];}");														//sp = pop
-				codebuilder.AppendLine(@"void sa(long v){if(q-y<8)s=(long*)realloc(s,(q*=2)*sizeof(long));s[y++]=v;}");		//sa = push
-				codebuilder.AppendLine(@"long sr(){return s[y-1];}");														//sr = peek
+				codebuilder.AppendLine(@"int64 sp(){return s[--y];}");														//sp = pop
+				codebuilder.AppendLine(@"void sa(int64 v){if(q-y<8)s=(int64*)realloc(s,(q*=2)*sizeof(int64));s[y++]=v;}");	//sa = push
+				codebuilder.AppendLine(@"int64 sr(){return s[y-1];}");														//sr = peek
 			}
 
 			return codebuilder.ToString();
@@ -796,8 +796,8 @@ namespace BefunCompile.Graph
 
 			codebuilder.AppendLine(@"int random(){return rand()%2==0;}");
 
-			codebuilder.AppendLine(@"long td(long a,long b){ return (b==0)?0:(a/b); }");
-			codebuilder.AppendLine(@"long tm(long a,long b){ return (b==0)?0:(a%b); }");
+			codebuilder.AppendLine(@"int64 td(int64 a,int64 b){ return (b==0)?0:(a/b); }");
+			codebuilder.AppendLine(@"int64 tm(int64 a,int64 b){ return (b==0)?0:(a%b); }");
 
 			return codebuilder.ToString();
 		}
@@ -809,18 +809,18 @@ namespace BefunCompile.Graph
 			string w = Width.ToString();
 			string h = Height.ToString();
 
-			codebuilder.AppendLine(@"long g[0x" + h + "][0x" + w + "]=" + GenerateGridInitializerCSharp() + ";");
+			codebuilder.AppendLine(@"int64 g[0x" + h + "][0x" + w + "]=" + GenerateGridInitializerCSharp() + ";");
 
 			if (implementSafeGridAccess)
 			{
 
-				codebuilder.AppendLine(@"long gr(long x,long y){if(x>=0&&y>=0&&x<ggw&&y<ggh){return g[y][x];}else{return 0;}}".Replace("ggw", w).Replace("ggh", h));
-				codebuilder.AppendLine(@"void gw(long x,long y,long v){if(x>=0&&y>=0&&x<ggw&&y<ggh){g[y][x]=v;}}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"int64 gr(int64 x,int64 y){if(x>=0&&y>=0&&x<ggw&&y<ggh){return g[y][x];}else{return 0;}}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"void gw(int64 x,int64 y,int64 v){if(x>=0&&y>=0&&x<ggw&&y<ggh){g[y][x]=v;}}".Replace("ggw", w).Replace("ggh", h));
 			}
 			else
 			{
-				codebuilder.AppendLine(@"long gr(long x,long y){return g[y][x];}");
-				codebuilder.AppendLine(@"void gw(long x,long y,long v){g[y][x]=v;}");
+				codebuilder.AppendLine(@"int64 gr(int64 x,int64 y){return g[y][x];}");
+				codebuilder.AppendLine(@"void gw(int64 x,int64 y,int64 v){g[y][x]=v;}");
 			}
 
 			return codebuilder.ToString();
