@@ -107,6 +107,9 @@ namespace BefunCompile.Graph
 			if (next.Length > 1)
 				return false;
 
+			if (repChain.Length == 1 && chain.Length == 1 && repChain[0] is BCVertexNOP && chain[0] is BCVertexNOP)
+				return false;
+
 			for (int i = 0; i < repChain.Length - 1; i++)
 			{
 				repChain[i].children.Add(repChain[i + 1]);

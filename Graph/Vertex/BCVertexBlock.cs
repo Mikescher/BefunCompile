@@ -32,7 +32,7 @@ namespace BefunCompile.Graph.Vertex
 		public BCVertexBlock(BCDirection d, Vec2i[] pos, BCVertexBlock blockA, BCVertexBlock blockB)
 			: base(d, pos)
 		{
-			nodes = blockA.nodes.Concat(blockB.nodes).ToArray();
+			nodes = blockA.nodes.Concat(blockB.nodes).Where(p => !(p is BCVertexNOP)).ToArray();
 		}
 
 		public override string ToString()

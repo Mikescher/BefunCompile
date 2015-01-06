@@ -31,7 +31,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return string.Format("OUT({0})", modeInteger ? "INT" : "CHAR");
+			return string.Format("IN({0})", modeInteger ? "INT" : "CHAR");
 		}
 
 		public override BCVertex Duplicate()

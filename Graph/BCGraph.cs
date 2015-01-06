@@ -59,6 +59,28 @@ namespace BefunCompile.Graph
 			}
 		}
 
+		public List<BCVertex> walkGraphDual()
+		{
+			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
+			Stack<BCVertex> untravelled = new Stack<BCVertex>();
+			untravelled.Push(root);
+
+			while (untravelled.Count > 0)
+			{
+				BCVertex curr = untravelled.Pop();
+
+				travelled.Add(curr);
+
+				foreach (var child in curr.children.Where(p => !travelled.Contains(p)))
+					untravelled.Push(child);
+
+				foreach (var parent in curr.parents.Where(p => !travelled.Contains(p)))
+					untravelled.Push(parent);
+			}
+
+			return travelled.ToList();
+		}
+
 		public bool TestGraph()
 		{
 			foreach (var v in vertices)
@@ -560,10 +582,64 @@ namespace BefunCompile.Graph
 			ruleCombine.AddPreq(v => v is BCVertexBlock);
 			ruleCombine.AddRep((l, p) => new BCVertexBlock(BCDirection.UNKNOWN, p, l[0] as BCVertexBlock, l[1] as BCVertexBlock));
 
+			var ruleMinimize = new BCModRule(false);
+			ruleMinimize.AddPreq(v => v is BCVertexNOP);
+
 			bool b1 = ruleSubstitute.Execute(this);
 			bool b2 = ruleCombine.Execute(this);
+			bool b3 = ruleMinimize.Execute(this);
+			bool b4 = RemoveNoDecisions();
 
-			return b1 || b2;
+			return b1 || b2 || b3 || b4;
+		}
+
+		private bool RemoveNoDecisions()
+		{
+			foreach (var vertex in vertices)
+			{
+				if (!(vertex is BCVertexFullDecision))
+					continue;
+
+				if (!((vertex as BCVertexFullDecision).Value is ExpressionConstant))
+					continue;
+
+				BCVertexFullDecision decision = vertex as BCVertexFullDecision;
+
+				if (decision.Value.Calculate(null) != 0)
+				{
+					decision.edgeFalse.parents.Remove(decision);
+					decision.children.Remove(decision.edgeFalse);
+					decision.edgeFalse = null;
+				}
+				else
+				{
+					decision.edgeTrue.parents.Remove(decision);
+					decision.children.Remove(decision.edgeTrue);
+					decision.edgeTrue = null;
+				}
+
+				var remRule = new BCModRule(false);
+				remRule.AddPreq(p => p == decision);
+
+				bool exec = remRule.Execute(this);
+
+				if (!exec)
+					throw new Exception("errrrrrrr");
+
+				var included = walkGraphDual();
+				vertices = vertices.Where(p => included.Contains(p)).ToList();
+
+				var headlessRule = new BCModRule(false);
+				headlessRule.AddPreq(p => p.parents.Count == 0 && p != root);
+
+				int hlc = 0;
+				while (headlessRule.Execute(this))
+					hlc++;
+
+				return true;
+			}
+
+			return false;
 		}
 
 		#endregion
