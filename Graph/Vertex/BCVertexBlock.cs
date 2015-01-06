@@ -94,5 +94,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return string.Join("", nodes.Select(p => p.GenerateCodeC(g) + Environment.NewLine));
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return string.Join("", nodes.Select(p => p.GenerateCodePython(g) + Environment.NewLine));
+		}
 	}
 }

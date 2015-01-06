@@ -84,5 +84,13 @@ namespace BefunCompile.Graph.Vertex
 				ModeInteger ? "%lld" : "%c",
 				ModeInteger ? "int64" : "char");
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			if (ModeInteger)
+				return string.Format("print({0},end=\"\",flush=True)", "sp()");
+			else
+				return string.Format("print(chr({0}),end=\"\",flush=True)", "sp()");
+		}
 	}
 }

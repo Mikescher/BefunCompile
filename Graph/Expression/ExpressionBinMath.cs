@@ -145,17 +145,38 @@ namespace BefunCompile.Graph.Expression
 			switch (Type)
 			{
 				case BinaryMathType.ADD:
-					return "((" + ValueA.GenerateCodeCSharp(g) + ")+(" + ValueB.GenerateCodeCSharp(g) + "))";
+					return "((" + ValueA.GenerateCodeC(g) + ")+(" + ValueB.GenerateCodeC(g) + "))";
 				case BinaryMathType.SUB:
-					return "((" + ValueA.GenerateCodeCSharp(g) + ")-(" + ValueB.GenerateCodeCSharp(g) + "))";
+					return "((" + ValueA.GenerateCodeC(g) + ")-(" + ValueB.GenerateCodeC(g) + "))";
 				case BinaryMathType.MUL:
-					return "((" + ValueA.GenerateCodeCSharp(g) + ")*(" + ValueB.GenerateCodeCSharp(g) + "))";
+					return "((" + ValueA.GenerateCodeC(g) + ")*(" + ValueB.GenerateCodeC(g) + "))";
 				case BinaryMathType.DIV:
-					return "td(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")";
+					return "td(" + ValueA.GenerateCodeC(g) + "," + ValueB.GenerateCodeC(g) + ")";
 				case BinaryMathType.GT:
-					return "(((" + ValueA.GenerateCodeCSharp(g) + ")>(" + ValueB.GenerateCodeCSharp(g) + "))?1:0)";
+					return "(((" + ValueA.GenerateCodeC(g) + ")>(" + ValueB.GenerateCodeC(g) + "))?1:0)";
 				case BinaryMathType.MOD:
-					return "tm(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")";
+					return "tm(" + ValueA.GenerateCodeC(g) + "," + ValueB.GenerateCodeC(g) + ")";
+				default:
+					throw new ArgumentException();
+			}
+		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			switch (Type)
+			{
+				case BinaryMathType.ADD:
+					return "((" + ValueA.GenerateCodePython(g) + ")+(" + ValueB.GenerateCodePython(g) + "))";
+				case BinaryMathType.SUB:
+					return "((" + ValueA.GenerateCodePython(g) + ")-(" + ValueB.GenerateCodePython(g) + "))";
+				case BinaryMathType.MUL:
+					return "((" + ValueA.GenerateCodePython(g) + ")*(" + ValueB.GenerateCodePython(g) + "))";
+				case BinaryMathType.DIV:
+					return "td(" + ValueA.GenerateCodePython(g) + "," + ValueB.GenerateCodePython(g) + ")";
+				case BinaryMathType.GT:
+					return "((1)if((" + ValueA.GenerateCodePython(g) + ")>(" + ValueB.GenerateCodePython(g) + "))else(0))";
+				case BinaryMathType.MOD:
+					return "tm(" + ValueA.GenerateCodePython(g) + "," + ValueB.GenerateCodePython(g) + ")";
 				default:
 					throw new ArgumentException();
 			}

@@ -35,6 +35,17 @@ namespace BefunCompile.Graph
 			}
 		}
 
+		public bool ArrayExecute(BCGraph g)
+		{
+			foreach (var curr in g.vertices)
+			{
+				if (Execute(g, curr))
+					return true;
+			}
+
+			return false;
+		}
+
 		public bool Execute(BCGraph g)
 		{
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();

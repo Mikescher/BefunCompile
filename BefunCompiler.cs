@@ -213,7 +213,7 @@ namespace BefunCompile
 			BCGraph graph = generateFlattenedGraph(-1);
 
 			var constGets = graph.listConstantVariableAccess().ToList();
-			var dynamGets = graph.listDynamicVariableAccessCSharp().ToList();
+			var dynamGets = graph.listDynamicVariableAccess().ToList();
 
 			var accessPositions = constGets.Select(p => p.getConstantPos()).ToList();
 			var codePositions = graph.getAllCodePositions().ToList();

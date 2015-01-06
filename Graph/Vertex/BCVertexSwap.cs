@@ -70,5 +70,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "{int64 v0=sp();int64 v1=sp();sa(v0);sa(v1);}";
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return "v0=sp()" + Environment.NewLine + "v1=sp()" + Environment.NewLine + "sa(v0)" + Environment.NewLine + "sa(v1)";
+		}
 	}
 }

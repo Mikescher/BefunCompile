@@ -80,6 +80,11 @@ namespace BefunCompile.Graph.Expression
 			return Identifier;
 		}
 
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return Identifier;
+		}
+
 		public override bool isOnlyStackManipulation()
 		{
 			return true;

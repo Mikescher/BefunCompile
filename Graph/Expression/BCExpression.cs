@@ -21,6 +21,7 @@ namespace BefunCompile.Graph.Expression
 
 		public abstract string GenerateCodeCSharp(BCGraph g);
 		public abstract string GenerateCodeC(BCGraph g);
+		public abstract string GenerateCodePython(BCGraph g);
 
 		public override string ToString()
 		{

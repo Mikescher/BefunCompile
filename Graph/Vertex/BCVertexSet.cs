@@ -94,5 +94,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "{int64 v0=sp();int64 v1=sp();gw(v1,v0,sp());}";
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return "v0=sp()" + Environment.NewLine + "v1=sp()" + Environment.NewLine + "gw(v1,v0,sp())";
+		}
 	}
 }

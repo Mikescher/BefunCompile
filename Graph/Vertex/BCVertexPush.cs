@@ -83,5 +83,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return string.Format("sa({0});", Value.GenerateCodeC(g));
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return string.Format("sa({0})", Value.GenerateCodePython(g));
+		}
 	}
 }

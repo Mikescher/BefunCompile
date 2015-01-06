@@ -53,6 +53,11 @@ namespace BefunCompile.Graph.Expression
 			return Value.ToString();
 		}
 
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return Value.ToString();
+		}
+
 		public override bool isOnlyStackManipulation()
 		{
 			return true;

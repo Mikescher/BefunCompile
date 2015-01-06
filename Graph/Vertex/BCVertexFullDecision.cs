@@ -88,5 +88,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeC(g), g.vertices.IndexOf(edgeTrue), g.vertices.IndexOf(edgeFalse));
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return string.Format("return ({1})if({0})else({2})", Value.GenerateCodePython(g), g.vertices.IndexOf(edgeTrue), g.vertices.IndexOf(edgeFalse));
+		}
 	}
 }

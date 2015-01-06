@@ -207,5 +207,40 @@ namespace BefunCompile.Graph.Vertex
 
 			return codebuilder.ToString();
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			switch (mtype)
+			{
+				case BinaryMathType.ADD:
+					codebuilder.AppendLine("sa(sp()+sp());");
+					break;
+				case BinaryMathType.SUB:
+					codebuilder.AppendLine("v0=sp()");
+					codebuilder.AppendLine("sa(sp()-v0)");
+					break;
+				case BinaryMathType.MUL:
+					codebuilder.AppendLine("sa(sp()*sp());");
+					break;
+				case BinaryMathType.DIV:
+					codebuilder.AppendLine("v0=sp()");
+					codebuilder.AppendLine("sa(td(sp(),v0))");
+					break;
+				case BinaryMathType.GT:
+					codebuilder.AppendLine("v0=sp()");
+					codebuilder.AppendLine("sa((1)if(sp()>v0)else(0))");
+					break;
+				case BinaryMathType.MOD:
+					codebuilder.AppendLine("v0=sp()");
+					codebuilder.AppendLine("sa(tm(sp(),v0))");
+					break;
+				default:
+					throw new Exception("uwotm8");
+			}
+
+			return codebuilder.ToString();
+		}
 	}
 }

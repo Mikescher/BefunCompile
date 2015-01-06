@@ -121,12 +121,17 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("sa(gr({0},{1}))", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
+			return string.Format("sa(gr({0},{1}));", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("sa(gr({0},{1}))", X.GenerateCodeC(g), Y.GenerateCodeC(g));
+			return string.Format("sa(gr({0},{1}));", X.GenerateCodeC(g), Y.GenerateCodeC(g));
+		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return string.Format("sa(gr({0},{1}))", X.GenerateCodePython(g), Y.GenerateCodePython(g));
 		}
 	}
 }

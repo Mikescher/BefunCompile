@@ -517,7 +517,7 @@ namespace BefunCompile.Graph
 			return vertices.SelectMany(p => p.listConstantVariableAccess());
 		}
 
-		public IEnumerable<MemoryAccess> listDynamicVariableAccessCSharp()
+		public IEnumerable<MemoryAccess> listDynamicVariableAccess()
 		{
 			return vertices.SelectMany(p => p.listDynamicVariableAccess());
 		}
@@ -633,7 +633,7 @@ namespace BefunCompile.Graph
 				headlessRule.AddPreq(p => p.parents.Count == 0 && p != root);
 
 				int hlc = 0;
-				while (headlessRule.Execute(this))
+				while (headlessRule.ArrayExecute(this))
 					hlc++;
 
 				return true;
@@ -671,7 +671,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine(@"public static class Program ");
 			codebuilder.AppendLine("{");
 
-			if (listDynamicVariableAccessCSharp().Count() > 0)
+			if (listDynamicVariableAccess().Count() > 0)
 				codebuilder.Append(GenerateGridAccessCSharp(implementSafeGridAccess));
 			codebuilder.Append(GenerateStackAccessCSharp(implementSafeStackAccess));
 			codebuilder.Append(GenerateHelperMethodsCSharp());
@@ -807,7 +807,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("#include <stdlib.h>");
 			codebuilder.AppendLine("#define int64 long long");
 
-			if (listDynamicVariableAccessCSharp().Count() > 0)
+			if (listDynamicVariableAccess().Count() > 0)
 				codebuilder.Append(GenerateGridAccessC(implementSafeGridAccess));
 			codebuilder.Append(GenerateHelperMethodsC());
 			codebuilder.Append(GenerateStackAccessC(implementSafeStackAccess));
@@ -870,7 +870,7 @@ namespace BefunCompile.Graph
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(@"int random(){return rand()%2==0;}");
+			codebuilder.AppendLine(@"int rd(){return rand()%2==0;}");
 
 			codebuilder.AppendLine(@"int64 td(int64 a,int64 b){ return (b==0)?0:(a/b); }");
 			codebuilder.AppendLine(@"int64 tm(int64 a,int64 b){ return (b==0)?0:(a%b); }");
@@ -885,7 +885,7 @@ namespace BefunCompile.Graph
 			string w = Width.ToString();
 			string h = Height.ToString();
 
-			codebuilder.AppendLine(@"int64 g[0x" + h + "][0x" + w + "]=" + GenerateGridInitializerCSharp() + ";");
+			codebuilder.AppendLine(@"int64 g[" + h + "][" + w + "]=" + GenerateGridInitializerC() + ";");
 
 			if (implementSafeGridAccess)
 			{
@@ -902,6 +902,31 @@ namespace BefunCompile.Graph
 			return codebuilder.ToString();
 		}
 
+		private string GenerateGridInitializerC()
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			codebuilder.Append('{');
+			for (int y = 0; y < Height; y++)
+			{
+				if (y != 0)
+					codebuilder.Append(',');
+
+				codebuilder.Append('{');
+				for (int x = 0; x < Width; x++)
+				{
+					if (x != 0)
+						codebuilder.Append(',');
+
+					codebuilder.Append(SourceGrid[x, y]);
+				}
+				codebuilder.Append('}');
+			}
+			codebuilder.Append('}');
+
+			return codebuilder.ToString();
+		}
+
 		#endregion
 
 		#region CodeGeneration (Python)
@@ -910,7 +935,153 @@ namespace BefunCompile.Graph
 		{
 			TestGraph();
 
-			throw new NotImplementedException();
+			StringBuilder codebuilder = new StringBuilder();
+			codebuilder.AppendLine(@"# compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015");
+			codebuilder.AppendLine(@"# execute with at least Python3");
+			codebuilder.AppendLine(@"from random import randint");
+
+			if (listDynamicVariableAccess().Count() > 0)
+				codebuilder.Append(GenerateGridAccessPython(implementSafeGridAccess));
+			codebuilder.Append(GenerateHelperMethodsPython());
+			codebuilder.Append(GenerateStackAccessPython(implementSafeStackAccess));
+
+			foreach (var variable in variables)
+				codebuilder.AppendLine(variable.Identifier + "=" + variable.initial);
+
+
+			for (int i = 0; i < vertices.Count; i++)
+			{
+				codebuilder.AppendLine("def _" + i + "():");
+				foreach (var variable in variables)
+					codebuilder.AppendLine("    global " + variable.Identifier);
+
+				codebuilder.AppendLine(indent(vertices[i].GenerateCodePython(this), "    "));
+
+				if (vertices[i].children.Count == 1)
+					codebuilder.AppendLine("    return " + vertices.IndexOf(vertices[i].children[0]) + "");
+				else if (vertices[i].children.Count == 0)
+					codebuilder.AppendLine("    return " + vertices.Count);
+			}
+
+			codebuilder.AppendLine("m=[" + string.Join(",", Enumerable.Range(0, vertices.Count).Select(p => "_" + p)) + "]");
+			codebuilder.AppendLine("c=" + vertices.IndexOf(root));
+			codebuilder.AppendLine("while c<" + vertices.Count + ":");
+			codebuilder.AppendLine("    c=m[c]()");
+
+			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
+
+		}
+
+		private string GenerateStackAccessPython(bool implementSafeStackAccess)
+		{
+			var codebuilder = new StringBuilder();
+
+			codebuilder.AppendLine("s=[]");
+
+			if (implementSafeStackAccess)
+			{
+				codebuilder.AppendLine(@"def sp():");
+				codebuilder.AppendLine(@"    global s");
+				codebuilder.AppendLine(@"    if (len(s) == 0):");
+				codebuilder.AppendLine(@"        return 0");
+				codebuilder.AppendLine(@"    return s.pop()");
+				codebuilder.AppendLine(@"def sa(v):");
+				codebuilder.AppendLine(@"    global s");
+				codebuilder.AppendLine(@"    s.append(v)");
+				codebuilder.AppendLine(@"def sr():");
+				codebuilder.AppendLine(@"    global s");
+				codebuilder.AppendLine(@"    if (len(s) == 0):");
+				codebuilder.AppendLine(@"        return 0");
+				codebuilder.AppendLine(@"    return s[-1]");
+			}
+			else
+			{
+				codebuilder.AppendLine(@"def sp():");
+				codebuilder.AppendLine(@"    global s");
+				codebuilder.AppendLine(@"    return s.pop()");
+				codebuilder.AppendLine(@"def sa(v):");
+				codebuilder.AppendLine(@"    global s");
+				codebuilder.AppendLine(@"    s.append(v)");
+				codebuilder.AppendLine(@"def sr():");
+				codebuilder.AppendLine(@"    global s");
+				codebuilder.AppendLine(@"    return s[-1]");
+			}
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateHelperMethodsPython()
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			codebuilder.AppendLine(@"def rd():");
+			codebuilder.AppendLine(@"    return bool(random.getrandbits(1))");
+
+			codebuilder.AppendLine(@"def td(a,b):");
+			codebuilder.AppendLine(@"    return bool(random.getrandbits(1))");
+
+			codebuilder.AppendLine(@"def td(a,b):");
+			codebuilder.AppendLine(@"    return ((0)if(b==0)else(a/b))");
+
+			codebuilder.AppendLine(@"def tm(a,b):");
+			codebuilder.AppendLine(@"    return ((0)if(b==0)else(a%b))");
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateGridAccessPython(bool implementSafeGridAccess)
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			string w = Width.ToString();
+			string h = Height.ToString();
+
+			codebuilder.AppendLine(@"g=" + GenerateGridInitializerPython() + ";");
+
+			if (implementSafeGridAccess)
+			{
+				codebuilder.AppendLine(@"def gr(x,y):");
+				codebuilder.AppendLine(@"    if(x>=0 and y>=0 and x<ggw and y<ggh):".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"        return g[y][x];");
+				codebuilder.AppendLine(@"    return 0;");
+				codebuilder.AppendLine(@"def gw(x,y,v):");
+				codebuilder.AppendLine(@"    if(x>=0 and y>=0 and x<ggw and y<ggh):".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"        g[y][x]=v;");
+			}
+			else
+			{
+				codebuilder.AppendLine(@"def gr(x,y):");
+				codebuilder.AppendLine(@"    return g[y][x];");
+				codebuilder.AppendLine(@"def gw(x,y,v):");
+				codebuilder.AppendLine(@"    g[y][x]=v;");
+			}
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateGridInitializerPython()
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			codebuilder.Append('[');
+			for (int y = 0; y < Height; y++)
+			{
+				if (y != 0)
+					codebuilder.Append(',');
+
+				codebuilder.Append('[');
+				for (int x = 0; x < Width; x++)
+				{
+					if (x != 0)
+						codebuilder.Append(',');
+
+					codebuilder.Append(SourceGrid[x, y]);
+				}
+				codebuilder.Append(']');
+			}
+			codebuilder.Append(']');
+
+			return codebuilder.ToString();
 		}
 
 		#endregion

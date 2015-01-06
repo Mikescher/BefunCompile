@@ -69,6 +69,11 @@ namespace BefunCompile.Graph.Expression
 			return string.Format("(({0})!=0)?0:1", Value.GenerateCodeCSharp(g));
 		}
 
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return string.Format("((1)if({0})!=0)else(0)", Value.GenerateCodeCSharp(g));
+		}
+
 		public override bool isOnlyStackManipulation()
 		{
 			return Value.isOnlyStackManipulation();

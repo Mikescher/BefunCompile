@@ -69,5 +69,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return "sp();";
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return "sp()";
+		}
 	}
 }

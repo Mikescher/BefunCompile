@@ -79,5 +79,13 @@ namespace BefunCompile.Graph.Vertex
 			else
 				return "sa(getchar());";
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			if (modeInteger)
+				return "sa(int(input(\"\")))";
+			else
+				return "sa(ord(input(\"\")[0]))";
+		}
 	}
 }

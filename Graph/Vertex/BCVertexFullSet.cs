@@ -123,5 +123,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return string.Format("gw({0},{1},sp());", X.GenerateCodeC(g), Y.GenerateCodeC(g));
 		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return string.Format("gw({0},{1},sp())", X.GenerateCodePython(g), Y.GenerateCodePython(g));
+		}
 	}
 }

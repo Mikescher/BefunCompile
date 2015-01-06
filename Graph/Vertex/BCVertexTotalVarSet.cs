@@ -115,7 +115,12 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("{0}={1};", Variable.Identifier, Value.GenerateCodeCSharp(g));
+			return string.Format("{0}={1};", Variable.Identifier, Value.GenerateCodeC(g));
+		}
+
+		public override string GenerateCodePython(BCGraph g)
+		{
+			return string.Format("{0}={1}", Variable.Identifier, Value.GenerateCodePython(g));
 		}
 	}
 }
