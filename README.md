@@ -56,3 +56,22 @@ You don't need other [BefunUtils](https://github.com/Mikescher/BefunUtils) proje
 Theoretically you can only clone this repository and run it.  
 But it could be useful to get the whole BefunUtils solution like described [here](https://github.com/Mikescher/BefunUtils/blob/master/README.md)  
 Especially BefunDebug could be useful for testing.
+
+
+Screenshots
+==========
+BefunCompile:  
+![](https://raw.githubusercontent.com/Mikescher/BefunUtils/master/README-FILES/BefunCompile_Main_example.png)
+
+BefunCompile (Graph display of [Euler_Problem-002](https://github.com/Mikescher/Project-Euler_Befunge/blob/master/Euler_Problem-002.b93) Level **0**) *(via [BefunDebug](https://github.com/Mikescher/BefunDebug))*:  
+![](https://raw.githubusercontent.com/Mikescher/BefunUtils/master/README-FILES/BefunCompile_Graph-0_example.png)
+
+BefunCompile (Graph display of [Euler_Problem-002](https://github.com/Mikescher/Project-Euler_Befunge/blob/master/Euler_Problem-002.b93) Level **2**) *(via [BefunDebug](https://github.com/Mikescher/BefunDebug))*:  
+![](https://raw.githubusercontent.com/Mikescher/BefunUtils/master/README-FILES/BefunCompile_Graph-2_example.png)
+
+BefunCompile (Graph display of [Euler_Problem-002](https://github.com/Mikescher/Project-Euler_Befunge/blob/master/Euler_Problem-002.b93) Level **3**) *(via [BefunDebug](https://github.com/Mikescher/BefunDebug))*:  
+![](https://raw.githubusercontent.com/Mikescher/BefunUtils/master/README-FILES/BefunCompile_Graph-3_example.png)
+
+BefunCompile (Graph display of [Euler_Problem-002](https://github.com/Mikescher/Project-Euler_Befunge/blob/master/Euler_Problem-002.b93) Level **5**) *(via [BefunDebug](https://github.com/Mikescher/BefunDebug))*:  
+![](https://raw.githubusercontent.com/Mikescher/BefunUtils/master/README-FILES/BefunCompile_Graph-5_example.png)
+
