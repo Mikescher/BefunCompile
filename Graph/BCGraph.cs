@@ -1021,7 +1021,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine(@"    return bool(random.getrandbits(1))");
 
 			codebuilder.AppendLine(@"def td(a,b):");
-			codebuilder.AppendLine(@"    return ((0)if(b==0)else(a/b))");
+			codebuilder.AppendLine(@"    return ((0)if(b==0)else(a//b))");
 
 			codebuilder.AppendLine(@"def tm(a,b):");
 			codebuilder.AppendLine(@"    return ((0)if(b==0)else(a%b))");

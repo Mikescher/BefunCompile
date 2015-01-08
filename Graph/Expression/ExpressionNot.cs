@@ -71,7 +71,7 @@ namespace BefunCompile.Graph.Expression
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("((1)if({0})!=0)else(0)", Value.GenerateCodeCSharp(g));
+			return string.Format("(0)if(({0})!=0)else(1)", Value.GenerateCodePython(g));
 		}
 
 		public override bool isOnlyStackManipulation()
