@@ -75,7 +75,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("System.Console.Out.WriteLine(({0})(sp()));", ModeInteger ? "long" : "char");
+			return string.Format("System.Console.Out.Write(({0})(sp()));", ModeInteger ? "long" : "char");
 		}
 
 		public override string GenerateCodeC(BCGraph g)
