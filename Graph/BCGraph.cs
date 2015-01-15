@@ -702,6 +702,13 @@ namespace BefunCompile.Graph
 			return Convert.ToBase64String(CompressData(Encoding.ASCII.GetBytes(GenerateGridData())));
 		}
 
+		private List<string> GenerateGridBase64DataStringList()
+		{
+			string data = GenerateGridBase64DataString();
+
+			return Enumerable.Range(0, data.Length / 128 + 2).Select(i => (i * 128 > data.Length) ? "" : data.Substring(i * 128, System.Math.Min(i * 128 + 128, data.Length) - i * 128)).Where(p => p != "").ToList();
+		}
+
 		#region CodeGeneration (C#)
 
 		public string GenerateCodeCSharp(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
@@ -827,12 +834,24 @@ namespace BefunCompile.Graph
 			string w = Width.ToString();
 			string h = Height.ToString();
 
-			codebuilder.AppendLine(@"private static readonly string _g = " + '"' + GenerateGridBase64DataString() + '"' + ";");
+			var b64 = GenerateGridBase64DataStringList();
+			for (int i = 0; i < b64.Count; i++)
+			{
+				if (i == 0 && (i + 1) == b64.Count)
+					codebuilder.AppendLine(@"private static readonly string _g = " + '"' + b64[i] + '"' + ";");
+				else if (i == 0)
+					codebuilder.AppendLine(@"private static readonly string _g = " + '"' + b64[i] + '"' + "+");
+				else if ((i + 1) == b64.Count)
+					codebuilder.AppendLine(@"                                    " + '"' + b64[i] + '"' + ";");
+				else
+					codebuilder.AppendLine(@"                                    " + '"' + b64[i] + '"' + "+");
+			}
 			codebuilder.AppendLine(@"private static readonly long[]  g = System.Array.ConvertAll(zd(System.Convert.FromBase64String(_g)),b=>(long)b);");
 
 			codebuilder.AppendLine(@"private static byte[]zd(byte[]o){byte[]d=o.Skip(1).ToArray();for(int i=0;i<o[0];i++)d=zs(d);return d;}");
-			codebuilder.AppendLine(@"private static byte[]zs(byte[]o){byte[]b=new byte[64];using(var s=new System.IO.Compression.GZipStream(new System.IO.MemoryStream(o),System.IO.Compression.CompressionMode.Decompress))using(var m=new System.IO.MemoryStream())for(int c;;)if((c=s.Read(b,0,64))>0)m.Write(b,0,c);else return m.ToArray();}");
-
+			codebuilder.AppendLine(@"private static byte[]zs(byte[]o){using(var c=new System.IO.MemoryStream(o))");
+			codebuilder.AppendLine(@"                                 using(var z=new System.IO.Compression.GZipStream(c,System.IO.Compression.CompressionMode.Decompress))");
+			codebuilder.AppendLine(@"                                 using(var r=new System.IO.MemoryStream()){z.CopyTo(r);return r.ToArray();}}");
 			if (implementSafeGridAccess)
 			{
 
