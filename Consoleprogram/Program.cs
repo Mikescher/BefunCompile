@@ -18,6 +18,7 @@ namespace BefunCompile.Consoleprogram
 		private static bool optionSafeGridAccess;
 		private static bool optionIgnoreSelfmod;
 		private static bool optionOverride;
+		private static bool optionUseGZip;
 
 		static void Main(string[] args)
 		{
@@ -80,6 +81,8 @@ namespace BefunCompile.Consoleprogram
 			optionIgnoreSelfmod = cmda.Contains("unsafe") || cmda.Contains("ignoreselfmod") || cmda.Contains("ism");
 
 			optionOverride = cmda.Contains("override") || cmda.Contains("f");
+
+			optionUseGZip = cmda.Contains("usegzip") || cmda.Contains("gzip");
 		}
 
 		private static string[] GetWildcardFiles(string wc)
@@ -161,6 +164,11 @@ namespace BefunCompile.Consoleprogram
 
 			Console.WriteLine("");
 
+			Console.WriteLine("usegzip | gzip");
+			Console.WriteLine("    " + "Enable GZip Grid compression (if possible)");
+
+			Console.WriteLine("");
+
 			Console.WriteLine("");
 			Console.WriteLine("");
 			Console.WriteLine("Press [Enter] to continue...");
@@ -221,7 +229,12 @@ namespace BefunCompile.Consoleprogram
 
 					string source = File.ReadAllText(input);
 
-					var comp = new BefunCompiler(source, optionFormat, optionIgnoreSelfmod, optionSafeStackAccess, optionSafeGridAccess);
+					var comp = new BefunCompiler(source,
+						optionFormat,
+						optionIgnoreSelfmod,
+						optionSafeStackAccess,
+						optionSafeGridAccess,
+						optionUseGZip);
 
 					string code;
 					try

@@ -3,6 +3,8 @@ using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 
@@ -651,9 +653,58 @@ namespace BefunCompile.Graph
 			return string.Join(Environment.NewLine, code.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).Select(p => indent + p));
 		}
 
+		private byte[] CompressData(byte[] data)
+		{
+			byte compressioncount = 0;
+			while (compressioncount < 32)
+			{
+				byte[] compress = CompressSingleData(data);
+
+				if (compress.Length >= data.Length)
+					break;
+
+				data = compress;
+				compressioncount++;
+			}
+
+			return new byte[] { compressioncount }.Concat(data).ToArray();
+		}
+
+		private byte[] CompressSingleData(byte[] raw)
+		{
+			using (MemoryStream memory = new MemoryStream())
+			{
+				using (GZipStream gzip = new GZipStream(memory, CompressionMode.Compress, true))
+				{
+					gzip.Write(raw, 0, raw.Length);
+				}
+				return memory.ToArray();
+			}
+		}
+
+		private string GenerateGridData()
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			for (int y = 0; y < Height; y++)
+			{
+				for (int x = 0; x < Width; x++)
+				{
+					codebuilder.Append((char)SourceGrid[x, y]);
+				}
+			}
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateGridBase64DataString()
+		{
+			return Convert.ToBase64String(CompressData(Encoding.ASCII.GetBytes(GenerateGridData())));
+		}
+
 		#region CodeGeneration (C#)
 
-		public string GenerateCodeCSharp(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
+		public string GenerateCodeCSharp(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
 			TestGraph();
 
@@ -672,7 +723,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("{");
 
 			if (listDynamicVariableAccess().Count() > 0)
-				codebuilder.Append(GenerateGridAccessCSharp(implementSafeGridAccess));
+				codebuilder.Append(GenerateGridAccessCSharp(implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateStackAccessCSharp(implementSafeStackAccess));
 			codebuilder.Append(GenerateHelperMethodsCSharp());
 
@@ -738,7 +789,15 @@ namespace BefunCompile.Graph
 			return codebuilder.ToString();
 		}
 
-		private string GenerateGridAccessCSharp(bool implementSafeGridAccess)
+		private string GenerateGridAccessCSharp(bool implementSafeGridAccess, bool useGzip)
+		{
+			if (useGzip)
+				return GenerateGridAccessCSharp_GZip(implementSafeGridAccess);
+			else
+				return GenerateGridAccessCSharp_NoGZip(implementSafeGridAccess);
+		}
+
+		private string GenerateGridAccessCSharp_NoGZip(bool implementSafeGridAccess)
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
@@ -756,6 +815,34 @@ namespace BefunCompile.Graph
 			{
 				codebuilder.AppendLine(@"private static long gr(long x,long y) {return g[y, x];}");
 				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){g[y, x]=v;}");
+			}
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateGridAccessCSharp_GZip(bool implementSafeGridAccess)
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			string w = Width.ToString();
+			string h = Height.ToString();
+
+			codebuilder.AppendLine(@"private static readonly string _g = " + '"' + GenerateGridBase64DataString() + '"' + ";");
+			codebuilder.AppendLine(@"private static readonly long[]  g = System.Array.ConvertAll(zd(System.Convert.FromBase64String(_g)),b=>(long)b);");
+
+			codebuilder.AppendLine(@"private static byte[]zd(byte[]o){byte[]d=o.Skip(1).ToArray();for(int i=0;i<o[0];i++)d=zs(d);return d;}");
+			codebuilder.AppendLine(@"private static byte[]zs(byte[]o){byte[]b=new byte[64];using(var s=new System.IO.Compression.GZipStream(new System.IO.MemoryStream(o),System.IO.Compression.CompressionMode.Decompress))using(var m=new System.IO.MemoryStream())for(int c;;)if((c=s.Read(b,0,64))>0)m.Write(b,0,c);else return m.ToArray();}");
+
+			if (implementSafeGridAccess)
+			{
+
+				codebuilder.AppendLine(@"private static long gr(long x,long y){return(x>=0&&y>=0&&x<ggw&&y<ggh)?g[y*ggw+x]:0;}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){if(x>=0&&y>=0&&x<ggw&&y<ggh)g[y*ggw+x]=v;}".Replace("ggw", w).Replace("ggh", h));
+			}
+			else
+			{
+				codebuilder.AppendLine(@"private static long gr(long x,long y) {return g[y*ggw+x];}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){g[y*ggw+x]=v;}".Replace("ggw", w).Replace("ggh", h));
 			}
 
 			return codebuilder.ToString();
@@ -931,7 +1018,7 @@ namespace BefunCompile.Graph
 
 		#region CodeGeneration (Python)
 
-		public string GenerateCodePython(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
+		public string GenerateCodePython(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
 			TestGraph();
 
