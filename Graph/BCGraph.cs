@@ -1028,7 +1028,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine(@"from random import randint");
 
 			if (listDynamicVariableAccess().Count() > 0)
-				codebuilder.Append(GenerateGridAccessPython(implementSafeGridAccess));
+				codebuilder.Append(GenerateGridAccessPython(implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateHelperMethodsPython());
 			codebuilder.Append(GenerateStackAccessPython(implementSafeStackAccess));
 
@@ -1116,7 +1116,15 @@ namespace BefunCompile.Graph
 			return codebuilder.ToString();
 		}
 
-		private string GenerateGridAccessPython(bool implementSafeGridAccess)
+		private string GenerateGridAccessPython(bool implementSafeGridAccess, bool useGZip)
+		{
+			if (useGZip)
+				return GenerateGridAccessPython_GZip(implementSafeGridAccess);
+			else
+				return GenerateGridAccessPython_NoGZip(implementSafeGridAccess);
+		}
+
+		private string GenerateGridAccessPython_NoGZip(bool implementSafeGridAccess)
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
@@ -1141,6 +1149,40 @@ namespace BefunCompile.Graph
 				codebuilder.AppendLine(@"    return g[y][x];");
 				codebuilder.AppendLine(@"def gw(x,y,v):");
 				codebuilder.AppendLine(@"    g[y][x]=v;");
+			}
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateGridAccessPython_GZip(bool implementSafeGridAccess)
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			string w = Width.ToString();
+			string h = Height.ToString();
+
+			codebuilder.AppendLine(@"import gzip, base64");
+			codebuilder.AppendLine(@"_g=" + '"' + GenerateGridBase64DataString() + '"');
+			codebuilder.AppendLine(@"g = base64.b64decode(_g)[1:]");
+			codebuilder.AppendLine(@"for i in range(base64.b64decode(_g)[0]):");
+			codebuilder.AppendLine(@"    g = gzip.decompress(g)");
+
+			if (implementSafeGridAccess)
+			{
+				codebuilder.AppendLine(@"def gr(x,y):");
+				codebuilder.AppendLine(@"    if(x>=0 and y>=0 and x<ggw and y<ggh):".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"        return g[y*ggw + x];".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"    return 0;");
+				codebuilder.AppendLine(@"def gw(x,y,v):");
+				codebuilder.AppendLine(@"    if(x>=0 and y>=0 and x<ggw and y<ggh):".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"        g[y*ggw + x]=v;".Replace("ggw", w).Replace("ggh", h));
+			}
+			else
+			{
+				codebuilder.AppendLine(@"def gr(x,y):".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"    return g[y*ggw + x];".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"def gw(x,y,v):".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"    g[y*ggw + x]=v;".Replace("ggw", w).Replace("ggh", h));
 			}
 
 			return codebuilder.ToString();
