@@ -9,7 +9,7 @@ namespace BefunCompile
 {
 	public class BefunCompiler
 	{
-		public const string VERSION = "1.0.2";
+		public const string VERSION = "1.0.3";
 
 		private readonly string source;
 		private readonly long[,] sourceGrid;
@@ -84,7 +84,7 @@ namespace BefunCompile
 				case OutputLanguage.CSharp:
 					return generateGraph().GenerateCodeCSharp(formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
 				case OutputLanguage.C:
-					return generateGraph().GenerateCodeC(formatOutput, implementSafeStackAccess, implementSafeGridAccess);
+					return generateGraph().GenerateCodeC(formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
 				case OutputLanguage.Python:
 					return generateGraph().GenerateCodePython(formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
 				default:

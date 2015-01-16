@@ -697,6 +697,25 @@ namespace BefunCompile.Graph
 			return codebuilder.ToString();
 		}
 
+		private string GenerateGridMSZipDataString()
+		{
+			return MSZipImplementation.CompressToString(GenerateGridData()).Replace("\\", "\\\\").Replace("\"", "\\\"");
+		}
+
+		private List<string> GenerateGridMSZipDataStringList(out int length)
+		{
+			string data = MSZipImplementation.CompressToString(GenerateGridData());
+			length = data.Length;
+
+			return Enumerable
+				.Range(0, data.Length / 128 + 2)
+				.Select(i => (i * 128 > data.Length) ? "" : data.Substring(i * 128, System.Math.Min(i * 128 + 128, data.Length) - i * 128))
+				.Where(p => p != "")
+				.Select(p => p.Replace("\\", "\\\\"))
+				.Select(p => p.Replace("\"", "\\\""))
+				.ToList();
+		}
+
 		private string GenerateGridBase64DataString()
 		{
 			return Convert.ToBase64String(CompressData(Encoding.ASCII.GetBytes(GenerateGridData())));
@@ -848,7 +867,7 @@ namespace BefunCompile.Graph
 			}
 			codebuilder.AppendLine(@"private static readonly long[]  g = System.Array.ConvertAll(zd(System.Convert.FromBase64String(_g)),b=>(long)b);");
 
-			codebuilder.AppendLine(@"private static byte[]zd(byte[]o){byte[]d=o.Skip(1).ToArray();for(int i=0;i<o[0];i++)d=zs(d);return d;}");
+			codebuilder.AppendLine(@"private static byte[]zd(byte[]o){byte[]d=System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Skip(o, 1));for(int i=0;i<o[0];i++)d=zs(d);return d;}");
 			codebuilder.AppendLine(@"private static byte[]zs(byte[]o){using(var c=new System.IO.MemoryStream(o))");
 			codebuilder.AppendLine(@"                                 using(var z=new System.IO.Compression.GZipStream(c,System.IO.Compression.CompressionMode.Decompress))");
 			codebuilder.AppendLine(@"                                 using(var r=new System.IO.MemoryStream()){z.CopyTo(r);return r.ToArray();}}");
@@ -896,7 +915,7 @@ namespace BefunCompile.Graph
 
 		#region CodeGeneration (C)
 
-		public string GenerateCodeC(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess)
+		public string GenerateCodeC(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
 			TestGraph();
 
@@ -914,7 +933,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("#define int64 long long");
 
 			if (listDynamicVariableAccess().Count() > 0)
-				codebuilder.Append(GenerateGridAccessC(implementSafeGridAccess));
+				codebuilder.Append(GenerateGridAccessC(implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateHelperMethodsC());
 			codebuilder.Append(GenerateStackAccessC(implementSafeStackAccess));
 
@@ -925,6 +944,9 @@ namespace BefunCompile.Graph
 			{
 				codebuilder.AppendLine(indent1 + "int64 " + variable.Identifier + "=" + variable.initial + ";");
 			}
+
+			if (listDynamicVariableAccess().Count() > 0 && useGZip)
+				codebuilder.AppendLine(indent1 + "d();");
 
 			codebuilder.AppendLine(indent1 + "srand(time(NULL));");
 			codebuilder.AppendLine(indent1 + "s=(int64*)calloc(q,sizeof(int64));");
@@ -984,7 +1006,58 @@ namespace BefunCompile.Graph
 			return codebuilder.ToString();
 		}
 
-		private string GenerateGridAccessC(bool implementSafeGridAccess)
+		private string GenerateGridAccessC(bool implementSafeGridAccess, bool useGZip)
+		{
+			if (useGZip)
+				return GenerateGridAccessC_GZip(implementSafeGridAccess);
+			else
+				return GenerateGridAccessC_NoGZip(implementSafeGridAccess);
+		}
+
+		private string GenerateGridAccessC_GZip(bool implementSafeGridAccess)
+		{
+			StringBuilder codebuilder = new StringBuilder();
+
+			string w = Width.ToString();
+			string h = Height.ToString();
+
+			int len_msz;
+			var msz = GenerateGridMSZipDataStringList(out len_msz);
+			for (int i = 0; i < msz.Count; i++)
+			{
+				if (i == 0 && (i + 1) == msz.Count)
+					codebuilder.AppendLine(@"char* _g= = " + '"' + msz[i] + '"' + ";");
+				else if (i == 0)
+					codebuilder.AppendLine(@"char* _g = " + '"' + msz[i] + '"' + "");
+				else if ((i + 1) == msz.Count)
+					codebuilder.AppendLine(@"           " + '"' + msz[i] + '"' + ";");
+				else
+					codebuilder.AppendLine(@"           " + '"' + msz[i] + '"' + "");
+			}
+			codebuilder.AppendLine(@"int t=0;int z=0;");
+			codebuilder.AppendLine(@"int64 g[" + (Width * Height) + "];");
+			codebuilder.AppendLine(@"int d(){int s,w,i,j,h;h=z;for(;t<" + len_msz + ";t++)if(_g[t]==';')g[z++]=_g[++t];" +
+									"else if(_g[t]=='}')return z-h;else if(_g[t]=='{'){t++;s=z;w=d();" +
+									"for(i=1;i<_g[t+1]*9025+_g[t+2]*95+_g[t+3]-291872;i++)for(j=0;j<w;g[z++]=g[s+j++]);t+=3;}" +
+									"else g[z++]=_g[t];return z-h;}");
+
+
+			if (implementSafeGridAccess)
+			{
+
+				codebuilder.AppendLine(@"int64 gr(int64 x,int64 y){if(x>=0&&y>=0&&x<ggw&&y<ggh){return g[y*ggw+x];}else{return 0;}}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"void gw(int64 x,int64 y,int64 v){if(x>=0&&y>=0&&x<ggw&&y<ggh){g[y*ggw+x]=v;}}".Replace("ggw", w).Replace("ggh", h));
+			}
+			else
+			{
+				codebuilder.AppendLine(@"int64 gr(int64 x,int64 y){return g[y*ggw+x];}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"void gw(int64 x,int64 y,int64 v){g[y*ggw+x]=v;}".Replace("ggw", w).Replace("ggh", h));
+			}
+
+			return codebuilder.ToString();
+		}
+
+		private string GenerateGridAccessC_NoGZip(bool implementSafeGridAccess)
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
@@ -1185,6 +1258,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine(@"g = base64.b64decode(_g)[1:]");
 			codebuilder.AppendLine(@"for i in range(base64.b64decode(_g)[0]):");
 			codebuilder.AppendLine(@"    g = gzip.decompress(g)");
+			codebuilder.AppendLine(@"g=list(g)");
 
 			if (implementSafeGridAccess)
 			{
