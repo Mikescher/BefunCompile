@@ -23,17 +23,17 @@ namespace BefunCompile.Graph.Expression
 			return Value;
 		}
 
-		public override string getRepresentation()
+		public override string GetRepresentation()
 		{
 			return Value.ToString();
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
 			return Enumerable.Empty<MemoryAccess>();
 		}
@@ -41,6 +41,11 @@ namespace BefunCompile.Graph.Expression
 		public override bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
 		{
 			return false;
+		}
+
+		public override IEnumerable<ExpressionVariable> GetVariables()
+		{
+			return Enumerable.Empty<ExpressionVariable>();
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)
@@ -58,7 +63,7 @@ namespace BefunCompile.Graph.Expression
 			return Value.ToString();
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
 		{
 			return true;
 		}

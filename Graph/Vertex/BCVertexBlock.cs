@@ -95,6 +95,16 @@ namespace BefunCompile.Graph.Vertex
 			return true;
 		}
 
+		public override bool IsRandom()
+		{
+			return nodes.Any(p => p.IsRandom());
+		}
+
+		public override IEnumerable<ExpressionVariable> GetVariables()
+		{
+			return nodes.SelectMany(p => p.GetVariables());
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Join("", nodes.Select(p => p.GenerateCodeCSharp(g) + Environment.NewLine));

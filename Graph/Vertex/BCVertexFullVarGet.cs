@@ -25,7 +25,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return "GET(" + Variable.getRepresentation() + ")";
+			return "GET(" + Variable.GetRepresentation() + ")";
 		}
 
 		public override BCVertex Duplicate()
@@ -108,6 +108,16 @@ namespace BefunCompile.Graph.Vertex
 		public override bool IsBlock()
 		{
 			return false;
+		}
+
+		public override bool IsRandom()
+		{
+			return false;
+		}
+
+		public override IEnumerable<ExpressionVariable> GetVariables()
+		{
+			return Variable.GetVariables();
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)

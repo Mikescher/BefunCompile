@@ -1,6 +1,8 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
+
 namespace BefunCompile.Graph.Expression
 {
 	public class ExpressionNot : BCExpression
@@ -27,19 +29,19 @@ namespace BefunCompile.Graph.Expression
 			return (Value.Calculate(ci) != 0) ? (0) : (1);
 		}
 
-		public override string getRepresentation()
+		public override string GetRepresentation()
 		{
-			return "NOT(" + Value.getRepresentation() + ")";
+			return "NOT(" + Value.GetRepresentation() + ")";
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return Value.listConstantVariableAccess();
+			return Value.ListConstantVariableAccess();
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return Value.listDynamicVariableAccess();
+			return Value.ListDynamicVariableAccess();
 		}
 
 		public override bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
@@ -59,6 +61,11 @@ namespace BefunCompile.Graph.Expression
 			return found;
 		}
 
+		public override IEnumerable<ExpressionVariable> GetVariables()
+		{
+			return Enumerable.Empty<ExpressionVariable>();
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Format("(({0})!=0)?0:1", Value.GenerateCodeCSharp(g));
@@ -74,9 +81,9 @@ namespace BefunCompile.Graph.Expression
 			return string.Format("(0)if(({0})!=0)else(1)", Value.GenerateCodePython(g));
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
 		{
-			return Value.isOnlyStackManipulation();
+			return Value.IsOnlyStackManipulation();
 		}
 	}
 }

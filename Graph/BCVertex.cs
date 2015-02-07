@@ -160,6 +160,9 @@ namespace BefunCompile.Graph
 		public abstract bool IsOnlyStackManipulation();
 		public abstract bool IsCodePathSplit();
 		public abstract bool IsBlock();
+		public abstract bool IsRandom();
+		public abstract IEnumerable<ExpressionVariable> GetVariables();
+
 
 		public abstract string GenerateCodeCSharp(BCGraph g);
 		public abstract string GenerateCodeC(BCGraph g);

@@ -39,17 +39,17 @@ namespace BefunCompile.Graph.Vertex
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
 			if (X is ExpressionConstant && Y is ExpressionConstant)
-				return new MemoryAccess[] { this }.Concat(X.listConstantVariableAccess()).Concat(Y.listConstantVariableAccess());
+				return new MemoryAccess[] { this }.Concat(X.ListConstantVariableAccess()).Concat(Y.ListConstantVariableAccess());
 			else
-				return X.listConstantVariableAccess().Concat(Y.listConstantVariableAccess());
+				return X.ListConstantVariableAccess().Concat(Y.ListConstantVariableAccess());
 		}
 
 		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
 			if (X is ExpressionConstant && Y is ExpressionConstant)
-				return X.listDynamicVariableAccess().Concat(Y.listDynamicVariableAccess());
+				return X.ListDynamicVariableAccess().Concat(Y.ListDynamicVariableAccess());
 			else
-				return new MemoryAccess[] { this }.Concat(X.listDynamicVariableAccess()).Concat(Y.listDynamicVariableAccess());
+				return new MemoryAccess[] { this }.Concat(X.ListDynamicVariableAccess()).Concat(Y.ListDynamicVariableAccess());
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
@@ -122,6 +122,16 @@ namespace BefunCompile.Graph.Vertex
 		public override bool IsBlock()
 		{
 			return false;
+		}
+
+		public override bool IsRandom()
+		{
+			return false;
+		}
+
+		public override IEnumerable<ExpressionVariable> GetVariables()
+		{
+			return X.GetVariables().Concat(Y.GetVariables());
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)

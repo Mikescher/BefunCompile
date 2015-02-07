@@ -35,12 +35,12 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return Value.listConstantVariableAccess();
+			return Value.ListConstantVariableAccess();
 		}
 
 		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return Value.listDynamicVariableAccess();
+			return Value.ListDynamicVariableAccess();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
@@ -71,7 +71,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool IsOnlyStackManipulation()
 		{
-			return Value.isOnlyStackManipulation();
+			return Value.IsOnlyStackManipulation();
 		}
 
 		public override bool IsCodePathSplit()
@@ -82,6 +82,16 @@ namespace BefunCompile.Graph.Vertex
 		public override bool IsBlock()
 		{
 			return false;
+		}
+
+		public override bool IsRandom()
+		{
+			return false;
+		}
+
+		public override IEnumerable<ExpressionVariable> GetVariables()
+		{
+			return Value.GetVariables();
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)

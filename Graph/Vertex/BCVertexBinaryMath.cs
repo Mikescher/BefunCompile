@@ -156,6 +156,16 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
+		public override bool IsRandom()
+		{
+			return false;
+		}
+
+		public override IEnumerable<ExpressionVariable> GetVariables()
+		{
+			return Enumerable.Empty<ExpressionVariable>();
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			StringBuilder codebuilder = new StringBuilder();

@@ -794,8 +794,11 @@ namespace BefunCompile.Graph
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(@"private static readonly System.Random r = new System.Random();");
-			codebuilder.AppendLine(@"private static bool rd(){ return r.Next(2)!=0; }");
+			if (Vertices.Any(p => p.IsRandom()))
+			{
+				codebuilder.AppendLine(@"private static readonly System.Random r = new System.Random();");
+				codebuilder.AppendLine(@"private static bool rd(){ return r.Next(2)!=0; }");
+			}
 
 			codebuilder.AppendLine(@"private static long td(long a,long b){ return (b==0)?0:(a/b); }");
 			codebuilder.AppendLine(@"private static long tm(long a,long b){ return (b==0)?0:(a%b); }");
@@ -936,7 +939,9 @@ namespace BefunCompile.Graph
 			StringBuilder codebuilder = new StringBuilder();
 			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
 
-			codebuilder.AppendLine("#include <time.h>");
+			if (Vertices.Any(p => p.IsRandom()))
+				codebuilder.AppendLine("#include <time.h>");
+
 			codebuilder.AppendLine("#include <stdio.h>");
 			codebuilder.AppendLine("#include <stdlib.h>");
 			codebuilder.AppendLine("#define int64 long long");
@@ -957,7 +962,9 @@ namespace BefunCompile.Graph
 			if (ListDynamicVariableAccess().Any() && useGZip)
 				codebuilder.AppendLine(indent1 + "d();");
 
-			codebuilder.AppendLine(indent1 + "srand(time(NULL));");
+			if (Vertices.Any(p => p.IsRandom()))
+				codebuilder.AppendLine(indent1 + "srand(time(NULL));");
+
 			codebuilder.AppendLine(indent1 + "s=(int64*)calloc(q,sizeof(int64));");
 
 			codebuilder.AppendLine(indent1 + "goto _" + Vertices.IndexOf(Root) + ";");
@@ -971,11 +978,9 @@ namespace BefunCompile.Graph
 				if (Vertices[i].Children.Count == 1)
 					codebuilder.AppendLine(indent1 + "goto _" + Vertices.IndexOf(Vertices[i].Children[0]) + ";");
 				else if (Vertices[i].Children.Count == 0)
-					codebuilder.AppendLine(indent1 + "goto __;");
+					codebuilder.AppendLine(indent1 + "return 0;");
 			}
 
-			codebuilder.AppendLine("__:");
-			codebuilder.AppendLine(indent1 + "return 0;");
 			codebuilder.AppendLine("}");
 
 			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
@@ -1007,7 +1012,8 @@ namespace BefunCompile.Graph
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(@"int rd(){return rand()%2==0;}");
+			if (Vertices.Any(p => p.IsRandom()))
+				codebuilder.AppendLine(@"int rd(){return rand()%2==0;}");
 
 			codebuilder.AppendLine(@"int64 td(int64 a,int64 b){ return (b==0)?0:(a/b); }");
 			codebuilder.AppendLine(@"int64 tm(int64 a,int64 b){ return (b==0)?0:(a%b); }");
@@ -1125,7 +1131,9 @@ namespace BefunCompile.Graph
 			StringBuilder codebuilder = new StringBuilder();
 			codebuilder.AppendLine(@"# compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015");
 			codebuilder.AppendLine(@"# execute with at least Python3");
-			codebuilder.AppendLine(@"from random import randint");
+
+			if (Vertices.Any(p => p.IsRandom()))
+				codebuilder.AppendLine(@"from random import randint");
 
 			if (ListDynamicVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccessPython(implementSafeGridAccess, useGZip));
@@ -1139,7 +1147,7 @@ namespace BefunCompile.Graph
 			for (int i = 0; i < Vertices.Count; i++)
 			{
 				codebuilder.AppendLine("def _" + i + "():");
-				foreach (var variable in Variables)
+				foreach (var variable in Vertices[i].GetVariables())
 					codebuilder.AppendLine("    global " + variable.Identifier);
 
 				codebuilder.AppendLine(indent(Vertices[i].GenerateCodePython(this), "    "));
@@ -1201,8 +1209,11 @@ namespace BefunCompile.Graph
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(@"def rd():");
-			codebuilder.AppendLine(@"    return bool(random.getrandbits(1))");
+			if (Vertices.Any(p => p.IsRandom()))
+			{
+				codebuilder.AppendLine(@"def rd():");
+				codebuilder.AppendLine(@"    return bool(random.getrandbits(1))");
+			}
 
 			codebuilder.AppendLine(@"def td(a,b):");
 			codebuilder.AppendLine(@"    return bool(random.getrandbits(1))");

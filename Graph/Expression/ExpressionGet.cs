@@ -26,25 +26,25 @@ namespace BefunCompile.Graph.Expression
 			return ci.GetGridValue(X.Calculate(ci), Y.Calculate(ci));
 		}
 
-		public override string getRepresentation()
+		public override string GetRepresentation()
 		{
-			return "GET(" + X.getRepresentation() + ", " + Y.getRepresentation() + ")";
+			return "GET(" + X.GetRepresentation() + ", " + Y.GetRepresentation() + ")";
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
 			if (X is ExpressionConstant && Y is ExpressionConstant)
-				return new MemoryAccess[] { this }.Concat(X.listConstantVariableAccess()).Concat(Y.listConstantVariableAccess());
+				return new MemoryAccess[] { this }.Concat(X.ListConstantVariableAccess()).Concat(Y.ListConstantVariableAccess());
 			else
-				return X.listConstantVariableAccess().Concat(Y.listConstantVariableAccess());
+				return X.ListConstantVariableAccess().Concat(Y.ListConstantVariableAccess());
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
 			if (X is ExpressionConstant && Y is ExpressionConstant)
-				return X.listDynamicVariableAccess().Concat(Y.listDynamicVariableAccess());
+				return X.ListDynamicVariableAccess().Concat(Y.ListDynamicVariableAccess());
 			else
-				return new MemoryAccess[] { this }.Concat(X.listDynamicVariableAccess()).Concat(Y.listDynamicVariableAccess());
+				return new MemoryAccess[] { this }.Concat(X.ListDynamicVariableAccess()).Concat(Y.ListDynamicVariableAccess());
 		}
 
 		public BCExpression getX()
@@ -95,6 +95,11 @@ namespace BefunCompile.Graph.Expression
 			return found;
 		}
 
+		public override IEnumerable<ExpressionVariable> GetVariables()
+		{
+			return Enumerable.Empty<ExpressionVariable>();
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Format("gr({0},{1})", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
@@ -110,7 +115,7 @@ namespace BefunCompile.Graph.Expression
 			return string.Format("gr({0},{1})", X.GenerateCodePython(g), Y.GenerateCodePython(g));
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
 		{
 			return false;
 		}
