@@ -6,37 +6,29 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexFullDecision : BCVertex
+	public class BCVertexFullDecision : BCVertex, IDecisionVertex
 	{
-		public BCVertex edgeTrue;
-		public BCVertex edgeFalse;
+		public BCVertex EdgeTrue { get; set; }
+		public BCVertex EdgeFalse { get; set; }
 
 		public BCExpression Value;
-
-		public BCVertexFullDecision(BCDirection d, Vec2i pos, BCVertex childTrue, BCVertex childFalse, BCExpression val)
-			: base(d, new Vec2i[] { pos })
-		{
-			this.edgeTrue = childTrue;
-			this.edgeFalse = childFalse;
-			this.Value = val;
-		}
 
 		public BCVertexFullDecision(BCDirection d, Vec2i[] pos, BCVertex childTrue, BCVertex childFalse, BCExpression val)
 			: base(d, pos)
 		{
-			this.edgeTrue = childTrue;
-			this.edgeFalse = childFalse;
-			this.Value = val;
+			EdgeTrue = childTrue;
+			EdgeFalse = childFalse;
+			Value = val;
 		}
 
 		public override string ToString()
 		{
-			return "IF (" + Value.ToString() + ")";
+			return "IF (" + Value + ")";
 		}
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexFullDecision(Direction, Positions, edgeTrue, edgeFalse, Value);
+			return new BCVertexFullDecision(Direction, Positions, EdgeTrue, EdgeFalse, Value);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
@@ -53,7 +45,7 @@ namespace BefunCompile.Graph.Vertex
 		{
 			var v = Value.Calculate(ci) != 0;
 
-			return v ? edgeTrue : edgeFalse;
+			return v ? EdgeTrue : EdgeFalse;
 		}
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
@@ -84,19 +76,24 @@ namespace BefunCompile.Graph.Vertex
 			return true;
 		}
 
+		public override bool IsBlock()
+		{
+			return false;
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeCSharp(g), g.Vertices.IndexOf(edgeTrue), g.Vertices.IndexOf(edgeFalse));
+			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeCSharp(g), g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeC(g), g.Vertices.IndexOf(edgeTrue), g.Vertices.IndexOf(edgeFalse));
+			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeC(g), g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("return ({1})if({0})else({2})", Value.GenerateCodePython(g), g.Vertices.IndexOf(edgeTrue), g.Vertices.IndexOf(edgeFalse));
+			return string.Format("return ({1})if({0})else({2})", Value.GenerateCodePython(g), g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));
 		}
 	}
 }

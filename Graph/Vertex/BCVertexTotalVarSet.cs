@@ -113,6 +113,11 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
+		public override bool IsBlock()
+		{
+			return false;
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Format("{0}={1};", Variable.Identifier, Value.GenerateCodeCSharp(g));

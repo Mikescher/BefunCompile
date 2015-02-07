@@ -78,6 +78,11 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
+		public override bool IsBlock()
+		{
+			return false;
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Format("System.Console.Out.Write(({0})(sp()));", ModeInteger ? "long" : "char");

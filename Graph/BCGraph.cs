@@ -90,16 +90,10 @@ namespace BefunCompile.Graph
 				if (v is BCVertexRandom && v.Children.Count != 4)
 					return false;
 
-				if (v is BCVertexDecision && !v.Children.Contains((v as BCVertexDecision).edgeTrue))
+				if (v is IDecisionVertex && !v.Children.Contains((v as IDecisionVertex).EdgeTrue))
 					return false;
 
-				if (v is BCVertexDecision && !v.Children.Contains((v as BCVertexDecision).edgeFalse))
-					return false;
-
-				if (v is BCVertexFullDecision && !v.Children.Contains((v as BCVertexFullDecision).edgeTrue))
-					return false;
-
-				if (v is BCVertexFullDecision && !v.Children.Contains((v as BCVertexFullDecision).edgeFalse))
+				if (v is IDecisionVertex && !v.Children.Contains((v as IDecisionVertex).EdgeFalse))
 					return false;
 			}
 
@@ -205,7 +199,7 @@ namespace BefunCompile.Graph
 				if (!(vertex is BCVertexNOP))
 					continue;
 
-				if (vertex.Parents.Count > 1 && vertex.Children.Count == 1 && vertex.Parents.All(p => !(p is BCVertexDecision || p is BCVertexFullDecision)) && vertex.Parents.All(p => p != vertex) && vertex.Children.All(p => p != vertex))
+				if (vertex.Parents.Count > 1 && vertex.Children.Count == 1 && vertex.Parents.All(p => !p.IsCodePathSplit()) && vertex.Parents.All(p => p != vertex) && vertex.Children.All(p => p != vertex))
 				{
 					found = true;
 
@@ -306,7 +300,7 @@ namespace BefunCompile.Graph
 					BCVertexDecision prev = (BCVertexDecision)vertex.Parents[0];
 					BCVertex next = vertex.Children[0];
 
-					bool isDTrue = (prev.edgeTrue == vertex);
+					bool isDTrue = (prev.EdgeTrue == vertex);
 
 					removed.Add(vertex);
 					vertex.Children.Clear();
@@ -321,9 +315,9 @@ namespace BefunCompile.Graph
 					next.Positions = next.Positions.Concat(vertex.Positions).Distinct().ToArray();
 
 					if (isDTrue)
-						prev.edgeTrue = next;
+						prev.EdgeTrue = next;
 					else
-						prev.edgeFalse = next;
+						prev.EdgeFalse = next;
 
 					if (vertex == Root)
 						Root = next;
@@ -457,8 +451,8 @@ namespace BefunCompile.Graph
 				return false;
 
 			var prev = chain[0].Parents.ToList();
-			var nextTrue = ((BCVertexDecision)chain[1]).edgeTrue;
-			var nextFalse = ((BCVertexDecision)chain[1]).edgeFalse;
+			var nextTrue = ((BCVertexDecision)chain[1]).EdgeTrue;
+			var nextFalse = ((BCVertexDecision)chain[1]).EdgeFalse;
 
 			if (prev.Any(p => p is BCVertexFullDecision))
 				return false;
@@ -492,12 +486,12 @@ namespace BefunCompile.Graph
 				p.Children.Add(newnode);
 				newnode.Parents.Add(p);
 
-				if (p is BCVertexDecision)
+				if (p is IDecisionVertex)
 				{
-					if ((p as BCVertexDecision).edgeTrue == chain[0])
-						(p as BCVertexDecision).edgeTrue = newnode;
-					if ((p as BCVertexDecision).edgeFalse == chain[0])
-						(p as BCVertexDecision).edgeFalse = newnode;
+					if ((p as IDecisionVertex).EdgeTrue == chain[0])
+						(p as IDecisionVertex).EdgeTrue = newnode;
+					if ((p as IDecisionVertex).EdgeFalse == chain[0])
+						(p as IDecisionVertex).EdgeFalse = newnode;
 				}
 			}
 
@@ -603,15 +597,15 @@ namespace BefunCompile.Graph
 
 				if (decision.Value.Calculate(null) != 0)
 				{
-					decision.edgeFalse.Parents.Remove(decision);
-					decision.Children.Remove(decision.edgeFalse);
-					decision.edgeFalse = null;
+					decision.EdgeFalse.Parents.Remove(decision);
+					decision.Children.Remove(decision.EdgeFalse);
+					decision.EdgeFalse = null;
 				}
 				else
 				{
-					decision.edgeTrue.Parents.Remove(decision);
-					decision.Children.Remove(decision.edgeTrue);
-					decision.edgeTrue = null;
+					decision.EdgeTrue.Parents.Remove(decision);
+					decision.Children.Remove(decision.EdgeTrue);
+					decision.EdgeTrue = null;
 				}
 
 				var remRule = new BCModRule(false);
@@ -649,9 +643,20 @@ namespace BefunCompile.Graph
 
 		public bool ReduceBlocks()
 		{
-			//TODO
+			var ruleRepl1 = new BCModRule(true, true);
+			ruleRepl1.AddPreq(p => p is BCVertexBlock);
+			ruleRepl1.AddPreq(p => p is BCVertexDecision);
+			ruleRepl1.AddRep((l, p) => new BCVertexDecisionBlock(BCDirection.UNKNOWN, l[0] as BCVertexBlock, l[1] as BCVertexDecision));
 
-			return true;
+			var ruleRepl2 = new BCModRule(true, true);
+			ruleRepl2.AddPreq(p => p is BCVertexBlock);
+			ruleRepl2.AddPreq(p => p is BCVertexFullDecision);
+			ruleRepl2.AddRep((l, p) => new BCVertexFullDecisionBlock(BCDirection.UNKNOWN, l[0] as BCVertexBlock, l[1] as BCVertexFullDecision));
+
+			bool b1 = ruleRepl1.Execute(this);
+			bool b2 = ruleRepl2.Execute(this);
+
+			return b1 || b2;
 		}
 
 		#endregion

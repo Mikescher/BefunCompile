@@ -63,6 +63,11 @@ namespace BefunCompile.Graph.Vertex
 			return true;
 		}
 
+		public override bool IsBlock()
+		{
+			return false;
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"

@@ -66,6 +66,11 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
+		public override bool IsBlock()
+		{
+			return false;
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return "{long v0=sp();long v1=sp();sa(v0);sa(v1);}";

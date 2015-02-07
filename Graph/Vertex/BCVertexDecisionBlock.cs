@@ -6,10 +6,22 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexDecisionBlock : BCVertex
+	public class BCVertexDecisionBlock : BCVertex, IDecisionVertex
 	{
 		public readonly BCVertexBlock Block;
 		public readonly BCVertexDecision Decision;
+
+		public BCVertex EdgeTrue
+		{
+			get { return Decision.EdgeTrue; }
+			set { Decision.EdgeTrue = value; }
+		}
+
+		public BCVertex EdgeFalse
+		{
+			get { return Decision.EdgeFalse; }
+			set { Decision.EdgeFalse = value; }
+		}
 
 		public BCVertexDecisionBlock(BCDirection d, BCVertexBlock block, BCVertexDecision dec)
 			: base(d, block.Positions.Concat(dec.Positions).ToArray())
@@ -56,6 +68,11 @@ namespace BefunCompile.Graph.Vertex
 		}
 
 		public override bool IsCodePathSplit()
+		{
+			return true;
+		}
+
+		public override bool IsBlock()
 		{
 			return true;
 		}

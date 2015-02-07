@@ -9,7 +9,7 @@ namespace BefunCompile
 {
 	public class BefunCompiler
 	{
-		public const string VERSION = "1.0.3";
+		public const string VERSION = "1.0.4";
 
 		private readonly long[,] sourceGrid;
 		private readonly int width;

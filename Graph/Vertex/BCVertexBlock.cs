@@ -90,6 +90,11 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
+		public override bool IsBlock()
+		{
+			return true;
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Join("", nodes.Select(p => p.GenerateCodeCSharp(g) + Environment.NewLine));
