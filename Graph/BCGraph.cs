@@ -1261,7 +1261,20 @@ namespace BefunCompile.Graph
 			string h = Height.ToString();
 
 			codebuilder.AppendLine(@"import gzip, base64");
-			codebuilder.AppendLine(@"_g=" + '"' + GenerateGridBase64DataString() + '"');
+
+			var b64 = GenerateGridBase64DataStringList();
+			for (int i = 0; i < b64.Count; i++)
+			{
+				if (i == 0 && (i + 1) == b64.Count)
+					codebuilder.AppendLine(@"_g = " + '"' + b64[i] + '"' + ";");
+				else if (i == 0)
+					codebuilder.AppendLine(@"_g = (" + '"' + b64[i] + '"');
+				else if ((i + 1) == b64.Count)
+					codebuilder.AppendLine(@"  + " + '"' + b64[i] + '"' + ")");
+				else
+					codebuilder.AppendLine(@"  + " + '"' + b64[i] + '"');
+			}
+
 			codebuilder.AppendLine(@"g = base64.b64decode(_g)[1:]");
 			codebuilder.AppendLine(@"for i in range(base64.b64decode(_g)[0]):");
 			codebuilder.AppendLine(@"    g = gzip.decompress(g)");
