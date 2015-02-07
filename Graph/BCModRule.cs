@@ -37,7 +37,7 @@ namespace BefunCompile.Graph
 
 		public bool ArrayExecute(BCGraph g)
 		{
-			foreach (var curr in g.vertices)
+			foreach (var curr in g.Vertices)
 			{
 				if (Execute(g, curr))
 					return true;
@@ -50,7 +50,7 @@ namespace BefunCompile.Graph
 		{
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
 			Stack<BCVertex> untravelled = new Stack<BCVertex>();
-			untravelled.Push(g.root);
+			untravelled.Push(g.Root);
 
 			while (untravelled.Count > 0)
 			{
@@ -97,7 +97,7 @@ namespace BefunCompile.Graph
 			BCVertex chainFirst = chain[0];
 			BCVertex chainLast = chain.Last();
 
-			bool isRoot = (chainFirst == g.root);
+			bool isRoot = (chainFirst == g.Root);
 			bool isLeaf = (chainLast.children.Count == 0);
 
 			if (repChain.Length == 0 && (isRoot || isLeaf))
@@ -167,7 +167,7 @@ namespace BefunCompile.Graph
 				}
 
 				if (isRoot)
-					g.root = repChainFirst;
+					g.Root = repChainFirst;
 			}
 			else
 			{
@@ -203,11 +203,11 @@ namespace BefunCompile.Graph
 				}
 
 				if (isRoot)
-					g.root = next[0];
+					g.Root = next[0];
 			}
 
-			g.vertices.RemoveAll(p => chain.Contains(p));
-			g.vertices.AddRange(repChain);
+			g.Vertices.RemoveAll(p => chain.Contains(p));
+			g.Vertices.AddRange(repChain);
 
 			if (repChain.Length == 0)
 			{
@@ -226,7 +226,7 @@ namespace BefunCompile.Graph
 		{
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
 			Stack<BCVertex> untravelled = new Stack<BCVertex>();
-			untravelled.Push(g.root);
+			untravelled.Push(g.Root);
 
 			while (untravelled.Count > 0)
 			{
@@ -312,7 +312,7 @@ namespace BefunCompile.Graph
 			if (chain.Last().children.Count > 1)
 				return chain;
 
-			bool isRoot = chain[0] == g.root;
+			bool isRoot = chain[0] == g.Root;
 			int cutIndex = chain.FindIndex(p => p.parents.Count > 1 && p != chain[0]);
 
 			BCVertex cut = chain[cutIndex];
@@ -326,7 +326,7 @@ namespace BefunCompile.Graph
 			for (int i = cutIndex; i < chain.Count; i++)
 			{
 				BCVertex newVertex = chain[i].Duplicate();
-				g.vertices.Add(newVertex);
+				g.Vertices.Add(newVertex);
 
 				cutCurr.children.Add(newVertex);
 				newVertex.parents.Add(cutCurr);

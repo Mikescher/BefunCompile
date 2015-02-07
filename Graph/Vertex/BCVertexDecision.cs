@@ -74,17 +74,17 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("if(sp()!=0)goto _{0}; else goto _{1};", g.vertices.IndexOf(edgeTrue), g.vertices.IndexOf(edgeFalse));
+			return string.Format("if(sp()!=0)goto _{0}; else goto _{1};", g.Vertices.IndexOf(edgeTrue), g.Vertices.IndexOf(edgeFalse));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("if(sp()!=0)goto _{0}; else goto _{1};", g.vertices.IndexOf(edgeTrue), g.vertices.IndexOf(edgeFalse));
+			return string.Format("if(sp()!=0)goto _{0}; else goto _{1};", g.Vertices.IndexOf(edgeTrue), g.Vertices.IndexOf(edgeFalse));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("return ({0})if(sp()!=0)else({1})", g.vertices.IndexOf(edgeTrue), g.vertices.IndexOf(edgeFalse));
+			return string.Format("return ({0})if(sp()!=0)else({1})", g.Vertices.IndexOf(edgeTrue), g.Vertices.IndexOf(edgeFalse));
 		}
 	}
 }

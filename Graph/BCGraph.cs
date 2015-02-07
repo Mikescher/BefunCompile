@@ -14,11 +14,11 @@ namespace BefunCompile.Graph
 	{
 		private const int CODEGEN_C_INITIALSTACKSIZE = 16384;
 
-		public BCVertex root = null;
+		public BCVertex Root;
 
-		public List<BCVertex> vertices = new List<BCVertex>();
+		public List<BCVertex> Vertices = new List<BCVertex>();
 
-		public List<ExpressionVariable> variables = new List<ExpressionVariable>();
+		public List<ExpressionVariable> Variables = new List<ExpressionVariable>();
 
 		public readonly long[,] SourceGrid;
 		public readonly long Width;
@@ -26,14 +26,14 @@ namespace BefunCompile.Graph
 
 		public BCGraph(long[,] sg, long w, long h)
 		{
-			this.SourceGrid = sg;
-			this.Width = w;
-			this.Height = h;
+			SourceGrid = sg;
+			Width = w;
+			Height = h;
 		}
 
-		public BCVertex getVertex(Vec2i pos, BCDirection dir)
+		public BCVertex GetVertex(Vec2i pos, BCDirection dir)
 		{
-			return vertices.FirstOrDefault(p =>
+			return Vertices.FirstOrDefault(p =>
 				p.positions.Length == 1 &&
 				p.positions[0].X == pos.X &&
 				p.positions[0].Y == pos.Y &&
@@ -42,7 +42,7 @@ namespace BefunCompile.Graph
 
 		public void AfterGen()
 		{
-			foreach (var v in vertices)
+			foreach (var v in Vertices)
 			{
 				v.AfterGen();
 			}
@@ -50,22 +50,22 @@ namespace BefunCompile.Graph
 
 		public void UpdateParents()
 		{
-			foreach (var v in vertices)
+			foreach (var v in Vertices)
 			{
 				v.parents.Clear();
 			}
 
-			foreach (var v in vertices)
+			foreach (var v in Vertices)
 			{
 				v.UpdateParents();
 			}
 		}
 
-		public List<BCVertex> walkGraphDual()
+		private List<BCVertex> WalkGraphDual()
 		{
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
 			Stack<BCVertex> untravelled = new Stack<BCVertex>();
-			untravelled.Push(root);
+			untravelled.Push(Root);
 
 			while (untravelled.Count > 0)
 			{
@@ -85,7 +85,7 @@ namespace BefunCompile.Graph
 
 		public bool TestGraph()
 		{
-			foreach (var v in vertices)
+			foreach (var v in Vertices)
 			{
 				if (!v.TestParents())
 					return false;
@@ -108,7 +108,7 @@ namespace BefunCompile.Graph
 
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
 			Stack<BCVertex> untravelled = new Stack<BCVertex>();
-			untravelled.Push(root);
+			untravelled.Push(Root);
 
 			while (untravelled.Count > 0)
 			{
@@ -120,21 +120,21 @@ namespace BefunCompile.Graph
 					untravelled.Push(child);
 			}
 
-			if (travelled.Count != vertices.Count)
+			if (travelled.Count != Vertices.Count)
 				return false;
 
-			if (travelled.Any(p => !vertices.Contains(p)))
+			if (travelled.Any(p => !Vertices.Contains(p)))
 				return false;
 
-			if (vertices.Count(p => p.parents.Count == 0) > 1)
+			if (Vertices.Count(p => p.parents.Count == 0) > 1)
 				return false;
 
 			return true;
 		}
 
-		public List<Vec2l> getAllCodePositions()
+		public List<Vec2l> GetAllCodePositions()
 		{
-			return vertices.SelectMany(p => p.positions).Select(p => new Vec2l(p.X, p.Y)).Distinct().ToList();
+			return Vertices.SelectMany(p => p.positions).Select(p => new Vec2l(p.X, p.Y)).Distinct().ToList();
 		}
 
 		#region O:1 Minimize
@@ -149,12 +149,12 @@ namespace BefunCompile.Graph
 			return o1 || o2 || o3 || o4;
 		}
 
-		public bool MinimizeNOP()
+		private bool MinimizeNOP()
 		{
 			bool found = false;
 
 			List<BCVertex> removed = new List<BCVertex>();
-			foreach (var vertex in vertices)
+			foreach (var vertex in Vertices)
 			{
 				if (!(vertex is BCVertexNOP))
 					continue;
@@ -185,30 +185,30 @@ namespace BefunCompile.Graph
 
 					next.positions = next.positions.Concat(vertex.positions).Distinct().ToArray();
 
-					if (vertex == root)
-						root = next;
+					if (vertex == Root)
+						Root = next;
 				}
 			}
 
 			foreach (var rv in removed)
 			{
-				vertices.Remove(rv);
+				Vertices.Remove(rv);
 			}
 
 			return found;
 		}
 
-		public bool MinimizeNOPSplit()
+		private bool MinimizeNOPSplit()
 		{
 			bool found = false;
 
 			List<BCVertex> removed = new List<BCVertex>();
-			foreach (var vertex in vertices)
+			foreach (var vertex in Vertices)
 			{
 				if (!(vertex is BCVertexNOP))
 					continue;
 
-				if (vertex.parents.Count > 1 && vertex.children.Count == 1 && vertex.parents.All(p => !(p is BCVertexDecision || p is BCVertexFullDecision)) && !vertex.parents.Any(p => p == vertex) && !vertex.children.Any(p => p == vertex))
+				if (vertex.parents.Count > 1 && vertex.children.Count == 1 && vertex.parents.All(p => !(p is BCVertexDecision || p is BCVertexFullDecision)) && vertex.parents.All(p => p != vertex) && vertex.children.All(p => p != vertex))
 				{
 					found = true;
 
@@ -231,44 +231,44 @@ namespace BefunCompile.Graph
 
 					next.positions = next.positions.Concat(vertex.positions).Distinct().ToArray();
 
-					if (vertex == root)
-						root = next;
+					if (vertex == Root)
+						Root = next;
 				}
 			}
 
 			foreach (var rv in removed)
 			{
-				vertices.Remove(rv);
+				Vertices.Remove(rv);
 			}
 
 			return found;
 		}
 
-		public bool MinimizeNOPTail()
+		private bool MinimizeNOPTail()
 		{
 			bool found = false;
 
-			if (root is BCVertexNOP && root.parents.Count == 0 && root.children.Count == 1)
+			if (Root is BCVertexNOP && Root.parents.Count == 0 && Root.children.Count == 1)
 			{
 				found = true;
 
-				BCVertex vertex = root;
+				BCVertex vertex = Root;
 
-				vertices.Remove(vertex);
+				Vertices.Remove(vertex);
 
 				vertex.children[0].positions = vertex.children[0].positions.Concat(vertex.positions).ToArray();
 
 				vertex.children[0].parents.Clear();
-				root = vertex.children[0];
+				Root = vertex.children[0];
 			}
 
 			List<BCVertex> removed = new List<BCVertex>();
-			foreach (var vertex in vertices)
+			foreach (var vertex in Vertices)
 			{
 				if (!(vertex is BCVertexNOP))
 					continue;
 
-				if (vertex.parents.Count == 1 && vertex.children.Count == 0 && vertex.parents[0].children.Count == 1 && vertex != root)
+				if (vertex.parents.Count == 1 && vertex.children.Count == 0 && vertex.parents[0].children.Count == 1 && vertex != Root)
 				{
 					found = true;
 
@@ -286,18 +286,18 @@ namespace BefunCompile.Graph
 
 			foreach (var rv in removed)
 			{
-				vertices.Remove(rv);
+				Vertices.Remove(rv);
 			}
 
 			return found;
 		}
 
-		public bool MinimizeNOPDecision()
+		private bool MinimizeNOPDecision()
 		{
 			bool found = false;
 
 			List<BCVertex> removed = new List<BCVertex>();
-			foreach (var vertex in vertices)
+			foreach (var vertex in Vertices)
 			{
 				if (!(vertex is BCVertexNOP))
 					continue;
@@ -306,7 +306,7 @@ namespace BefunCompile.Graph
 				{
 					found = true;
 
-					BCVertexDecision prev = vertex.parents[0] as BCVertexDecision;
+					BCVertexDecision prev = (BCVertexDecision)vertex.parents[0];
 					BCVertex next = vertex.children[0];
 
 					bool isDTrue = (prev.edgeTrue == vertex);
@@ -328,14 +328,14 @@ namespace BefunCompile.Graph
 					else
 						prev.edgeFalse = next;
 
-					if (vertex == root)
-						root = next;
+					if (vertex == Root)
+						Root = next;
 				}
 			}
 
 			foreach (var rv in removed)
 			{
-				vertices.Remove(rv);
+				Vertices.Remove(rv);
 			}
 
 			return found;
@@ -351,12 +351,12 @@ namespace BefunCompile.Graph
 			rule1.AddPreq(v => v is BCVertexPush);
 			rule1.AddPreq(v => v is BCVertexPush);
 			rule1.AddPreq(v => v is BCVertexBinaryMath);
-			rule1.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ExpressionBinMath.Create((l[0] as BCVertexPush).Value, (l[1] as BCVertexPush).Value, (l[2] as BCVertexBinaryMath).mtype)));
+			rule1.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ExpressionBinMath.Create(((BCVertexPush)l[0]).Value, ((BCVertexPush)l[1]).Value, ((BCVertexBinaryMath)l[2]).mtype)));
 
 			var rule2 = new BCModRule();
 			rule2.AddPreq(v => v is BCVertexPush);
 			rule2.AddPreq(v => v is BCVertexNot);
-			rule2.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ExpressionNot.Create((l[0] as BCVertexPush).Value)));
+			rule2.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ExpressionNot.Create(((BCVertexPush)l[0]).Value)));
 
 			var rule3 = new BCModRule();
 			rule3.AddPreq(v => v is BCVertexPush);
@@ -369,15 +369,15 @@ namespace BefunCompile.Graph
 			var rule5 = new BCModRule();
 			rule5.AddPreq(v => v is BCVertexPush);
 			rule5.AddPreq(v => v is BCVertexDup);
-			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value));
-			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value));
+			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value));
+			rule5.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value));
 
 			var rule6 = new BCModRule();
 			rule6.AddPreq(v => v is BCVertexPush);
 			rule6.AddPreq(v => v is BCVertexPush);
 			rule6.AddPreq(v => v is BCVertexSwap);
-			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[1] as BCVertexPush).Value));
-			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value));
+			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ((BCVertexPush)l[1]).Value));
+			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value));
 
 			bool b1 = rule1.Execute(this);
 			bool b2 = rule2.Execute(this);
@@ -399,18 +399,18 @@ namespace BefunCompile.Graph
 			rule1.AddPreq(v => v is BCVertexPush);
 			rule1.AddPreq(v => v is BCVertexPush);
 			rule1.AddPreq(v => v is BCVertexGet);
-			rule1.AddRep((l, p) => new BCVertexFullGet(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value, (l[1] as BCVertexPush).Value));
+			rule1.AddRep((l, p) => new BCVertexFullGet(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value, ((BCVertexPush)l[1]).Value));
 
 			var rule2 = new BCModRule();
 			rule2.AddPreq(v => v is BCVertexPush);
 			rule2.AddPreq(v => v is BCVertexPush);
 			rule2.AddPreq(v => v is BCVertexSet);
-			rule2.AddRep((l, p) => new BCVertexFullSet(BCDirection.UNKNOWN, p, (l[0] as BCVertexPush).Value, (l[1] as BCVertexPush).Value));
+			rule2.AddRep((l, p) => new BCVertexFullSet(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value, ((BCVertexPush)l[1]).Value));
 
 			var rule3 = new BCModRule();
 			rule3.AddPreq(v => v is BCVertexPush);
 			rule3.AddPreq(v => v is BCVertexFullSet);
-			rule3.AddRep((l, p) => new BCVertexTotalSet(BCDirection.UNKNOWN, p, (l[1] as BCVertexFullSet).X, (l[1] as BCVertexFullSet).Y, (l[0] as BCVertexPush).Value));
+			rule3.AddRep((l, p) => new BCVertexTotalSet(BCDirection.UNKNOWN, p, ((BCVertexFullSet)l[1]).X, ((BCVertexFullSet)l[1]).Y, ((BCVertexPush)l[0]).Value));
 
 			var rule4 = new BCModRule();
 			rule4.AddPreq(v => v is BCVertexFullGet);
@@ -426,12 +426,12 @@ namespace BefunCompile.Graph
 
 			var rule6 = new BCModRule();
 			rule6.AddPreq(v => v is BCVertexFullGet);
-			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, (l[0] as BCVertexFullGet).ToExpression()));
+			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ((BCVertexFullGet)l[0]).ToExpression()));
 
 			var rule7 = new BCModRule();
 			rule7.AddPreq(v => v is BCVertexPush);
 			rule7.AddPreq(v => v is BCVertexOutput);
-			rule7.AddRep((l, p) => new BCVertexFullOutput(BCDirection.UNKNOWN, p, (l[1] as BCVertexOutput).ModeInteger, (l[0] as BCVertexPush).Value));
+			rule7.AddRep((l, p) => new BCVertexFullOutput(BCDirection.UNKNOWN, p, ((BCVertexOutput)l[1]).ModeInteger, ((BCVertexPush)l[0]).Value));
 
 			bool b0 = Substitute();
 
@@ -460,8 +460,8 @@ namespace BefunCompile.Graph
 				return false;
 
 			var prev = chain[0].parents.ToList();
-			var nextTrue = (chain[1] as BCVertexDecision).edgeTrue;
-			var nextFalse = (chain[1] as BCVertexDecision).edgeFalse;
+			var nextTrue = ((BCVertexDecision)chain[1]).edgeTrue;
+			var nextFalse = ((BCVertexDecision)chain[1]).edgeFalse;
 
 			if (prev.Any(p => p is BCVertexFullDecision))
 				return false;
@@ -471,15 +471,15 @@ namespace BefunCompile.Graph
 
 			chain[0].children.Clear();
 			chain[0].parents.Clear();
-			vertices.Remove(chain[0]);
+			Vertices.Remove(chain[0]);
 
 			chain[1].children.Clear();
 			chain[1].parents.Clear();
-			vertices.Remove(chain[1]);
+			Vertices.Remove(chain[1]);
 
-			var newnode = new BCVertexFullDecision(BCDirection.UNKNOWN, chain.SelectMany(p => p.positions).ToArray(), nextTrue, nextFalse, (chain[0] as BCVertexPush).Value);
+			var newnode = new BCVertexFullDecision(BCDirection.UNKNOWN, chain.SelectMany(p => p.positions).ToArray(), nextTrue, nextFalse, ((BCVertexPush)chain[0]).Value);
 
-			vertices.Add(newnode);
+			Vertices.Add(newnode);
 
 			nextTrue.parents.Remove(chain[1]);
 			newnode.children.Add(nextTrue);
@@ -504,8 +504,8 @@ namespace BefunCompile.Graph
 				}
 			}
 
-			if (root == chain[0])
-				root = newnode;
+			if (Root == chain[0])
+				Root = newnode;
 
 			return true;
 		}
@@ -514,58 +514,55 @@ namespace BefunCompile.Graph
 
 		#region O:4 Variablize
 
-		public IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return vertices.SelectMany(p => p.listConstantVariableAccess());
+			return Vertices.SelectMany(p => p.listConstantVariableAccess());
 		}
 
-		public IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return vertices.SelectMany(p => p.listDynamicVariableAccess());
+			return Vertices.SelectMany(p => p.listDynamicVariableAccess());
 		}
 
 		public void SubstituteConstMemoryAccess(Func<long, long, long> gridGetter)
 		{
-			var ios = listConstantVariableAccess().ToList();
+			var ios = ListConstantVariableAccess().ToList();
 
-			variables = ios
+			Variables = ios
 				.Select(p => new Vec2l(p.getX().Calculate(null), p.getY().Calculate(null)))
 				.Distinct()
 				.Select((p, i) => ExpressionVariable.Create("x" + i, gridGetter(p.X, p.Y), p))
 				.ToList();
 
-			Dictionary<Vec2l, ExpressionVariable> vardic = new Dictionary<Vec2l, ExpressionVariable>();
-			variables.ForEach(p => vardic.Add(p.position, p));
+			var vardic = new Dictionary<Vec2l, ExpressionVariable>();
+			Variables.ForEach(p => vardic.Add(p.position, p));
 
-			foreach (var variable in variables)
+			BCModRule vertexRule1 = new BCModRule();
+			vertexRule1.AddPreq(p => p is BCVertexFullGet && ios.Contains((MemoryAccess)p));
+			vertexRule1.AddRep((l, p) => new BCVertexFullVarGet(BCDirection.UNKNOWN, p, vardic[((BCVertexFullGet)l[0]).getConstantPos()]));
+
+			BCModRule vertexRule2 = new BCModRule();
+			vertexRule2.AddPreq(p => p is BCVertexFullSet && ios.Contains((MemoryAccess)p));
+			vertexRule2.AddRep((l, p) => new BCVertexFullVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexFullSet)l[0]).getConstantPos()]));
+
+			BCModRule vertexRule3 = new BCModRule();
+			vertexRule3.AddPreq(p => p is BCVertexTotalSet && ios.Contains((MemoryAccess)p));
+			vertexRule3.AddRep((l, p) => new BCVertexTotalVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexTotalSet)l[0]).getConstantPos()], ((BCVertexTotalSet)l[0]).Value));
+
+			BCExprModRule exprRule1 = new BCExprModRule();
+			exprRule1.setPreq(p => p is ExpressionGet && ios.Contains((MemoryAccess)p));
+			exprRule1.setRep(p => vardic[((ExpressionGet)p).getConstantPos()]);
+
+			bool changed = true;
+
+			while (changed)
 			{
-				BCModRule vertexRule1 = new BCModRule();
-				vertexRule1.AddPreq(p => p is BCVertexFullGet && ios.Contains(p as MemoryAccess));
-				vertexRule1.AddRep((l, p) => new BCVertexFullVarGet(BCDirection.UNKNOWN, p, vardic[(l[0] as BCVertexFullGet).getConstantPos()]));
+				bool b1 = vertexRule1.Execute(this);
+				bool b2 = vertexRule2.Execute(this);
+				bool b3 = vertexRule3.Execute(this);
+				bool b4 = exprRule1.Execute(this);
 
-				BCModRule vertexRule2 = new BCModRule();
-				vertexRule2.AddPreq(p => p is BCVertexFullSet && ios.Contains(p as MemoryAccess));
-				vertexRule2.AddRep((l, p) => new BCVertexFullVarSet(BCDirection.UNKNOWN, p, vardic[(l[0] as BCVertexFullSet).getConstantPos()]));
-
-				BCModRule vertexRule3 = new BCModRule();
-				vertexRule3.AddPreq(p => p is BCVertexTotalSet && ios.Contains(p as MemoryAccess));
-				vertexRule3.AddRep((l, p) => new BCVertexTotalVarSet(BCDirection.UNKNOWN, p, vardic[(l[0] as BCVertexTotalSet).getConstantPos()], (l[0] as BCVertexTotalSet).Value));
-
-				BCExprModRule exprRule1 = new BCExprModRule();
-				exprRule1.setPreq(p => p is ExpressionGet && ios.Contains(p as MemoryAccess));
-				exprRule1.setRep(p => vardic[(p as ExpressionGet).getConstantPos()]);
-
-				bool changed = true;
-
-				while (changed)
-				{
-					bool b1 = vertexRule1.Execute(this);
-					bool b2 = vertexRule2.Execute(this);
-					bool b3 = vertexRule3.Execute(this);
-					bool b4 = exprRule1.Execute(this);
-
-					changed = b1 || b2 || b3 || b4;
-				}
+				changed = b1 || b2 || b3 || b4;
 			}
 		}
 
@@ -597,7 +594,7 @@ namespace BefunCompile.Graph
 
 		private bool RemoveNoDecisions()
 		{
-			foreach (var vertex in vertices)
+			foreach (var vertex in Vertices)
 			{
 				if (!(vertex is BCVertexFullDecision))
 					continue;
@@ -628,15 +625,13 @@ namespace BefunCompile.Graph
 				if (!exec)
 					throw new Exception("errrrrrrr");
 
-				var included = walkGraphDual();
-				vertices = vertices.Where(p => included.Contains(p)).ToList();
+				var included = WalkGraphDual();
+				Vertices = Vertices.Where(p => included.Contains(p)).ToList();
 
 				var headlessRule = new BCModRule(false);
-				headlessRule.AddPreq(p => p.parents.Count == 0 && p != root);
+				headlessRule.AddPreq(p => p.parents.Count == 0 && p != Root);
 
-				int hlc = 0;
-				while (headlessRule.ArrayExecute(this))
-					hlc++;
+				while (headlessRule.ArrayExecute(this)) { /**/ }
 
 				return true;
 			}
@@ -650,7 +645,7 @@ namespace BefunCompile.Graph
 
 		private string indent(string code, string indent)
 		{
-			return string.Join(Environment.NewLine, code.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).Select(p => indent + p));
+			return string.Join(Environment.NewLine, code.Split(new[] { Environment.NewLine }, StringSplitOptions.None).Select(p => indent + p));
 		}
 
 		private byte[] CompressData(byte[] data)
@@ -667,7 +662,7 @@ namespace BefunCompile.Graph
 				compressioncount++;
 			}
 
-			return new byte[] { compressioncount }.Concat(data).ToArray();
+			return new[] { compressioncount }.Concat(data).ToArray();
 		}
 
 		private byte[] CompressSingleData(byte[] raw)
@@ -695,11 +690,6 @@ namespace BefunCompile.Graph
 			}
 
 			return codebuilder.ToString();
-		}
-
-		private string GenerateGridMSZipDataString()
-		{
-			return MSZipImplementation.CompressToString(GenerateGridData()).Replace("\\", "\\\\").Replace("\"", "\\\"");
 		}
 
 		private List<string> GenerateGridMSZipDataStringList(out int length)
@@ -748,7 +738,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine(@"public static class Program ");
 			codebuilder.AppendLine("{");
 
-			if (listDynamicVariableAccess().Count() > 0)
+			if (ListDynamicVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccessCSharp(implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateStackAccessCSharp(implementSafeStackAccess));
 			codebuilder.Append(GenerateHelperMethodsCSharp());
@@ -756,28 +746,28 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("static void Main(string[] args)");
 			codebuilder.AppendLine("{");
 
-			foreach (var variable in variables)
+			foreach (var variable in Variables)
 			{
 				codebuilder.AppendLine(indent2 + "long " + variable.Identifier + "=" + variable.initial + ";");
 			}
 
-			codebuilder.AppendLine(indent2 + "goto _" + vertices.IndexOf(root) + ";");
+			codebuilder.AppendLine(indent2 + "goto _" + Vertices.IndexOf(Root) + ";");
 
-			for (int i = 0; i < vertices.Count; i++)
+			for (int i = 0; i < Vertices.Count; i++)
 			{
 				codebuilder.AppendLine(indent1 + "_" + i + ":");
 
-				codebuilder.AppendLine(indent(vertices[i].GenerateCodeCSharp(this), indent2));
+				codebuilder.AppendLine(indent(Vertices[i].GenerateCodeCSharp(this), indent2));
 
-				if (vertices[i].children.Count == 1)
-					codebuilder.AppendLine(indent2 + "goto _" + vertices.IndexOf(vertices[i].children[0]) + ";");
-				else if (vertices[i].children.Count == 0)
+				if (Vertices[i].children.Count == 1)
+					codebuilder.AppendLine(indent2 + "goto _" + Vertices.IndexOf(Vertices[i].children[0]) + ";");
+				else if (Vertices[i].children.Count == 0)
 					codebuilder.AppendLine(indent2 + "return;");
 			}
 
 			codebuilder.AppendLine("}}");
 
-			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
+			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
 		}
 
 		private string GenerateHelperMethodsCSharp()
@@ -819,8 +809,7 @@ namespace BefunCompile.Graph
 		{
 			if (useGzip)
 				return GenerateGridAccessCSharp_GZip(implementSafeGridAccess);
-			else
-				return GenerateGridAccessCSharp_NoGZip(implementSafeGridAccess);
+			return GenerateGridAccessCSharp_NoGZip(implementSafeGridAccess);
 		}
 
 		private string GenerateGridAccessCSharp_NoGZip(bool implementSafeGridAccess)
@@ -932,7 +921,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("#include <stdlib.h>");
 			codebuilder.AppendLine("#define int64 long long");
 
-			if (listDynamicVariableAccess().Count() > 0)
+			if (ListDynamicVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccessC(implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateHelperMethodsC());
 			codebuilder.Append(GenerateStackAccessC(implementSafeStackAccess));
@@ -940,28 +929,28 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("int main(void)");
 			codebuilder.AppendLine("{");
 
-			foreach (var variable in variables)
+			foreach (var variable in Variables)
 			{
 				codebuilder.AppendLine(indent1 + "int64 " + variable.Identifier + "=" + variable.initial + ";");
 			}
 
-			if (listDynamicVariableAccess().Count() > 0 && useGZip)
+			if (ListDynamicVariableAccess().Any() && useGZip)
 				codebuilder.AppendLine(indent1 + "d();");
 
 			codebuilder.AppendLine(indent1 + "srand(time(NULL));");
 			codebuilder.AppendLine(indent1 + "s=(int64*)calloc(q,sizeof(int64));");
 
-			codebuilder.AppendLine(indent1 + "goto _" + vertices.IndexOf(root) + ";");
+			codebuilder.AppendLine(indent1 + "goto _" + Vertices.IndexOf(Root) + ";");
 
-			for (int i = 0; i < vertices.Count; i++)
+			for (int i = 0; i < Vertices.Count; i++)
 			{
 				codebuilder.AppendLine("_" + i + ":");
 
-				codebuilder.AppendLine(indent(vertices[i].GenerateCodeC(this), indent1));
+				codebuilder.AppendLine(indent(Vertices[i].GenerateCodeC(this), indent1));
 
-				if (vertices[i].children.Count == 1)
-					codebuilder.AppendLine(indent1 + "goto _" + vertices.IndexOf(vertices[i].children[0]) + ";");
-				else if (vertices[i].children.Count == 0)
+				if (Vertices[i].children.Count == 1)
+					codebuilder.AppendLine(indent1 + "goto _" + Vertices.IndexOf(Vertices[i].children[0]) + ";");
+				else if (Vertices[i].children.Count == 0)
 					codebuilder.AppendLine(indent1 + "goto __;");
 			}
 
@@ -969,7 +958,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine(indent1 + "return 0;");
 			codebuilder.AppendLine("}");
 
-			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
+			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
 		}
 
 		private string GenerateStackAccessC(bool implementSafeStackAccess)
@@ -1010,8 +999,7 @@ namespace BefunCompile.Graph
 		{
 			if (useGZip)
 				return GenerateGridAccessC_GZip(implementSafeGridAccess);
-			else
-				return GenerateGridAccessC_NoGZip(implementSafeGridAccess);
+			return GenerateGridAccessC_NoGZip(implementSafeGridAccess);
 		}
 
 		private string GenerateGridAccessC_GZip(bool implementSafeGridAccess)
@@ -1119,35 +1107,35 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine(@"# execute with at least Python3");
 			codebuilder.AppendLine(@"from random import randint");
 
-			if (listDynamicVariableAccess().Count() > 0)
+			if (ListDynamicVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccessPython(implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateHelperMethodsPython());
 			codebuilder.Append(GenerateStackAccessPython(implementSafeStackAccess));
 
-			foreach (var variable in variables)
+			foreach (var variable in Variables)
 				codebuilder.AppendLine(variable.Identifier + "=" + variable.initial);
 
 
-			for (int i = 0; i < vertices.Count; i++)
+			for (int i = 0; i < Vertices.Count; i++)
 			{
 				codebuilder.AppendLine("def _" + i + "():");
-				foreach (var variable in variables)
+				foreach (var variable in Variables)
 					codebuilder.AppendLine("    global " + variable.Identifier);
 
-				codebuilder.AppendLine(indent(vertices[i].GenerateCodePython(this), "    "));
+				codebuilder.AppendLine(indent(Vertices[i].GenerateCodePython(this), "    "));
 
-				if (vertices[i].children.Count == 1)
-					codebuilder.AppendLine("    return " + vertices.IndexOf(vertices[i].children[0]) + "");
-				else if (vertices[i].children.Count == 0)
-					codebuilder.AppendLine("    return " + vertices.Count);
+				if (Vertices[i].children.Count == 1)
+					codebuilder.AppendLine("    return " + Vertices.IndexOf(Vertices[i].children[0]) + "");
+				else if (Vertices[i].children.Count == 0)
+					codebuilder.AppendLine("    return " + Vertices.Count);
 			}
 
-			codebuilder.AppendLine("m=[" + string.Join(",", Enumerable.Range(0, vertices.Count).Select(p => "_" + p)) + "]");
-			codebuilder.AppendLine("c=" + vertices.IndexOf(root));
-			codebuilder.AppendLine("while c<" + vertices.Count + ":");
+			codebuilder.AppendLine("m=[" + string.Join(",", Enumerable.Range(0, Vertices.Count).Select(p => "_" + p)) + "]");
+			codebuilder.AppendLine("c=" + Vertices.IndexOf(Root));
+			codebuilder.AppendLine("while c<" + Vertices.Count + ":");
 			codebuilder.AppendLine("    c=m[c]()");
 
-			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
+			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
 
 		}
 
@@ -1212,8 +1200,7 @@ namespace BefunCompile.Graph
 		{
 			if (useGZip)
 				return GenerateGridAccessPython_GZip(implementSafeGridAccess);
-			else
-				return GenerateGridAccessPython_NoGZip(implementSafeGridAccess);
+			return GenerateGridAccessPython_NoGZip(implementSafeGridAccess);
 		}
 
 		private string GenerateGridAccessPython_NoGZip(bool implementSafeGridAccess)

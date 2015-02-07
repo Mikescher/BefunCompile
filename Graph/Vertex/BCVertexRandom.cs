@@ -61,28 +61,28 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"
-				.Replace("g0", "_" + g.vertices.IndexOf(children[0]))
-				.Replace("g1", "_" + g.vertices.IndexOf(children[1]))
-				.Replace("g2", "_" + g.vertices.IndexOf(children[2]))
-				.Replace("g3", "_" + g.vertices.IndexOf(children[3]));
+				.Replace("g0", "_" + g.Vertices.IndexOf(children[0]))
+				.Replace("g1", "_" + g.Vertices.IndexOf(children[1]))
+				.Replace("g2", "_" + g.Vertices.IndexOf(children[2]))
+				.Replace("g3", "_" + g.Vertices.IndexOf(children[3]));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
 			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"
-				.Replace("g0", "_" + g.vertices.IndexOf(children[0]))
-				.Replace("g1", "_" + g.vertices.IndexOf(children[1]))
-				.Replace("g2", "_" + g.vertices.IndexOf(children[2]))
-				.Replace("g3", "_" + g.vertices.IndexOf(children[3]));
+				.Replace("g0", "_" + g.Vertices.IndexOf(children[0]))
+				.Replace("g1", "_" + g.Vertices.IndexOf(children[1]))
+				.Replace("g2", "_" + g.Vertices.IndexOf(children[2]))
+				.Replace("g3", "_" + g.Vertices.IndexOf(children[3]));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
 			return "return (((g0)if(rd())else(g1))if(rd())else((g2)if(rd())else(g3)))"
-				.Replace("g0", "" + g.vertices.IndexOf(children[0]))
-				.Replace("g1", "" + g.vertices.IndexOf(children[1]))
-				.Replace("g2", "" + g.vertices.IndexOf(children[2]))
-				.Replace("g3", "" + g.vertices.IndexOf(children[3]));
+				.Replace("g0", "" + g.Vertices.IndexOf(children[0]))
+				.Replace("g1", "" + g.Vertices.IndexOf(children[1]))
+				.Replace("g2", "" + g.Vertices.IndexOf(children[2]))
+				.Replace("g3", "" + g.Vertices.IndexOf(children[3]));
 		}
 	}
 }

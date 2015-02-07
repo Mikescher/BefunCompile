@@ -27,7 +27,7 @@ namespace BefunCompile.Graph
 		{
 			bool found = false;
 
-			foreach (var vertex in g.vertices)
+			foreach (var vertex in g.Vertices)
 			{
 				if (vertex.SubsituteExpression(prerequisite, replacement))
 				{

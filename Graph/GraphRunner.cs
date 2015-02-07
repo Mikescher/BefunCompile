@@ -1,7 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
-using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -27,7 +25,7 @@ namespace BefunCompile.Graph
 		{
 			this.graph = g;
 
-			foreach (var var in graph.variables)
+			foreach (var var in graph.Variables)
 			{
 				varDic.Add(var, var.initial);
 			}
@@ -43,7 +41,7 @@ namespace BefunCompile.Graph
 
 		public void run()
 		{
-			current = graph.root;
+			current = graph.Root;
 
 			while (current != null)
 			{

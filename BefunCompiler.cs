@@ -101,11 +101,11 @@ namespace BefunCompile
 
 			{
 				BCDirection[] next;
-				graph.root = BCVertex.fromChar(BCDirection.FROM_LEFT, sourceGrid[0, 0], new Vec2i(0, 0), out next);
-				graph.vertices.Add(graph.root);
+				graph.Root = BCVertex.fromChar(BCDirection.FROM_LEFT, sourceGrid[0, 0], new Vec2i(0, 0), out next);
+				graph.Vertices.Add(graph.Root);
 				foreach (var direction in next)
 				{
-					unfinished.Push(Tuple.Create(graph.root, new Vec2i(0, 0).Move(direction, width, height, sourceGrid[0, 0] == '#'), direction));
+					unfinished.Push(Tuple.Create(graph.Root, new Vec2i(0, 0).Move(direction, width, height, sourceGrid[0, 0] == '#'), direction));
 				}
 			}
 
@@ -120,14 +120,14 @@ namespace BefunCompile
 				long command = sourceGrid[pos.X, pos.Y];
 
 				BCVertex vertex = BCVertex.fromChar(currentDir, command, pos, out next);
-				graph.vertices.Add(vertex);
+				graph.Vertices.Add(vertex);
 
 				parent.children.Add(vertex);
 
 				foreach (var direction in next)
 				{
 					Vec2i newpos = pos.Move(direction, width, height, command == '#' && !BCDirectionHelper.isSMDirection(direction));
-					BCVertex search = graph.getVertex(newpos, direction);
+					BCVertex search = graph.GetVertex(newpos, direction);
 					if (search == null)
 						unfinished.Push(Tuple.Create(vertex, newpos, direction));
 					else
@@ -214,11 +214,11 @@ namespace BefunCompile
 		{
 			BCGraph graph = generateFlattenedGraph(-1);
 
-			var constGets = graph.listConstantVariableAccess().ToList();
-			var dynamGets = graph.listDynamicVariableAccess().ToList();
+			var constGets = graph.ListConstantVariableAccess().ToList();
+			var dynamGets = graph.ListDynamicVariableAccess().ToList();
 
 			var accessPositions = constGets.Select(p => p.getConstantPos()).ToList();
-			var codePositions = graph.getAllCodePositions().ToList();
+			var codePositions = graph.GetAllCodePositions().ToList();
 
 			if (!ignoreSelfModification && accessPositions.Any(p => codePositions.Contains(p)))
 			{
