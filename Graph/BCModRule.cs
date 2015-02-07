@@ -61,7 +61,7 @@ namespace BefunCompile.Graph
 
 				travelled.Add(curr);
 
-				foreach (var child in curr.children)
+				foreach (var child in curr.Children)
 				{
 					if (!travelled.Contains(child))
 						untravelled.Push(child);
@@ -81,15 +81,15 @@ namespace BefunCompile.Graph
 			//##################################################################################
 
 			BCVertex[] chain = chainlist.ToArray();
-			Vec2i[] posarr = chain.SelectMany(p => p.positions).Distinct().ToArray();
+			Vec2i[] posarr = chain.SelectMany(p => p.Positions).Distinct().ToArray();
 			BCVertex[] repChain = replacements.Select(p => p(chain, posarr)).ToArray();
 
-			if (chain.Skip(1).Any(p => p.parents.Count > 1))
+			if (chain.Skip(1).Any(p => p.Parents.Count > 1))
 			{
 				return false;
 			}
 
-			if (chain.SkipLastN(1).Any(p => p.children.Count > 1))
+			if (chain.SkipLastN(1).Any(p => p.Children.Count > 1))
 			{
 				return false;
 			}
@@ -98,21 +98,21 @@ namespace BefunCompile.Graph
 			BCVertex chainLast = chain.Last();
 
 			bool isRoot = (chainFirst == g.Root);
-			bool isLeaf = (chainLast.children.Count == 0);
+			bool isLeaf = (chainLast.Children.Count == 0);
 
 			if (repChain.Length == 0 && (isRoot || isLeaf))
 				repChain = new BCVertex[] { new BCVertexNOP(BCDirection.UNKNOWN, posarr) };
 
-			if (chainLast.children.Contains(chainFirst))
+			if (chainLast.Children.Contains(chainFirst))
 				return false;
 
 			BCVertex repChainFirst = repChain.FirstOrDefault();
 			BCVertex repChainLast = repChain.LastOrDefault();
 
-			BCVertex[] prev = chainFirst.parents.ToArray();
-			BCVertex[] next = chainLast.children.ToArray();
+			BCVertex[] prev = chainFirst.Parents.ToArray();
+			BCVertex[] next = chainLast.Children.ToArray();
 
-			if (repChain.Length == 0 && prev.Any(p => p is BCVertexDecision || p is BCVertexFullDecision) && next.Length == 0)
+			if (repChain.Length == 0 && prev.Any(p => p.IsCodePathSplit()) && next.Length == 0)
 				repChain = new BCVertex[] { new BCVertexNOP(BCDirection.UNKNOWN, posarr) };
 
 			if (next.Length > 1)
@@ -123,27 +123,27 @@ namespace BefunCompile.Graph
 
 			for (int i = 0; i < repChain.Length - 1; i++)
 			{
-				repChain[i].children.Add(repChain[i + 1]);
+				repChain[i].Children.Add(repChain[i + 1]);
 			}
 			for (int i = 1; i < repChain.Length; i++)
 			{
-				repChain[i].parents.Add(repChain[i - 1]);
+				repChain[i].Parents.Add(repChain[i - 1]);
 			}
 
 			if (repChain.Length > 0)
 			{
-				repChainFirst.parents.AddRange(prev);
-				repChainLast.children.AddRange(next);
+				repChainFirst.Parents.AddRange(prev);
+				repChainLast.Children.AddRange(next);
 
 				foreach (var snext in next)
 				{
-					snext.parents.Remove(chainLast);
-					snext.parents.Add(repChainLast);
+					snext.Parents.Remove(chainLast);
+					snext.Parents.Add(repChainLast);
 				}
 				foreach (var sprev in prev)
 				{
-					sprev.children.Remove(chainFirst);
-					sprev.children.Add(repChainFirst);
+					sprev.Children.Remove(chainFirst);
+					sprev.Children.Add(repChainFirst);
 
 					if (sprev is BCVertexDecision)
 					{
@@ -173,13 +173,13 @@ namespace BefunCompile.Graph
 			{
 				foreach (var snext in next)
 				{
-					snext.parents.Remove(chainLast);
-					snext.parents.AddRange(prev);
+					snext.Parents.Remove(chainLast);
+					snext.Parents.AddRange(prev);
 				}
 				foreach (var sprev in prev)
 				{
-					sprev.children.Remove(chainFirst);
-					sprev.children.AddRange(next);
+					sprev.Children.Remove(chainFirst);
+					sprev.Children.AddRange(next);
 
 					if (sprev is BCVertexDecision)
 					{
@@ -212,9 +212,9 @@ namespace BefunCompile.Graph
 			if (repChain.Length == 0)
 			{
 				if (next.Length > 0)
-					next[0].positions = next[0].positions.Concat(posarr).Distinct().ToArray();
+					next[0].Positions = next[0].Positions.Concat(posarr).Distinct().ToArray();
 				else if (prev.Length > 0)
-					prev[0].positions = prev[0].positions.Concat(posarr).Distinct().ToArray();
+					prev[0].Positions = prev[0].Positions.Concat(posarr).Distinct().ToArray();
 				else
 					throw new ArgumentException("We lost a code point :( ");
 			}
@@ -239,7 +239,7 @@ namespace BefunCompile.Graph
 
 				travelled.Add(curr);
 
-				foreach (var child in curr.children)
+				foreach (var child in curr.Children)
 				{
 					if (!travelled.Contains(child))
 						untravelled.Push(child);
@@ -278,7 +278,7 @@ namespace BefunCompile.Graph
 				{
 					List<BCVertex> tail = null;
 
-					foreach (var child in v.children)
+					foreach (var child in v.Children)
 					{
 						tail = tail ?? GetMatchingChain(pos + 1, child);
 					}
@@ -303,24 +303,24 @@ namespace BefunCompile.Graph
 			if (chain == null)
 				return null;
 
-			if (!chain.Skip(1).Any(p => p.parents.Count > 1))
+			if (!chain.Skip(1).Any(p => p.Parents.Count > 1))
 				return chain;
 
 			if (chain.Count <= 1)
 				return chain;
 
-			if (chain.Last().children.Count > 1)
+			if (chain.Last().Children.Count > 1)
 				return chain;
 
 			bool isRoot = chain[0] == g.Root;
-			int cutIndex = chain.FindIndex(p => p.parents.Count > 1 && p != chain[0]);
+			int cutIndex = chain.FindIndex(p => p.Parents.Count > 1 && p != chain[0]);
 
 			BCVertex cut = chain[cutIndex];
-			BCVertex cutPrev = cut.parents.Where(p => p != chain[cutIndex - 1]).First();
-			BCVertex next = chain.Last().children.FirstOrDefault();
+			BCVertex cutPrev = cut.Parents.Where(p => p != chain[cutIndex - 1]).First();
+			BCVertex next = chain.Last().Children.FirstOrDefault();
 
-			cutPrev.children.Remove(cut);
-			cut.parents.Remove(cutPrev);
+			cutPrev.Children.Remove(cut);
+			cut.Parents.Remove(cutPrev);
 
 			BCVertex cutCurr = cutPrev;
 			for (int i = cutIndex; i < chain.Count; i++)
@@ -328,8 +328,8 @@ namespace BefunCompile.Graph
 				BCVertex newVertex = chain[i].Duplicate();
 				g.Vertices.Add(newVertex);
 
-				cutCurr.children.Add(newVertex);
-				newVertex.parents.Add(cutCurr);
+				cutCurr.Children.Add(newVertex);
+				newVertex.Parents.Add(cutCurr);
 
 				if (cutCurr is BCVertexDecision)
 				{
@@ -345,8 +345,8 @@ namespace BefunCompile.Graph
 			}
 			if (next != null)
 			{
-				cutCurr.children.Add(next);
-				next.parents.Add(cutCurr);
+				cutCurr.Children.Add(next);
+				next.Parents.Add(cutCurr);
 			}
 
 			return ExtractChain(g, chain);

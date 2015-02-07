@@ -30,15 +30,15 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexPush(direction, positions, Value);
+			return new BCVertexPush(Direction, Positions, Value);
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
 			return Value.listConstantVariableAccess();
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
 			return Value.listDynamicVariableAccess();
 		}
@@ -47,9 +47,9 @@ namespace BefunCompile.Graph.Vertex
 		{
 			stackbuilder.Push(Value.Calculate(ci));
 
-			if (children.Count > 1)
+			if (Children.Count > 1)
 				throw new ArgumentException("#");
-			return children.FirstOrDefault();
+			return Children.FirstOrDefault();
 		}
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
@@ -69,9 +69,14 @@ namespace BefunCompile.Graph.Vertex
 			return found;
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
 		{
 			return Value.isOnlyStackManipulation();
+		}
+
+		public override bool IsCodePathSplit()
+		{
+			return false;
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)

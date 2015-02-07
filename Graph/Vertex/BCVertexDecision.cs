@@ -28,11 +28,11 @@ namespace BefunCompile.Graph.Vertex
 		{
 			base.AfterGen();
 
-			if (children.Count != 2)
+			if (Children.Count != 2)
 				throw new Exception("Decision needs 2 children");
 
-			edgeTrue = children.First(p => p.positions[0].X < positions[0].X || p.positions[0].Y < positions[0].Y);
-			edgeFalse = children.First(p => p.positions[0].X > positions[0].X || p.positions[0].Y > positions[0].Y);
+			edgeTrue = Children.First(p => p.Positions[0].X < Positions[0].X || p.Positions[0].Y < Positions[0].Y);
+			edgeFalse = Children.First(p => p.Positions[0].X > Positions[0].X || p.Positions[0].Y > Positions[0].Y);
 		}
 
 		public override string ToString()
@@ -42,15 +42,15 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexDecision(direction, positions);
+			return new BCVertexDecision(Direction, Positions);
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
 			return Enumerable.Empty<MemoryAccess>();
 		}
@@ -67,9 +67,14 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
 		{
 			return false;
+		}
+
+		public override bool IsCodePathSplit()
+		{
+			return true;
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)

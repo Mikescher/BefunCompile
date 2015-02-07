@@ -28,24 +28,24 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexRandom(direction, positions);
+			return new BCVertexRandom(Direction, Positions);
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
-			if (children.Count != 4)
+			if (Children.Count != 4)
 				throw new ArgumentException("#");
-			return children[new Random().Next(4)];
+			return Children[new Random().Next(4)];
 		}
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
@@ -53,7 +53,12 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
+		{
+			return true;
+		}
+
+		public override bool IsCodePathSplit()
 		{
 			return true;
 		}
@@ -61,28 +66,28 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"
-				.Replace("g0", "_" + g.Vertices.IndexOf(children[0]))
-				.Replace("g1", "_" + g.Vertices.IndexOf(children[1]))
-				.Replace("g2", "_" + g.Vertices.IndexOf(children[2]))
-				.Replace("g3", "_" + g.Vertices.IndexOf(children[3]));
+				.Replace("g0", "_" + g.Vertices.IndexOf(Children[0]))
+				.Replace("g1", "_" + g.Vertices.IndexOf(Children[1]))
+				.Replace("g2", "_" + g.Vertices.IndexOf(Children[2]))
+				.Replace("g3", "_" + g.Vertices.IndexOf(Children[3]));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
 			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"
-				.Replace("g0", "_" + g.Vertices.IndexOf(children[0]))
-				.Replace("g1", "_" + g.Vertices.IndexOf(children[1]))
-				.Replace("g2", "_" + g.Vertices.IndexOf(children[2]))
-				.Replace("g3", "_" + g.Vertices.IndexOf(children[3]));
+				.Replace("g0", "_" + g.Vertices.IndexOf(Children[0]))
+				.Replace("g1", "_" + g.Vertices.IndexOf(Children[1]))
+				.Replace("g2", "_" + g.Vertices.IndexOf(Children[2]))
+				.Replace("g3", "_" + g.Vertices.IndexOf(Children[3]));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
 			return "return (((g0)if(rd())else(g1))if(rd())else((g2)if(rd())else(g3)))"
-				.Replace("g0", "" + g.Vertices.IndexOf(children[0]))
-				.Replace("g1", "" + g.Vertices.IndexOf(children[1]))
-				.Replace("g2", "" + g.Vertices.IndexOf(children[2]))
-				.Replace("g3", "" + g.Vertices.IndexOf(children[3]));
+				.Replace("g0", "" + g.Vertices.IndexOf(Children[0]))
+				.Replace("g1", "" + g.Vertices.IndexOf(Children[1]))
+				.Replace("g2", "" + g.Vertices.IndexOf(Children[2]))
+				.Replace("g3", "" + g.Vertices.IndexOf(Children[3]));
 		}
 	}
 }

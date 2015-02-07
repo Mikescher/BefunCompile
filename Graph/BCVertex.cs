@@ -4,23 +4,24 @@ using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BefunCompile.Graph
 {
 	public abstract class BCVertex
 	{
-		public readonly BCDirection direction;
-		public Vec2i[] positions;
+		public readonly BCDirection Direction;
+		public Vec2i[] Positions;
 
-		public List<BCVertex> children = new List<BCVertex>();
+		public readonly List<BCVertex> Children = new List<BCVertex>();
 
-		public List<BCVertex> parents = new List<BCVertex>();
+		public readonly List<BCVertex> Parents = new List<BCVertex>();
 
-		public BCVertex(BCDirection d, Vec2i[] pos)
+		protected BCVertex(BCDirection d, Vec2i[] pos)
 		{
-			this.direction = d;
-			this.positions = pos;
+			Direction = d;
+			Positions = pos;
 		}
 
 		public virtual void AfterGen()
@@ -30,41 +31,29 @@ namespace BefunCompile.Graph
 
 		public void UpdateParents()
 		{
-			foreach (var child in children)
+			foreach (var child in Children)
 			{
-				child.parents.Add(this);
+				child.Parents.Add(this);
 			}
 		}
 
 		public bool TestParents()
 		{
-			foreach (var child in children)
-			{
-				if (!child.parents.Contains(this))
-					return false;
-			}
-
-			foreach (var parent in parents)
-			{
-				if (!parent.children.Contains(this))
-					return false;
-			}
-
-			return true;
+			return Children.All(child => child.Parents.Contains(this)) && Parents.All(parent => parent.Children.Contains(this));
 		}
 
-		public static BCVertex fromChar(BCDirection d, long c, Vec2i pos, out BCDirection[] outgoingEdges)
+		public static BCVertex FromChar(BCDirection d, long c, Vec2i pos, out BCDirection[] outgoingEdges)
 		{
 			if (BCDirectionHelper.isSMDirection(d) && c != '"')
 			{
-				outgoingEdges = new BCDirection[] { d };
+				outgoingEdges = new[] { d };
 				return new BCVertexPush(d, pos, ExpressionConstant.Create(c));
 			}
 
 			switch (c)
 			{
 				case '"':
-					outgoingEdges = new BCDirection[] { BCDirectionHelper.switchSMDirection(d) };
+					outgoingEdges = new[] { BCDirectionHelper.switchSMDirection(d) };
 					return new BCVertexNOP(d, pos);
 
 				case '0':
@@ -77,23 +66,23 @@ namespace BefunCompile.Graph
 				case '7':
 				case '8':
 				case '9':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexPush(d, pos, ExpressionConstant.Create(c - '0'));
 
 				case '$':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexPop(d, pos);
 
 				case ':':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexDup(d, pos);
 
 				case '!':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexNot(d, pos);
 
 				case '\\':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexSwap(d, pos);
 
 				case '@':
@@ -103,7 +92,7 @@ namespace BefunCompile.Graph
 				case ' ':
 				case '\t':
 				case '#':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexNOP(d, pos);
 
 				case '+':
@@ -112,47 +101,47 @@ namespace BefunCompile.Graph
 				case '/':
 				case '`':
 				case '%':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexBinaryMath(d, pos, c);
 
 				case '>':
-					outgoingEdges = new BCDirection[] { BCDirection.FROM_LEFT };
+					outgoingEdges = new[] { BCDirection.FROM_LEFT };
 					return new BCVertexNOP(d, pos);
 				case '<':
-					outgoingEdges = new BCDirection[] { BCDirection.FROM_RIGHT };
+					outgoingEdges = new[] { BCDirection.FROM_RIGHT };
 					return new BCVertexNOP(d, pos);
 				case '^':
-					outgoingEdges = new BCDirection[] { BCDirection.FROM_BOTTOM };
+					outgoingEdges = new[] { BCDirection.FROM_BOTTOM };
 					return new BCVertexNOP(d, pos);
 				case 'v':
-					outgoingEdges = new BCDirection[] { BCDirection.FROM_TOP };
+					outgoingEdges = new[] { BCDirection.FROM_TOP };
 					return new BCVertexNOP(d, pos);
 				case '?':
-					outgoingEdges = new BCDirection[] { BCDirection.FROM_LEFT, BCDirection.FROM_TOP, BCDirection.FROM_RIGHT, BCDirection.FROM_BOTTOM };
+					outgoingEdges = new[] { BCDirection.FROM_LEFT, BCDirection.FROM_TOP, BCDirection.FROM_RIGHT, BCDirection.FROM_BOTTOM };
 					return new BCVertexRandom(d, pos);
 
 				case '.':
 				case ',':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexOutput(d, pos, c);
 
 				case '&':
 				case '~':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexInput(d, pos, c);
 
 				case '|':
-					outgoingEdges = new BCDirection[] { BCDirection.FROM_TOP, BCDirection.FROM_BOTTOM };
+					outgoingEdges = new[] { BCDirection.FROM_TOP, BCDirection.FROM_BOTTOM };
 					return new BCVertexDecision(d, pos);
 				case '_':
-					outgoingEdges = new BCDirection[] { BCDirection.FROM_LEFT, BCDirection.FROM_RIGHT };
+					outgoingEdges = new[] { BCDirection.FROM_LEFT, BCDirection.FROM_RIGHT };
 					return new BCVertexDecision(d, pos);
 
 				case 'g':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexGet(d, pos);
 				case 'p':
-					outgoingEdges = new BCDirection[] { d };
+					outgoingEdges = new[] { d };
 					return new BCVertexSet(d, pos);
 
 				default:
@@ -163,12 +152,13 @@ namespace BefunCompile.Graph
 		public abstract BCVertex Duplicate();
 		public abstract BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci);
 
-		public abstract IEnumerable<MemoryAccess> listConstantVariableAccess();
-		public abstract IEnumerable<MemoryAccess> listDynamicVariableAccess();
+		public abstract IEnumerable<MemoryAccess> ListConstantVariableAccess();
+		public abstract IEnumerable<MemoryAccess> ListDynamicVariableAccess();
 
 		public abstract bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
 
-		public abstract bool isOnlyStackManipulation();
+		public abstract bool IsOnlyStackManipulation();
+		public abstract bool IsCodePathSplit();
 
 		public abstract string GenerateCodeCSharp(BCGraph g);
 		public abstract string GenerateCodeC(BCGraph g);

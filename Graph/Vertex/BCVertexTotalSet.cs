@@ -36,10 +36,10 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexTotalSet(direction, positions, X, Y, Value);
+			return new BCVertexTotalSet(Direction, Positions, X, Y, Value);
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
 
 			if (X is ExpressionConstant && Y is ExpressionConstant)
@@ -53,7 +53,7 @@ namespace BefunCompile.Graph.Vertex
 					.Concat(Value.listConstantVariableAccess());
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
 
 			if (X is ExpressionConstant && Y is ExpressionConstant)
@@ -71,9 +71,9 @@ namespace BefunCompile.Graph.Vertex
 		{
 			ci.SetGridValue(X.Calculate(ci), Y.Calculate(ci), Value.Calculate(ci));
 
-			if (children.Count > 1)
+			if (Children.Count > 1)
 				throw new ArgumentException("#");
-			return children.FirstOrDefault();
+			return Children.FirstOrDefault();
 		}
 
 		public BCExpression getX()
@@ -134,7 +134,12 @@ namespace BefunCompile.Graph.Vertex
 			return found;
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
+		{
+			return false;
+		}
+
+		public override bool IsCodePathSplit()
 		{
 			return false;
 		}

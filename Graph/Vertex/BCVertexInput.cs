@@ -36,15 +36,15 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexInput(direction, positions, modeInteger);
+			return new BCVertexInput(Direction, Positions, modeInteger);
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
 			return Enumerable.Empty<MemoryAccess>();
 		}
@@ -59,9 +59,14 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
 		{
 			return true;
+		}
+
+		public override bool IsCodePathSplit()
+		{
+			return false;
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)

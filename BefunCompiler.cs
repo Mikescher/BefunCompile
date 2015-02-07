@@ -11,51 +11,50 @@ namespace BefunCompile
 	{
 		public const string VERSION = "1.0.3";
 
-		private readonly string source;
 		private readonly long[,] sourceGrid;
-		private int width;
-		private int height;
+		private readonly int width;
+		private readonly int height;
 
-		public readonly bool ignoreSelfModification;
-		public readonly bool implementSafeStackAccess;
-		public readonly bool implementSafeGridAccess;
-		public readonly bool useGZip;
-		public readonly bool formatOutput;
+		private readonly bool ignoreSelfModification;
+		private readonly bool implementSafeStackAccess;
+		private readonly bool implementSafeGridAccess;
+		private readonly bool useGZip;
+		private readonly bool formatOutput;
 
 		public int log_Cycles_Minimize { get; private set; }
 		public int log_Cycles_Substitute { get; private set; }
 		public int log_Cycles_Flatten { get; private set; }
 		public int log_Cycles_Variablize { get; private set; }
 		public int log_Cycles_CombineBlocks { get; private set; }
+		public int log_Cycles_ReduceBlocks { get; private set; }
 
-		public BefunCompiler(string befsource, bool fmtOut, bool ignoreSelfMod, bool safeStackAcc, bool safeGridAcc, bool useGZip)
+		public BefunCompiler(string befsource, bool fmtOut, bool ignoreSelfMod, bool safeStackAcc, bool safeGridAcc, bool usegzip)
 		{
-			this.source = befsource;
-			this.sourceGrid = stringToCharArr(source);
+			sourceGrid = StringToCharArr(befsource);
 
 			width = sourceGrid.GetLength(0);
 			height = sourceGrid.GetLength(1);
 
-			this.ignoreSelfModification = ignoreSelfMod;
-			this.implementSafeStackAccess = safeStackAcc;
-			this.implementSafeGridAccess = safeGridAcc;
-			this.formatOutput = fmtOut;
-			this.useGZip = useGZip;
+			ignoreSelfModification = ignoreSelfMod;
+			implementSafeStackAccess = safeStackAcc;
+			implementSafeGridAccess = safeGridAcc;
+			formatOutput = fmtOut;
+			useGZip = usegzip;
 		}
 
-		private long[,] stringToCharArr(string str)
+		private long[,] StringToCharArr(string str)
 		{
-			string[] lines = str.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-			int height = lines.Length;
-			int width = lines.Max(p => p.Length);
+			string[] lines = str.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+			int arrHeight = lines.Length;
+			int arrWidth = lines.Max(p => p.Length);
 
-			lines = lines.Select(p => p.PadRight(width, ' ')).ToArray();
+			lines = lines.Select(p => p.PadRight(arrWidth, ' ')).ToArray();
 
-			long[,] result = new long[width, height];
+			long[,] result = new long[arrWidth, arrHeight];
 
-			for (int x = 0; x < width; x++)
+			for (int x = 0; x < arrWidth; x++)
 			{
-				for (int y = 0; y < height; y++)
+				for (int y = 0; y < arrHeight; y++)
 				{
 					result[x, y] = lines[y][x];
 				}
@@ -64,17 +63,17 @@ namespace BefunCompile
 			return result;
 		}
 
-		public long GetGridValue(long x, long y)
+		private long GetGridValue(long x, long y)
 		{
 			if (x < 0 || y < 0 || x >= width || y >= height)
 				return 0;
-			else
-				return sourceGrid[x, y];
+
+			return sourceGrid[x, y];
 		}
 
-		public BCGraph generateGraph()
+		public BCGraph GenerateGraph()
 		{
-			return generateBlockCombinedGraph(-1);
+			return GenerateBlockReducedGraph();
 		}
 
 		public string GenerateCode(OutputLanguage lang)
@@ -82,26 +81,25 @@ namespace BefunCompile
 			switch (lang)
 			{
 				case OutputLanguage.CSharp:
-					return generateGraph().GenerateCodeCSharp(formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
+					return GenerateGraph().GenerateCodeCSharp(formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
 				case OutputLanguage.C:
-					return generateGraph().GenerateCodeC(formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
+					return GenerateGraph().GenerateCodeC(formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
 				case OutputLanguage.Python:
-					return generateGraph().GenerateCodePython(formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
+					return GenerateGraph().GenerateCodePython(formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
 				default:
 					return null;
 			}
 		}
 
-		public BCGraph generateUntouchedGraph() // O:0 
+		public BCGraph GenerateUntouchedGraph() // O:0 
 		{
-			List<BCVertex> all = new List<BCVertex>();
 			var unfinished = new Stack<Tuple<BCVertex, Vec2i, BCDirection>>(); /*<parent, position, direction>*/
 
 			BCGraph graph = new BCGraph(sourceGrid, width, height);
 
 			{
 				BCDirection[] next;
-				graph.Root = BCVertex.fromChar(BCDirection.FROM_LEFT, sourceGrid[0, 0], new Vec2i(0, 0), out next);
+				graph.Root = BCVertex.FromChar(BCDirection.FROM_LEFT, sourceGrid[0, 0], new Vec2i(0, 0), out next);
 				graph.Vertices.Add(graph.Root);
 				foreach (var direction in next)
 				{
@@ -119,10 +117,10 @@ namespace BefunCompile
 				BCDirection currentDir = current.Item3;
 				long command = sourceGrid[pos.X, pos.Y];
 
-				BCVertex vertex = BCVertex.fromChar(currentDir, command, pos, out next);
+				BCVertex vertex = BCVertex.FromChar(currentDir, command, pos, out next);
 				graph.Vertices.Add(vertex);
 
-				parent.children.Add(vertex);
+				parent.Children.Add(vertex);
 
 				foreach (var direction in next)
 				{
@@ -131,7 +129,7 @@ namespace BefunCompile
 					if (search == null)
 						unfinished.Push(Tuple.Create(vertex, newpos, direction));
 					else
-						vertex.children.Add(search);
+						vertex.Children.Add(search);
 				}
 			}
 
@@ -144,9 +142,9 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateMinimizedGraph(int level = -1) // O:1 
+		public BCGraph GenerateMinimizedGraph(int level = -1) // O:1 
 		{
-			BCGraph graph = generateUntouchedGraph();
+			BCGraph graph = GenerateUntouchedGraph();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -166,9 +164,9 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateSubstitutedGraph(int level = -1) // O:2 
+		public BCGraph GenerateSubstitutedGraph(int level = -1) // O:2 
 		{
-			BCGraph graph = generateMinimizedGraph(-1);
+			BCGraph graph = GenerateMinimizedGraph();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -188,9 +186,9 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateFlattenedGraph(int level = -1) // O:3 
+		public BCGraph GenerateFlattenedGraph(int level = -1) // O:3 
 		{
-			BCGraph graph = generateSubstitutedGraph(-1);
+			BCGraph graph = GenerateSubstitutedGraph();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -210,9 +208,9 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateVariablizedGraph(int level = -1) // O:4 
+		public BCGraph GenerateVariablizedGraph() // O:4 
 		{
-			BCGraph graph = generateFlattenedGraph(-1);
+			BCGraph graph = GenerateFlattenedGraph();
 
 			var constGets = graph.ListConstantVariableAccess().ToList();
 			var dynamGets = graph.ListDynamicVariableAccess().ToList();
@@ -231,9 +229,9 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph generateBlockCombinedGraph(int level = -1) // O:5 
+		public BCGraph GenerateBlockCombinedGraph(int level = -1) // O:5 
 		{
-			BCGraph graph = generateVariablizedGraph(-1);
+			BCGraph graph = GenerateVariablizedGraph();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -245,6 +243,28 @@ namespace BefunCompile
 				if (!op)
 				{
 					log_Cycles_CombineBlocks = level - i;
+
+					break;
+				}
+			}
+
+			return graph;
+		}
+
+		public BCGraph GenerateBlockReducedGraph(int level = -1) // O:6 
+		{
+			BCGraph graph = GenerateBlockCombinedGraph();
+
+			for (int i = level; i != 0; i--)
+			{
+				bool op = graph.ReduceBlocks();
+
+				if (!graph.TestGraph())
+					throw new Exception("Internal Parent Exception :( ");
+
+				if (!op)
+				{
+					log_Cycles_ReduceBlocks = level - i;
 
 					break;
 				}

@@ -36,15 +36,15 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexFullDecision(direction, positions, edgeTrue, edgeFalse, Value);
+			return new BCVertexFullDecision(Direction, Positions, edgeTrue, edgeFalse, Value);
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
 			return Value.listConstantVariableAccess();
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
 			return Value.listDynamicVariableAccess();
 		}
@@ -74,9 +74,14 @@ namespace BefunCompile.Graph.Vertex
 			return found;
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
 		{
 			return false;
+		}
+
+		public override bool IsCodePathSplit()
+		{
+			return true;
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)

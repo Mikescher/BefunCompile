@@ -42,17 +42,17 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexBlock(direction, positions, nodes);
+			return new BCVertexBlock(Direction, Positions, nodes);
 		}
 
-		public override IEnumerable<MemoryAccess> listConstantVariableAccess()
+		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return nodes.SelectMany(p => p.listConstantVariableAccess());
+			return nodes.SelectMany(p => p.ListConstantVariableAccess());
 		}
 
-		public override IEnumerable<MemoryAccess> listDynamicVariableAccess()
+		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return nodes.SelectMany(p => p.listDynamicVariableAccess());
+			return nodes.SelectMany(p => p.ListDynamicVariableAccess());
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
@@ -62,9 +62,9 @@ namespace BefunCompile.Graph.Vertex
 				nodes[i].Execute(outbuilder, stackbuilder, ci);
 			}
 
-			if (nodes.Last().children.Count > 1)
+			if (nodes.Last().Children.Count > 1)
 				throw new ArgumentException("#");
-			return nodes.Last().children.FirstOrDefault();
+			return nodes.Last().Children.FirstOrDefault();
 		}
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
@@ -80,7 +80,12 @@ namespace BefunCompile.Graph.Vertex
 			return found;
 		}
 
-		public override bool isOnlyStackManipulation()
+		public override bool IsOnlyStackManipulation()
+		{
+			return false;
+		}
+
+		public override bool IsCodePathSplit()
 		{
 			return false;
 		}
