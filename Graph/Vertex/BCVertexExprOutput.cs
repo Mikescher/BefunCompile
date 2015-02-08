@@ -7,26 +7,26 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexFullOutput : BCVertex
+	public class BCVertexExprOutput : BCVertex
 	{
 		public readonly bool ModeInteger; // true = int | false = char
 		public BCExpression Value;
 
-		public BCVertexFullOutput(BCDirection d, Vec2i pos, char mode, BCExpression val)
+		public BCVertexExprOutput(BCDirection d, Vec2i pos, char mode, BCExpression val)
 			: base(d, new Vec2i[] { pos })
 		{
 			ModeInteger = (mode == '.');
 			this.Value = val;
 		}
 
-		public BCVertexFullOutput(BCDirection d, Vec2i[] pos, char mode, BCExpression val)
+		public BCVertexExprOutput(BCDirection d, Vec2i[] pos, char mode, BCExpression val)
 			: base(d, pos)
 		{
 			ModeInteger = (mode == '.');
 			this.Value = val;
 		}
 
-		public BCVertexFullOutput(BCDirection d, Vec2i[] pos, bool mode, BCExpression val)
+		public BCVertexExprOutput(BCDirection d, Vec2i[] pos, bool mode, BCExpression val)
 			: base(d, pos)
 		{
 			ModeInteger = mode;
@@ -40,7 +40,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexFullOutput(Direction, Positions, ModeInteger, Value);
+			return new BCVertexExprOutput(Direction, Positions, ModeInteger, Value);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()

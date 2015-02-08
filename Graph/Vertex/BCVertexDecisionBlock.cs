@@ -37,7 +37,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexFullDecisionBlock(Direction, (BCVertexBlock)Block.Duplicate(), (BCVertexFullDecision)Decision.Duplicate());
+			return new BCVertexExprDecisionBlock(Direction, (BCVertexBlock)Block.Duplicate(), (BCVertexExprDecision)Decision.Duplicate());
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()

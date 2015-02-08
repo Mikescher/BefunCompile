@@ -7,19 +7,19 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexFullSet : BCVertex, MemoryAccess
+	public class BCVertexExprSet : BCVertex, MemoryAccess
 	{
 		public BCExpression X;
 		public BCExpression Y;
 
-		public BCVertexFullSet(BCDirection d, Vec2i pos, BCExpression xx, BCExpression yy)
+		public BCVertexExprSet(BCDirection d, Vec2i pos, BCExpression xx, BCExpression yy)
 			: base(d, new Vec2i[] { pos })
 		{
 			this.X = xx;
 			this.Y = yy;
 		}
 
-		public BCVertexFullSet(BCDirection d, Vec2i[] pos, BCExpression xx, BCExpression yy)
+		public BCVertexExprSet(BCDirection d, Vec2i[] pos, BCExpression xx, BCExpression yy)
 			: base(d, pos)
 		{
 			this.X = xx;
@@ -33,7 +33,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexFullSet(Direction, Positions, X, Y);
+			return new BCVertexExprSet(Direction, Positions, X, Y);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()

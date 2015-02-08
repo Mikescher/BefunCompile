@@ -7,57 +7,22 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public enum BinaryMathType
-	{
-		ADD,
-		SUB,
-		MUL,
-		DIV,
-		GT,
-		MOD
-	}
-
-	public class BCVertexBinaryMath : BCVertex
+	public class BCVertexExprBinaryMath : BCVertex
 	{
 		public readonly BinaryMathType MathType;
 
-		public BCVertexBinaryMath(BCDirection d, Vec2i pos, long type)
-			: base(d, new[] { pos })
-		{
-			switch (type)
-			{
-				case '+':
-					MathType = BinaryMathType.ADD;
-					break;
-				case '-':
-					MathType = BinaryMathType.SUB;
-					break;
-				case '*':
-					MathType = BinaryMathType.MUL;
-					break;
-				case '/':
-					MathType = BinaryMathType.DIV;
-					break;
-				case '`':
-					MathType = BinaryMathType.GT;
-					break;
-				case '%':
-					MathType = BinaryMathType.MOD;
-					break;
-				default:
-					throw new ArgumentException("Not a Math OP: " + type);
-			}
-		}
+		public readonly BCExpression FirstExpression;
 
-		private BCVertexBinaryMath(BCDirection d, Vec2i[] pos, BinaryMathType type)
+		public BCVertexExprBinaryMath(BCDirection d, Vec2i[] pos, BCExpression expr, BinaryMathType type)
 			: base(d, pos)
 		{
+			FirstExpression = expr;
 			MathType = type;
 		}
 
 		public override string ToString()
 		{
-			return MathType.ToString();
+			return "PUSH(" + FirstExpression + " " + MathType + " pop)";
 		}
 
 		private long Calc(long a, long b) // Reihenfolge:   a  b  +
@@ -83,28 +48,29 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexBinaryMath(Direction, Positions, MathType);
+			return new BCVertexExprBinaryMath(Direction, Positions, FirstExpression, MathType);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return Enumerable.Empty<MemoryAccess>();
+			return FirstExpression.ListConstantVariableAccess();
 		}
 
 		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return Enumerable.Empty<MemoryAccess>();
+			return FirstExpression.ListDynamicVariableAccess();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
 			var b = stackbuilder.Pop();
-			var a = stackbuilder.Pop();
+			var a = FirstExpression.Calculate(ci);
 
 			stackbuilder.Push(Calc(a, b));
 
 			if (Children.Count > 1)
 				throw new ArgumentException("#");
+
 			return Children.FirstOrDefault();
 		}
 
@@ -115,7 +81,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool IsOnlyStackManipulation()
 		{
-			return true;
+			return FirstExpression.IsOnlyStackManipulation();
 		}
 
 		public override bool IsCodePathSplit()
@@ -135,7 +101,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return Enumerable.Empty<ExpressionVariable>();
+			return FirstExpression.GetVariables();
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)
@@ -145,22 +111,22 @@ namespace BefunCompile.Graph.Vertex
 			switch (MathType)
 			{
 				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+sp());");
+					codebuilder.AppendLine("sa((" + FirstExpression.GenerateCodeCSharp(g) + ")+sp());");
 					break;
 				case BinaryMathType.SUB:
-					codebuilder.AppendLine("{long v0=sp();sa(sp()-v0);}");
+					codebuilder.AppendLine("sa((" + FirstExpression.GenerateCodeCSharp(g) + ")-sp());");
 					break;
 				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*sp());");
+					codebuilder.AppendLine("sa((" + FirstExpression.GenerateCodeCSharp(g) + ")*sp());");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{long v0=sp();sa((v0==0)?0:(sp()/v0));}");
+					codebuilder.AppendLine("{long v0=sp();sa((v0==0)?0:((" + FirstExpression.GenerateCodeCSharp(g) + ")/v0));}");
 					break;
 				case BinaryMathType.GT:
-					codebuilder.AppendLine("{long v0=sp();sa((sp()>v0)?1:0);}");
+					codebuilder.AppendLine("{long v0=sp();sa(((" + FirstExpression.GenerateCodeCSharp(g) + ")>v0)?1:0);}");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{long v0=sp();sa((v0==0)?0:(sp()%v0));}");
+					codebuilder.AppendLine("{long v0=sp();sa((v0==0)?0:((" + FirstExpression.GenerateCodeCSharp(g) + ")%v0));}");
 					break;
 				default:
 					throw new Exception("uwotm8");
@@ -176,22 +142,22 @@ namespace BefunCompile.Graph.Vertex
 			switch (MathType)
 			{
 				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+sp());");
+					codebuilder.AppendLine("sa((" + FirstExpression.GenerateCodeC(g) + ")+sp());");
 					break;
 				case BinaryMathType.SUB:
-					codebuilder.AppendLine("{int64 v0=sp();sa(sp()-v0);}");
+					codebuilder.AppendLine("sa((" + FirstExpression.GenerateCodeC(g) + ")-sp());");
 					break;
 				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*sp());");
+					codebuilder.AppendLine("sa((" + FirstExpression.GenerateCodeC(g) + ")*sp());");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{int64 v0=sp();sa((v0==0)?0:(sp()/v0));}");
+					codebuilder.AppendLine("{int64 v0=sp();sa((v0==0)?0:((" + FirstExpression.GenerateCodeC(g) + ")/v0));}");
 					break;
 				case BinaryMathType.GT:
-					codebuilder.AppendLine("{int64 v0=sp();sa((sp()>v0)?1:0);}");
+					codebuilder.AppendLine("{int64 v0=sp();sa(((" + FirstExpression.GenerateCodeC(g) + ")>v0)?1:0);}");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{int64 v0=sp();sa((v0==0)?0:(sp()%v0));}");
+					codebuilder.AppendLine("{int64 v0=sp();sa((v0==0)?0:((" + FirstExpression.GenerateCodeC(g) + ")%v0));}");
 					break;
 				default:
 					throw new Exception("uwotm8");
@@ -207,26 +173,24 @@ namespace BefunCompile.Graph.Vertex
 			switch (MathType)
 			{
 				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+sp());");
+					codebuilder.AppendLine("sa((" + FirstExpression.GenerateCodePython(g) + ")+sp());");
 					break;
 				case BinaryMathType.SUB:
-					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa(sp()-v0)");
+					codebuilder.AppendLine("sa((" + FirstExpression.GenerateCodePython(g) + ")-sp());");
 					break;
 				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*sp());");
+					codebuilder.AppendLine("sa((" + FirstExpression.GenerateCodePython(g) + ")*sp());");
 					break;
 				case BinaryMathType.DIV:
 					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa(td(sp(),v0))");
+					codebuilder.AppendLine("sa(td((" + FirstExpression.GenerateCodePython(g) + "),v0))");
 					break;
 				case BinaryMathType.GT:
-					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa((1)if(sp()>v0)else(0))");
+					codebuilder.AppendLine("sa((1)if((" + FirstExpression.GenerateCodePython(g) + ")>sp())else(0))");
 					break;
 				case BinaryMathType.MOD:
 					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa(tm(sp(),v0))");
+					codebuilder.AppendLine("sa(tm((" + FirstExpression.GenerateCodePython(g) + "),sp()))");
 					break;
 				default:
 					throw new Exception("uwotm8");

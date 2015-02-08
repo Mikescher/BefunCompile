@@ -6,14 +6,14 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexFullDecision : BCVertex, IDecisionVertex
+	public class BCVertexExprDecision : BCVertex, IDecisionVertex
 	{
 		public BCVertex EdgeTrue { get; set; }
 		public BCVertex EdgeFalse { get; set; }
 
 		public BCExpression Value;
 
-		public BCVertexFullDecision(BCDirection d, Vec2i[] pos, BCVertex childTrue, BCVertex childFalse, BCExpression val)
+		public BCVertexExprDecision(BCDirection d, Vec2i[] pos, BCVertex childTrue, BCVertex childFalse, BCExpression val)
 			: base(d, pos)
 		{
 			EdgeTrue = childTrue;
@@ -28,7 +28,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexFullDecision(Direction, Positions, EdgeTrue, EdgeFalse, Value);
+			return new BCVertexExprDecision(Direction, Positions, EdgeTrue, EdgeFalse, Value);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()

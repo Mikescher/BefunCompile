@@ -182,12 +182,12 @@ namespace BefunCompile.Graph
 							throw new CodeGenException();
 					}
 
-					if (sprev is BCVertexFullDecision)
+					if (sprev is BCVertexExprDecision)
 					{
-						if ((sprev as BCVertexFullDecision).EdgeTrue == chainFirst)
-							(sprev as BCVertexFullDecision).EdgeTrue = next[0];
-						else if ((sprev as BCVertexFullDecision).EdgeFalse == chainFirst)
-							(sprev as BCVertexFullDecision).EdgeFalse = next[0];
+						if ((sprev as BCVertexExprDecision).EdgeTrue == chainFirst)
+							(sprev as BCVertexExprDecision).EdgeTrue = next[0];
+						else if ((sprev as BCVertexExprDecision).EdgeFalse == chainFirst)
+							(sprev as BCVertexExprDecision).EdgeFalse = next[0];
 						else
 							throw new CodeGenException();
 					}

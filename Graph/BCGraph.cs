@@ -342,7 +342,7 @@ namespace BefunCompile.Graph
 			rule1.AddPreq(v => v is BCVertexPush);
 			rule1.AddPreq(v => v is BCVertexPush);
 			rule1.AddPreq(v => v is BCVertexBinaryMath);
-			rule1.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ExpressionBinMath.Create(((BCVertexPush)l[0]).Value, ((BCVertexPush)l[1]).Value, ((BCVertexBinaryMath)l[2]).mtype)));
+			rule1.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ExpressionBinMath.Create(((BCVertexPush)l[0]).Value, ((BCVertexPush)l[1]).Value, ((BCVertexBinaryMath)l[2]).MathType)));
 
 			var rule2 = new BCModRule();
 			rule2.AddPreq(v => v is BCVertexPush);
@@ -390,21 +390,21 @@ namespace BefunCompile.Graph
 			rule1.AddPreq(v => v is BCVertexPush);
 			rule1.AddPreq(v => v is BCVertexPush);
 			rule1.AddPreq(v => v is BCVertexGet);
-			rule1.AddRep((l, p) => new BCVertexFullGet(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value, ((BCVertexPush)l[1]).Value));
+			rule1.AddRep((l, p) => new BCVertexExprGet(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value, ((BCVertexPush)l[1]).Value));
 
 			var rule2 = new BCModRule();
 			rule2.AddPreq(v => v is BCVertexPush);
 			rule2.AddPreq(v => v is BCVertexPush);
 			rule2.AddPreq(v => v is BCVertexSet);
-			rule2.AddRep((l, p) => new BCVertexFullSet(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value, ((BCVertexPush)l[1]).Value));
+			rule2.AddRep((l, p) => new BCVertexExprSet(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value, ((BCVertexPush)l[1]).Value));
 
 			var rule3 = new BCModRule();
 			rule3.AddPreq(v => v is BCVertexPush);
-			rule3.AddPreq(v => v is BCVertexFullSet);
-			rule3.AddRep((l, p) => new BCVertexTotalSet(BCDirection.UNKNOWN, p, ((BCVertexFullSet)l[1]).X, ((BCVertexFullSet)l[1]).Y, ((BCVertexPush)l[0]).Value));
+			rule3.AddPreq(v => v is BCVertexExprSet);
+			rule3.AddRep((l, p) => new BCVertexTotalSet(BCDirection.UNKNOWN, p, ((BCVertexExprSet)l[1]).X, ((BCVertexExprSet)l[1]).Y, ((BCVertexPush)l[0]).Value));
 
 			var rule4 = new BCModRule();
-			rule4.AddPreq(v => v is BCVertexFullGet);
+			rule4.AddPreq(v => v is BCVertexExprGet);
 			rule4.AddPreq(v => v is BCVertexDup);
 			rule4.AddRep((l, p) => l[0].Duplicate());
 			rule4.AddRep((l, p) => { var v = l[0].Duplicate(); v.Positions = p; return v; });
@@ -416,13 +416,13 @@ namespace BefunCompile.Graph
 			rule5.AddRep((l, p) => l[0].Duplicate());
 
 			var rule6 = new BCModRule();
-			rule6.AddPreq(v => v is BCVertexFullGet);
-			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ((BCVertexFullGet)l[0]).ToExpression()));
+			rule6.AddPreq(v => v is BCVertexExprGet);
+			rule6.AddRep((l, p) => new BCVertexPush(BCDirection.UNKNOWN, p, ((BCVertexExprGet)l[0]).ToExpression()));
 
 			var rule7 = new BCModRule();
 			rule7.AddPreq(v => v is BCVertexPush);
 			rule7.AddPreq(v => v is BCVertexOutput);
-			rule7.AddRep((l, p) => new BCVertexFullOutput(BCDirection.UNKNOWN, p, ((BCVertexOutput)l[1]).ModeInteger, ((BCVertexPush)l[0]).Value));
+			rule7.AddRep((l, p) => new BCVertexExprOutput(BCDirection.UNKNOWN, p, ((BCVertexOutput)l[1]).ModeInteger, ((BCVertexPush)l[0]).Value));
 
 			bool b0 = Substitute();
 
@@ -454,7 +454,7 @@ namespace BefunCompile.Graph
 			var nextTrue = ((BCVertexDecision)chain[1]).EdgeTrue;
 			var nextFalse = ((BCVertexDecision)chain[1]).EdgeFalse;
 
-			if (prev.Any(p => p is BCVertexFullDecision))
+			if (prev.Any(p => p is BCVertexExprDecision))
 				return false;
 
 			if (chain[1].Parents.Count > 1)
@@ -468,7 +468,7 @@ namespace BefunCompile.Graph
 			chain[1].Parents.Clear();
 			Vertices.Remove(chain[1]);
 
-			var newnode = new BCVertexFullDecision(BCDirection.UNKNOWN, chain.SelectMany(p => p.Positions).ToArray(), nextTrue, nextFalse, ((BCVertexPush)chain[0]).Value);
+			var newnode = new BCVertexExprDecision(BCDirection.UNKNOWN, chain.SelectMany(p => p.Positions).ToArray(), nextTrue, nextFalse, ((BCVertexPush)chain[0]).Value);
 
 			Vertices.Add(newnode);
 
@@ -529,12 +529,12 @@ namespace BefunCompile.Graph
 			Variables.ForEach(p => vardic.Add(p.position, p));
 
 			BCModRule vertexRule1 = new BCModRule();
-			vertexRule1.AddPreq(p => p is BCVertexFullGet && ios.Contains((MemoryAccess)p));
-			vertexRule1.AddRep((l, p) => new BCVertexFullVarGet(BCDirection.UNKNOWN, p, vardic[((BCVertexFullGet)l[0]).getConstantPos()]));
+			vertexRule1.AddPreq(p => p is BCVertexExprGet && ios.Contains((MemoryAccess)p));
+			vertexRule1.AddRep((l, p) => new BCVertexExprVarGet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprGet)l[0]).getConstantPos()]));
 
 			BCModRule vertexRule2 = new BCModRule();
-			vertexRule2.AddPreq(p => p is BCVertexFullSet && ios.Contains((MemoryAccess)p));
-			vertexRule2.AddRep((l, p) => new BCVertexFullVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexFullSet)l[0]).getConstantPos()]));
+			vertexRule2.AddPreq(p => p is BCVertexExprSet && ios.Contains((MemoryAccess)p));
+			vertexRule2.AddRep((l, p) => new BCVertexExprVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprSet)l[0]).getConstantPos()]));
 
 			BCModRule vertexRule3 = new BCModRule();
 			vertexRule3.AddPreq(p => p is BCVertexTotalSet && ios.Contains((MemoryAccess)p));
@@ -544,6 +544,11 @@ namespace BefunCompile.Graph
 			exprRule1.setPreq(p => p is ExpressionGet && ios.Contains((MemoryAccess)p));
 			exprRule1.setRep(p => vardic[((ExpressionGet)p).getConstantPos()]);
 
+			BCModRule combRule1 = new BCModRule();
+			combRule1.AddPreq(p => p is BCVertexPush);
+			combRule1.AddPreq(p => p is BCVertexBinaryMath);
+			combRule1.AddRep((l, p) => new BCVertexExprBinaryMath(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value, ((BCVertexBinaryMath)l[1]).MathType));
+
 			bool changed = true;
 
 			while (changed)
@@ -552,8 +557,9 @@ namespace BefunCompile.Graph
 				bool b2 = vertexRule2.Execute(this);
 				bool b3 = vertexRule3.Execute(this);
 				bool b4 = exprRule1.Execute(this);
+				bool b5 = combRule1.Execute(this);
 
-				changed = b1 || b2 || b3 || b4;
+				changed = b1 || b2 || b3 || b4 || b5;
 			}
 		}
 
@@ -587,13 +593,13 @@ namespace BefunCompile.Graph
 		{
 			foreach (var vertex in Vertices)
 			{
-				if (!(vertex is BCVertexFullDecision))
+				if (!(vertex is BCVertexExprDecision))
 					continue;
 
-				if (!((vertex as BCVertexFullDecision).Value is ExpressionConstant))
+				if (!((vertex as BCVertexExprDecision).Value is ExpressionConstant))
 					continue;
 
-				BCVertexFullDecision decision = vertex as BCVertexFullDecision;
+				BCVertexExprDecision decision = vertex as BCVertexExprDecision;
 
 				if (decision.Value.Calculate(null) != 0)
 				{
@@ -650,8 +656,8 @@ namespace BefunCompile.Graph
 
 			var ruleRepl2 = new BCModRule(true, true);
 			ruleRepl2.AddPreq(p => p is BCVertexBlock);
-			ruleRepl2.AddPreq(p => p is BCVertexFullDecision);
-			ruleRepl2.AddRep((l, p) => new BCVertexFullDecisionBlock(BCDirection.UNKNOWN, l[0] as BCVertexBlock, l[1] as BCVertexFullDecision));
+			ruleRepl2.AddPreq(p => p is BCVertexExprDecision);
+			ruleRepl2.AddRep((l, p) => new BCVertexExprDecisionBlock(BCDirection.UNKNOWN, l[0] as BCVertexBlock, l[1] as BCVertexExprDecision));
 
 			bool b1 = ruleRepl1.Execute(this);
 			bool b2 = ruleRepl2.Execute(this);

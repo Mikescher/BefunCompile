@@ -6,10 +6,10 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexFullDecisionBlock : BCVertex, IDecisionVertex
+	public class BCVertexExprDecisionBlock : BCVertex, IDecisionVertex
 	{
 		public readonly BCVertexBlock Block;
-		public readonly BCVertexFullDecision Decision;
+		public readonly BCVertexExprDecision Decision;
 
 		public BCVertex EdgeTrue
 		{
@@ -23,7 +23,7 @@ namespace BefunCompile.Graph.Vertex
 			set { Decision.EdgeFalse = value; }
 		}
 
-		public BCVertexFullDecisionBlock(BCDirection d, BCVertexBlock block, BCVertexFullDecision dec)
+		public BCVertexExprDecisionBlock(BCDirection d, BCVertexBlock block, BCVertexExprDecision dec)
 			: base(d, block.Positions.Concat(dec.Positions).ToArray())
 		{
 			Block = block;
@@ -37,7 +37,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexFullDecisionBlock(Direction, (BCVertexBlock)Block.Duplicate(), (BCVertexFullDecision)Decision.Duplicate());
+			return new BCVertexExprDecisionBlock(Direction, (BCVertexBlock)Block.Duplicate(), (BCVertexExprDecision)Decision.Duplicate());
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
