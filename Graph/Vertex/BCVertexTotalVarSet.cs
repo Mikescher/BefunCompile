@@ -38,12 +38,12 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return Enumerable.Empty<MemoryAccess>();
+			return Value.ListConstantVariableAccess();
 		}
 
 		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return Enumerable.Empty<MemoryAccess>();
+			return Value.ListDynamicVariableAccess();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)

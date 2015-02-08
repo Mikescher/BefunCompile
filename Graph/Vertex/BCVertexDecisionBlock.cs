@@ -47,7 +47,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return Block.ListDynamicVariableAccess().Concat(Decision.ListConstantVariableAccess());
+			return Block.ListDynamicVariableAccess().Concat(Decision.ListDynamicVariableAccess());
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
@@ -59,7 +59,10 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
 		{
-			return Block.SubsituteExpression(prerequisite, replacement) | Decision.SubsituteExpression(prerequisite, replacement);
+			bool found1 = Block.SubsituteExpression(prerequisite, replacement);
+			bool found2 = Decision.SubsituteExpression(prerequisite, replacement);
+
+			return found1 || found2;
 		}
 
 		public override bool IsOnlyStackManipulation()
