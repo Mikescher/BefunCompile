@@ -14,9 +14,9 @@ namespace BefunCompile.Graph.Expression
 
 		private ExpressionBinMath(BCExpression a, BCExpression b, BinaryMathType t)
 		{
-			this.ValueA = a;
-			this.ValueB = b;
-			this.Type = t;
+			ValueA = a;
+			ValueB = b;
+			Type = t;
 		}
 
 		public static BCExpression Create(BCExpression a, BCExpression b, BinaryMathType t)
@@ -25,8 +25,8 @@ namespace BefunCompile.Graph.Expression
 
 			if (a is ExpressionConstant && b is ExpressionConstant)
 				return ExpressionConstant.Create(r.Calculate(null));
-			else
-				return r;
+
+			return r;
 		}
 
 		public override long Calculate(CalculateInterface ci)
@@ -55,8 +55,14 @@ namespace BefunCompile.Graph.Expression
 
 		public override string GetRepresentation()
 		{
+			var op = MathTypeToChar(Type);
+			return "(" + ValueA.GetRepresentation() + " " + op + " " + ValueB.GetRepresentation() + ")";
+		}
+
+		public static char MathTypeToChar(BinaryMathType tp)
+		{
 			char op;
-			switch (Type)
+			switch (tp)
 			{
 				case BinaryMathType.ADD:
 					op = '+';
@@ -79,7 +85,7 @@ namespace BefunCompile.Graph.Expression
 				default:
 					throw new ArgumentException();
 			}
-			return "(" + ValueA.GetRepresentation() + " " + op.ToString() + " " + ValueB.GetRepresentation() + ")";
+			return op;
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()

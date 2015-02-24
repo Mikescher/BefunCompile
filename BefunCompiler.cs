@@ -276,9 +276,7 @@ namespace BefunCompile
 	}
 }
 
-//TODO TESTS (use faster euler probs)
 //TODO [swap]+[BinMath] -> [BinMath, swapped=true]
-//TODO Sort goto-blocks to allow fall-trough
 //TODO better parenthesis
 //TODO BCVertexBinaryMath Replacements IN-BLOCK (+ possible others)
 //TODO find variable initializer -> direct use

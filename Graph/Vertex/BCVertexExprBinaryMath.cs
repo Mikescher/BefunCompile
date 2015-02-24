@@ -22,7 +22,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return "PUSH(" + FirstExpression + " " + MathType + " pop)";
+			return "PUSH(" + FirstExpression + " " + ExpressionBinMath.MathTypeToChar(MathType) + " #pop#)";
 		}
 
 		private long Calc(long a, long b) // Reihenfolge:   a  b  +

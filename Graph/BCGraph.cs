@@ -1,4 +1,5 @@
-﻿using BefunCompile.Graph.Expression;
+﻿using BefunCompile.Exceptions;
+using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
@@ -744,10 +745,36 @@ namespace BefunCompile.Graph
 			return Enumerable.Range(0, data.Length / 128 + 2).Select(i => (i * 128 > data.Length) ? "" : data.Substring(i * 128, System.Math.Min(i * 128 + 128, data.Length) - i * 128)).Where(p => p != "").ToList();
 		}
 
+		private void OrderVerticesForFallThrough()
+		{
+			List<BCVertex> newlist = new List<BCVertex>();
+			Stack<BCVertex> nextStack = new Stack<BCVertex>();
+
+			nextStack.Push(Root);
+
+			while (nextStack.Any())
+			{
+				var node = nextStack.Pop();
+				if (!newlist.Contains(node))
+				{
+					newlist.Add(node);
+
+					node.Children.Where(p => !newlist.Contains(p)).ToList().ForEach(p => nextStack.Push(p));
+				}
+			}
+
+			if (newlist.Count != Vertices.Count)
+				throw new CodeGenException();
+
+			Vertices = newlist;
+		}
+
 		#region CodeGeneration (C#)
 
 		public string GenerateCodeCSharp(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
+			OrderVerticesForFallThrough();
+
 			TestGraph();
 
 			string indent1 = "    ";
@@ -786,9 +813,14 @@ namespace BefunCompile.Graph
 				codebuilder.AppendLine(indent(Vertices[i].GenerateCodeCSharp(this), indent2));
 
 				if (Vertices[i].Children.Count == 1)
-					codebuilder.AppendLine(indent2 + "goto _" + Vertices.IndexOf(Vertices[i].Children[0]) + ";");
+				{
+					if (Vertices.IndexOf(Vertices[i].Children[0]) != i + 1) // Fall through
+						codebuilder.AppendLine(indent2 + "goto _" + Vertices.IndexOf(Vertices[i].Children[0]) + ";");
+				}
 				else if (Vertices[i].Children.Count == 0)
+				{
 					codebuilder.AppendLine(indent2 + "return;");
+				}
 			}
 
 			codebuilder.AppendLine("}}");
@@ -935,6 +967,8 @@ namespace BefunCompile.Graph
 
 		public string GenerateCodeC(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
+			OrderVerticesForFallThrough();
+
 			TestGraph();
 
 			string indent1 = "    ";
@@ -982,9 +1016,14 @@ namespace BefunCompile.Graph
 				codebuilder.AppendLine(indent(Vertices[i].GenerateCodeC(this), indent1));
 
 				if (Vertices[i].Children.Count == 1)
-					codebuilder.AppendLine(indent1 + "goto _" + Vertices.IndexOf(Vertices[i].Children[0]) + ";");
+				{
+					if (Vertices.IndexOf(Vertices[i].Children[0]) != i + 1) // Fall through
+						codebuilder.AppendLine(indent1 + "goto _" + Vertices.IndexOf(Vertices[i].Children[0]) + ";");
+				}
 				else if (Vertices[i].Children.Count == 0)
+				{
 					codebuilder.AppendLine(indent1 + "return 0;");
+				}
 			}
 
 			codebuilder.AppendLine("}");
@@ -1132,6 +1171,8 @@ namespace BefunCompile.Graph
 
 		public string GenerateCodePython(bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
+			OrderVerticesForFallThrough();
+
 			TestGraph();
 
 			StringBuilder codebuilder = new StringBuilder();
