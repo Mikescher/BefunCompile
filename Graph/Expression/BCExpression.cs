@@ -25,5 +25,10 @@ namespace BefunCompile.Graph.Expression
 		{
 			return GetRepresentation();
 		}
+
+		protected string Paren(string input, bool doParenthesis = true)
+		{
+			return doParenthesis ? ('(' + input + ')') : input;
+		}
 	}
 }

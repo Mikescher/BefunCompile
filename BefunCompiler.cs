@@ -9,7 +9,7 @@ namespace BefunCompile
 {
 	public class BefunCompiler
 	{
-		public const string VERSION = "1.0.4";
+		public const string VERSION = "1.0.5";
 
 		private readonly long[,] sourceGrid;
 		private readonly int width;
@@ -277,7 +277,6 @@ namespace BefunCompile
 }
 
 //TODO [swap]+[BinMath] -> [BinMath, swapped=true]
-//TODO better parenthesis
 //TODO BCVertexBinaryMath Replacements IN-BLOCK (+ possible others)
 //TODO find variable initializer -> direct use
 //TODO evtl other optimizations (analyse code)

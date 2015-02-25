@@ -66,19 +66,45 @@ namespace BefunCompile.Graph.Expression
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
+		private bool NeedsParen()
+		{
+			if (Value is ExpressionConstant)
+				return false;
+
+			if (Value is ExpressionVariable)
+				return false;
+
+			var math = Value as ExpressionBinMath;
+			if (math != null)
+			{
+				if (math.Type == Vertex.BinaryMathType.ADD)
+					return false;
+				if (math.Type == Vertex.BinaryMathType.SUB)
+					return false;
+				if (math.Type == Vertex.BinaryMathType.MUL)
+					return false;
+				if (math.Type == Vertex.BinaryMathType.MOD)
+					return false;
+				if (math.Type == Vertex.BinaryMathType.DIV)
+					return false;
+			}
+
+			return true;
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("(({0})!=0)?0:1", Value.GenerateCodeCSharp(g));
+			return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("(({0})!=0)?0:1", Value.GenerateCodeCSharp(g));
+			return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("(0)if(({0})!=0)else(1)", Value.GenerateCodePython(g));
+			return string.Format("(0)if({0}!=0)else(1)", Paren(Value.GenerateCodePython(g), NeedsParen()));
 		}
 
 		public override bool IsOnlyStackManipulation()

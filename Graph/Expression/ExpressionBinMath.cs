@@ -130,16 +130,59 @@ namespace BefunCompile.Graph.Expression
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
+		private bool NeedsLSParen()
+		{
+			if (ValueA is ExpressionConstant)
+				return false;
+
+			if (ValueA is ExpressionGet)
+				return false;
+
+			if (ValueA is ExpressionVariable)
+				return false;
+
+			if (Type == BinaryMathType.MUL && ValueA is ExpressionBinMath && ((ExpressionBinMath)ValueA).Type == BinaryMathType.MUL)
+				return false;
+
+			if (Type == BinaryMathType.ADD && ValueA is ExpressionBinMath && ((ExpressionBinMath)ValueA).Type == BinaryMathType.ADD)
+				return false;
+
+			if (Type == BinaryMathType.SUB && ValueA is ExpressionBinMath && ((ExpressionBinMath)ValueA).Type == BinaryMathType.SUB)
+				return false;
+
+			return true;
+		}
+
+		private bool NeedsRSParen()
+		{
+			if (ValueB is ExpressionConstant)
+				return false;
+
+			if (ValueB is ExpressionGet)
+				return false;
+
+			if (ValueB is ExpressionVariable)
+				return false;
+
+			if (Type == BinaryMathType.MUL && ValueB is ExpressionBinMath && ((ExpressionBinMath)ValueB).Type == BinaryMathType.MUL)
+				return false;
+
+			if (Type == BinaryMathType.ADD && ValueB is ExpressionBinMath && ((ExpressionBinMath)ValueB).Type == BinaryMathType.ADD)
+				return false;
+
+			return true;
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			switch (Type)
 			{
 				case BinaryMathType.ADD:
-					return "(" + ValueA.GenerateCodeCSharp(g) + ")+(" + ValueB.GenerateCodeCSharp(g) + ")";
+					return Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
 				case BinaryMathType.SUB:
-					return "(" + ValueA.GenerateCodeCSharp(g) + ")-(" + ValueB.GenerateCodeCSharp(g) + ")";
+					return Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + '-' + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
 				case BinaryMathType.MUL:
-					return "(" + ValueA.GenerateCodeCSharp(g) + ")*(" + ValueB.GenerateCodeCSharp(g) + ")";
+					return Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
 				case BinaryMathType.DIV:
 					return "td(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")";
 				case BinaryMathType.GT:
@@ -156,11 +199,11 @@ namespace BefunCompile.Graph.Expression
 			switch (Type)
 			{
 				case BinaryMathType.ADD:
-					return "(" + ValueA.GenerateCodeC(g) + ")+(" + ValueB.GenerateCodeC(g) + ")";
+					return Paren(ValueA.GenerateCodeC(g), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodeC(g), NeedsRSParen());
 				case BinaryMathType.SUB:
-					return "(" + ValueA.GenerateCodeC(g) + ")-(" + ValueB.GenerateCodeC(g) + ")";
+					return Paren(ValueA.GenerateCodeC(g), NeedsLSParen()) + '-' + Paren(ValueB.GenerateCodeC(g), NeedsRSParen());
 				case BinaryMathType.MUL:
-					return "(" + ValueA.GenerateCodeC(g) + ")*(" + ValueB.GenerateCodeC(g) + ")";
+					return Paren(ValueA.GenerateCodeC(g), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodeC(g), NeedsRSParen());
 				case BinaryMathType.DIV:
 					return "td(" + ValueA.GenerateCodeC(g) + "," + ValueB.GenerateCodeC(g) + ")";
 				case BinaryMathType.GT:
@@ -177,11 +220,11 @@ namespace BefunCompile.Graph.Expression
 			switch (Type)
 			{
 				case BinaryMathType.ADD:
-					return "(" + ValueA.GenerateCodePython(g) + ")+(" + ValueB.GenerateCodePython(g) + ")";
+					return Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodePython(g), NeedsRSParen());
 				case BinaryMathType.SUB:
-					return "(" + ValueA.GenerateCodePython(g) + ")-(" + ValueB.GenerateCodePython(g) + ")";
+					return Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + '-' + Paren(ValueB.GenerateCodePython(g), NeedsRSParen());
 				case BinaryMathType.MUL:
-					return "(" + ValueA.GenerateCodePython(g) + ")*(" + ValueB.GenerateCodePython(g) + ")";
+					return Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodePython(g), NeedsRSParen());
 				case BinaryMathType.DIV:
 					return "td(" + ValueA.GenerateCodePython(g) + "," + ValueB.GenerateCodePython(g) + ")";
 				case BinaryMathType.GT:
