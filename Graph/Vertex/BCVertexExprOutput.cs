@@ -115,6 +115,9 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
+			if (!ModeInteger && Value is ExpressionConstant && IsASCIIChar((Value as ExpressionConstant).Value))
+				return string.Format("System.Console.Out.Write({0});", GetASCIICharRep((Value as ExpressionConstant).Value, "'"));
+
 			return string.Format("System.Console.Out.Write(({0})({1}));",
 				ModeInteger ? "long" : "char",
 				Value.GenerateCodeCSharp(g));
@@ -122,6 +125,9 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeC(BCGraph g)
 		{
+			if (!ModeInteger && Value is ExpressionConstant && IsASCIIChar((Value as ExpressionConstant).Value))
+				return string.Format("printf({0});", GetASCIICharRep((Value as ExpressionConstant).Value, "\""));
+
 			return string.Format("printf(\"{0}\", ({1})({2}));",
 				ModeInteger ? "%lld" : "%c",
 				ModeInteger ? "int64" : "char",

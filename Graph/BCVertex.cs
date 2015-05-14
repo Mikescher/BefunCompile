@@ -47,6 +47,29 @@ namespace BefunCompile.Graph
 			return doParenthesis ? ('(' + input + ')') : input;
 		}
 
+		protected bool IsASCIIChar(long chr)
+		{
+			return
+				(chr >= ' ' && chr <= '~' && chr != '\'' && chr != '\\') ||
+				(chr == '\r') ||
+				(chr == '\n') ||
+				(chr == '\t');
+		}
+
+		protected string GetASCIICharRep(long chr, string marks)
+		{
+			if (chr >= ' ' && chr <= '~' && chr != '\'' && chr != '\\')
+				return marks + (char)chr + marks;
+			if (chr == '\r')
+				return marks + @"\r" + marks;
+			if (chr == '\n')
+				return marks + @"\n" + marks;
+			if (chr == '\t')
+				return marks + @"\t" + marks;
+
+			return null;
+		}
+
 		public static BCVertex FromChar(BCDirection d, long c, Vec2i pos, out BCDirection[] outgoingEdges)
 		{
 			if (BCDirectionHelper.isSMDirection(d) && c != '"')
