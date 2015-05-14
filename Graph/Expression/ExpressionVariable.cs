@@ -8,7 +8,7 @@ namespace BefunCompile.Graph.Expression
 	public class ExpressionVariable : BCExpression, MemoryAccess
 	{
 		public readonly string Identifier;
-		public readonly long initial;
+		public long initial;
 
 		public readonly Vec2l position;
 

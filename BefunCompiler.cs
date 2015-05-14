@@ -278,5 +278,4 @@ namespace BefunCompile
 
 //TODO [swap]+[BinMath] -> [BinMath, swapped=true]
 //TODO BCVertexBinaryMath Replacements IN-BLOCK (+ possible others)
-//TODO find variable initializer -> direct use
 //TODO evtl other optimizations (analyse code)

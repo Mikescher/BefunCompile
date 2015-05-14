@@ -80,6 +80,11 @@ namespace BefunCompile.Graph.Vertex
 			return found;
 		}
 
+		public BCVertexBlock GetWithRemovedNode(BCVertex node)
+		{
+			return new BCVertexBlock(Direction, Positions, nodes.Where(p => p != node).ToArray());
+		}
+
 		public override bool IsOnlyStackManipulation()
 		{
 			return false;

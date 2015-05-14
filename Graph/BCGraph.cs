@@ -685,8 +685,51 @@ namespace BefunCompile.Graph
 
 			bool b1 = ruleRepl1.Execute(this);
 			bool b2 = ruleRepl2.Execute(this);
+			bool b3 = ReplaceVariableIntializer();
 
-			return b1 || b2;
+			return b1 || b2 || b3;
+		}
+
+		private bool ReplaceVariableIntializer()
+		{
+			if (Root.Parents.Count != 0)
+				return false;
+
+			if (Variables.Count == 0)
+				return false;
+
+			if (!(Root is BCVertexBlock))
+				return false;
+
+			BCVertexBlock BRoot = Root as BCVertexBlock;
+			foreach (var variable in Variables)
+			{
+				for (int i = 0; i < BRoot.nodes.Length; i++)
+				{
+					BCVertex node = BRoot.nodes[i];
+					if (node is BCVertexTotalVarSet && (node as BCVertexTotalVarSet).Variable == variable && (node as BCVertexTotalVarSet).Value is ExpressionConstant)
+					{
+						long ivalue = ((node as BCVertexTotalVarSet).Value as ExpressionConstant).Value;
+						variable.initial = ivalue;
+
+						BCVertex newnode = BRoot.GetWithRemovedNode(node);
+
+						var ruleRepl = new BCModRule(false, false);
+						ruleRepl.AddPreq(p => p == BRoot);
+						ruleRepl.AddRep((l, p) => (l[0] as BCVertexBlock).GetWithRemovedNode(node));
+
+						if (ruleRepl.Execute(this))
+							return true;
+						else
+							break;
+					}
+
+					if (node.GetVariables().Contains(variable))
+						break;
+				}
+			}
+
+			return false;
 		}
 
 		#endregion
