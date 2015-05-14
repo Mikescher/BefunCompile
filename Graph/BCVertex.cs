@@ -162,6 +162,7 @@ namespace BefunCompile.Graph
 		public abstract bool IsBlock();
 		public abstract bool IsRandom();
 		public abstract IEnumerable<ExpressionVariable> GetVariables();
+		public abstract IEnumerable<int> GetAllJumps(BCGraph g);
 
 
 		public abstract string GenerateCodeCSharp(BCGraph g);

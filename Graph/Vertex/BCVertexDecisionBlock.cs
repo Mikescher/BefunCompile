@@ -90,6 +90,12 @@ namespace BefunCompile.Graph.Vertex
 			return Block.GetVariables().Concat(Decision.GetVariables());
 		}
 
+		public override IEnumerable<int> GetAllJumps(BCGraph g)
+		{
+			yield return g.Vertices.IndexOf(EdgeTrue);
+			yield return g.Vertices.IndexOf(EdgeFalse);
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return Block.GenerateCodeCSharp(g) + Environment.NewLine + Decision.GenerateCodeCSharp(g);

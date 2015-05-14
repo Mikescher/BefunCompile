@@ -108,6 +108,11 @@ namespace BefunCompile.Graph.Vertex
 			return Value.GetVariables();
 		}
 
+		public override IEnumerable<int> GetAllJumps(BCGraph g)
+		{
+			return Enumerable.Empty<int>();
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Format("System.Console.Out.Write(({0})({1}));",

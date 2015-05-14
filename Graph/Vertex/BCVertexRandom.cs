@@ -78,6 +78,11 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
+		public override IEnumerable<int> GetAllJumps(BCGraph g)
+		{
+			return Enumerable.Empty<int>();
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"

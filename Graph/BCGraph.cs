@@ -129,6 +129,29 @@ namespace BefunCompile.Graph
 			return Vertices.SelectMany(p => p.Positions).Select(p => new Vec2l(p.X, p.Y)).Distinct().ToList();
 		}
 
+		private IEnumerable<int> GetAllJumps()
+		{
+			if (Vertices.IndexOf(Root) != 0)
+				yield return Vertices.IndexOf(Root);
+
+			for (int i = 0; i < Vertices.Count; i++)
+			{
+				if (Vertices[i].Children.Count == 1)
+				{
+					if (Vertices.IndexOf(Vertices[i].Children[0]) != i + 1) // Fall through
+						yield return Vertices.IndexOf(Vertices[i].Children[0]);
+				}
+			}
+
+			foreach (var vx in Vertices)
+			{
+				foreach (var jump in vx.GetAllJumps(this))
+				{
+					yield return jump;
+				}
+			}
+		}
+
 		#region O:1 Minimize
 
 		public bool Minimize()
@@ -777,6 +800,8 @@ namespace BefunCompile.Graph
 
 			TestGraph();
 
+			List<int> activeJumps = GetAllJumps().Distinct().ToList();
+
 			string indent1 = "    ";
 			string indent2 = "    " + "    ";
 
@@ -804,11 +829,13 @@ namespace BefunCompile.Graph
 				codebuilder.AppendLine(indent2 + "long " + variable.Identifier + "=" + variable.initial + ";");
 			}
 
-			codebuilder.AppendLine(indent2 + "goto _" + Vertices.IndexOf(Root) + ";");
+			if (Vertices.IndexOf(Root) != 0)
+				codebuilder.AppendLine(indent2 + "goto _" + Vertices.IndexOf(Root) + ";");
 
 			for (int i = 0; i < Vertices.Count; i++)
 			{
-				codebuilder.AppendLine(indent1 + "_" + i + ":");
+				if (activeJumps.Contains(i))
+					codebuilder.AppendLine(indent1 + "_" + i + ":");
 
 				codebuilder.AppendLine(indent(Vertices[i].GenerateCodeCSharp(this), indent2));
 
@@ -971,6 +998,8 @@ namespace BefunCompile.Graph
 
 			TestGraph();
 
+			List<int> activeJumps = GetAllJumps().Distinct().ToList();
+
 			string indent1 = "    ";
 
 			if (!fmtOutput)
@@ -1007,11 +1036,13 @@ namespace BefunCompile.Graph
 
 			codebuilder.AppendLine(indent1 + "s=(int64*)calloc(q,sizeof(int64));");
 
-			codebuilder.AppendLine(indent1 + "goto _" + Vertices.IndexOf(Root) + ";");
+			if (Vertices.IndexOf(Root) != 0)
+				codebuilder.AppendLine(indent1 + "goto _" + Vertices.IndexOf(Root) + ";");
 
 			for (int i = 0; i < Vertices.Count; i++)
 			{
-				codebuilder.AppendLine("_" + i + ":");
+				if (activeJumps.Contains(i))
+					codebuilder.AppendLine("_" + i + ":");
 
 				codebuilder.AppendLine(indent(Vertices[i].GenerateCodeC(this), indent1));
 

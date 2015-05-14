@@ -93,6 +93,11 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
+		public override IEnumerable<int> GetAllJumps(BCGraph g)
+		{
+			return Enumerable.Empty<int>();
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Format("System.Console.Out.Write(({0})(sp()));", ModeInteger ? "long" : "char");

@@ -91,6 +91,12 @@ namespace BefunCompile.Graph.Vertex
 			return Value.GetVariables();
 		}
 
+		public override IEnumerable<int> GetAllJumps(BCGraph g)
+		{
+			yield return g.Vertices.IndexOf(EdgeTrue);
+			yield return g.Vertices.IndexOf(EdgeFalse);
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeCSharp(g), g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));

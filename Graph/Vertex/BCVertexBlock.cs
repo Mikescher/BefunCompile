@@ -105,6 +105,11 @@ namespace BefunCompile.Graph.Vertex
 			return nodes.SelectMany(p => p.GetVariables());
 		}
 
+		public override IEnumerable<int> GetAllJumps(BCGraph g)
+		{
+			return nodes.SelectMany(p => p.GetAllJumps(g));
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Join("", nodes.Select(p => p.GenerateCodeCSharp(g) + Environment.NewLine));

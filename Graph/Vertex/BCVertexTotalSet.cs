@@ -159,6 +159,11 @@ namespace BefunCompile.Graph.Vertex
 			return X.GetVariables().Concat(Y.GetVariables()).Concat(Value.GetVariables());
 		}
 
+		public override IEnumerable<int> GetAllJumps(BCGraph g)
+		{
+			return Enumerable.Empty<int>();
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			return string.Format("gw({0},{1},{2});", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g), Value.GenerateCodeCSharp(g));
