@@ -42,6 +42,11 @@ namespace BefunCompile.Graph
 			return Children.All(child => child.Parents.Contains(this)) && Parents.All(parent => parent.Children.Contains(this));
 		}
 
+		protected string Paren(string input, bool doParenthesis = true)
+		{
+			return doParenthesis ? ('(' + input + ')') : input;
+		}
+
 		public static BCVertex FromChar(BCDirection d, long c, Vec2i pos, out BCDirection[] outgoingEdges)
 		{
 			if (BCDirectionHelper.isSMDirection(d) && c != '"')

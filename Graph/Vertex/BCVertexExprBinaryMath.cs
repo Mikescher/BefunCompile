@@ -122,6 +122,26 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<int>();
 		}
 
+		private bool NeedsParen()
+		{
+			if (FirstExpression is ExpressionConstant)
+				return false;
+
+			if (FirstExpression is ExpressionGet)
+				return false;
+
+			if (FirstExpression is ExpressionVariable)
+				return false;
+
+			if (MathType == BinaryMathType.MUL && FirstExpression is ExpressionBinMath && ((ExpressionBinMath)FirstExpression).Type == BinaryMathType.MUL)
+				return false;
+
+			if (MathType == BinaryMathType.ADD && FirstExpression is ExpressionBinMath && ((ExpressionBinMath)FirstExpression).Type == BinaryMathType.ADD)
+				return false;
+
+			return true;
+		}
+
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			StringBuilder codebuilder = new StringBuilder();
@@ -129,13 +149,13 @@ namespace BefunCompile.Graph.Vertex
 			switch (MathType)
 			{
 				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+(" + FirstExpression.GenerateCodeCSharp(g) + "));");
+					codebuilder.AppendLine("sa(sp()+" + Paren(FirstExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.SUB:
-					codebuilder.AppendLine("sa(sp()-(" + FirstExpression.GenerateCodeCSharp(g) + "));");
+					codebuilder.AppendLine("sa(sp()-" + Paren(FirstExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*(" + FirstExpression.GenerateCodeCSharp(g) + "));");
+					codebuilder.AppendLine("sa(sp()*" + Paren(FirstExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.DIV:
 					codebuilder.AppendLine("{long v0=" + FirstExpression.GenerateCodeCSharp(g) + ";sa((v0==0)?0:(sp()/v0));}");
