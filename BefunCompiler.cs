@@ -247,10 +247,20 @@ namespace BefunCompile
 				throw new SelfModificationException();
 			}
 
-			if (dynamGets.Count == 0)
-				graph.SubstituteConstMemoryAccess(GetGridValue);
+			for (int i = level; i != 0; i--)
+			{
+				bool op = graph.VariablizeGraph(GetGridValue, dynamGets, constGets);
 
-			log_Cycles[lvl.Level] = 1;
+				if (!graph.TestGraph())
+					throw new Exception("Internal Parent Exception :( ");
+
+				if (!op)
+				{
+					log_Cycles[lvl.Level] = level - i;
+
+					break;
+				}
+			}
 
 			return graph;
 		}
