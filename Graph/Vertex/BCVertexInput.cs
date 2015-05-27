@@ -59,7 +59,17 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
-		public override bool IsOnlyStackManipulation()
+		public override bool IsNotGridAccess()
+		{
+			return true;
+		}
+
+		public override bool IsNotStackAccess()
+		{
+			return false;
+		}
+
+		public override bool IsNotVariableAccess()
 		{
 			return true;
 		}

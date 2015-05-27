@@ -11,7 +11,7 @@ namespace BefunCompile
 	{
 		public const string VERSION = "1.0.5";
 
-		public class GenerationLevel 
+		public class GenerationLevel
 		{
 			public int Level;
 			public string Name;
@@ -327,3 +327,4 @@ namespace BefunCompile
 //TODO BCVertexBinaryMath Replacements IN-BLOCK (+ possible others)
 //TODO evtl other optimizations (analyse code)
 //TODO Combine same blocks (see P059 :: [_29]==[_32]==[_33]=[_34])
+//TODO repeat until block

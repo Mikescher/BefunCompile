@@ -63,7 +63,17 @@ namespace BefunCompile.Graph.Expression
 			return Value.ToString();
 		}
 
-		public override bool IsOnlyStackManipulation()
+		public override bool IsNotGridAccess()
+		{
+			return true;
+		}
+
+		public override bool IsNotStackAccess()
+		{
+			return true;
+		}
+
+		public override bool IsNotVariableAccess()
 		{
 			return true;
 		}

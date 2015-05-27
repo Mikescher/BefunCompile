@@ -185,13 +185,16 @@ namespace BefunCompile.Graph
 
 		public abstract bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
 
-		public abstract bool IsOnlyStackManipulation();
+		public abstract bool IsNotGridAccess();
+		public abstract bool IsNotStackAccess();
+		public abstract bool IsNotVariableAccess();
+
 		public abstract bool IsCodePathSplit();
 		public abstract bool IsBlock();
 		public abstract bool IsRandom();
+
 		public abstract IEnumerable<ExpressionVariable> GetVariables();
 		public abstract IEnumerable<int> GetAllJumps(BCGraph g);
-
 
 		public abstract string GenerateCodeCSharp(BCGraph g);
 		public abstract string GenerateCodeC(BCGraph g);

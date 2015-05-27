@@ -115,9 +115,19 @@ namespace BefunCompile.Graph.Expression
 			return string.Format("gr({0},{1})", X.GenerateCodePython(g), Y.GenerateCodePython(g));
 		}
 
-		public override bool IsOnlyStackManipulation()
+		public override bool IsNotGridAccess()
 		{
 			return false;
+		}
+
+		public override bool IsNotStackAccess()
+		{
+			return X.IsNotStackAccess() && Y.IsNotStackAccess();
+		}
+
+		public override bool IsNotVariableAccess()
+		{
+			return X.IsNotVariableAccess() && Y.IsNotVariableAccess();
 		}
 	}
 }

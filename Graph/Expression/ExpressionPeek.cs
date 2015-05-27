@@ -5,33 +5,26 @@ using System.Collections.Generic;
 using System.Linq;
 namespace BefunCompile.Graph.Expression
 {
-	public class ExpressionVariable : BCExpression, MemoryAccess
+	public class ExpressionPeek : BCExpression
 	{
-		public readonly string Identifier;
-		public long initial;
-
-		public readonly Vec2l position;
-
-		private ExpressionVariable(string ident, long init, Vec2l pos)
+		private ExpressionPeek()
 		{
-			this.Identifier = ident;
-			this.initial = init;
-			this.position = pos;
+			//--
 		}
 
-		public static ExpressionVariable Create(string ident, long init, Vec2l pos)
+		public static ExpressionPeek Create()
 		{
-			return new ExpressionVariable(ident, init, pos);
+			return new ExpressionPeek();
 		}
 
 		public override long Calculate(CalculateInterface ci)
 		{
-			return ci.GetVariableValue(this);
+			return ci.PeekStack();
 		}
 
 		public override string GetRepresentation()
 		{
-			return Identifier;
+			return "<peek>";
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
@@ -72,22 +65,22 @@ namespace BefunCompile.Graph.Expression
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return new[] { this };
+			return Enumerable.Empty<ExpressionVariable>();
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return Identifier;
+			return "sr()";
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return Identifier;
+			return "sr()";
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return Identifier;
+			return "sr()";
 		}
 
 		public override bool IsNotGridAccess()
@@ -97,12 +90,12 @@ namespace BefunCompile.Graph.Expression
 
 		public override bool IsNotStackAccess()
 		{
-			return true;
+			return false;
 		}
 
 		public override bool IsNotVariableAccess()
 		{
-			return false;
+			return true;
 		}
 	}
 }

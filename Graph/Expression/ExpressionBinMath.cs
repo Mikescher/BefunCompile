@@ -141,6 +141,9 @@ namespace BefunCompile.Graph.Expression
 			if (ValueA is ExpressionVariable)
 				return false;
 
+			if (ValueA is ExpressionPeek)
+				return false;
+
 			if (Type == BinaryMathType.MUL && ValueA is ExpressionBinMath && ((ExpressionBinMath)ValueA).Type == BinaryMathType.MUL)
 				return false;
 
@@ -162,6 +165,9 @@ namespace BefunCompile.Graph.Expression
 				return false;
 
 			if (ValueB is ExpressionVariable)
+				return false;
+
+			if (ValueA is ExpressionPeek)
 				return false;
 
 			if (Type == BinaryMathType.MUL && ValueB is ExpressionBinMath && ((ExpressionBinMath)ValueB).Type == BinaryMathType.MUL)
@@ -236,9 +242,19 @@ namespace BefunCompile.Graph.Expression
 			}
 		}
 
-		public override bool IsOnlyStackManipulation()
+		public override bool IsNotGridAccess()
 		{
-			return ValueA.IsOnlyStackManipulation() && ValueB.IsOnlyStackManipulation();
+			return ValueA.IsNotGridAccess() && ValueB.IsNotGridAccess();
+		}
+
+		public override bool IsNotStackAccess()
+		{
+			return ValueA.IsNotStackAccess() && ValueB.IsNotStackAccess();
+		}
+
+		public override bool IsNotVariableAccess()
+		{
+			return ValueA.IsNotVariableAccess() && ValueB.IsNotVariableAccess();
 		}
 	}
 }

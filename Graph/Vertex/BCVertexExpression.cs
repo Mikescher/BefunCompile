@@ -7,57 +7,69 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexDup : BCVertex
+	public class BCVertexExpression : BCVertex
 	{
-		public BCVertexDup(BCDirection d, Vec2i pos)
-			: base(d, new Vec2i[] { pos })
-		{
+		public BCExpression Expression;
 
-		}
-
-		public BCVertexDup(BCDirection d, Vec2i[] pos)
+		public BCVertexExpression(BCDirection d, Vec2i[] pos, BCExpression expr)
 			: base(d, pos)
 		{
+			Expression = expr;
+		}
 
+		public BCVertexExpression(BCDirection d, Vec2i[] pos, BCExpression expr_left, BinaryMathType type, BCExpression expr_right)
+			: base(d, pos)
+		{
+			Expression = ExpressionBinMath.Create(expr_left, expr_right, type);
 		}
 
 		public override string ToString()
 		{
-			return "DUP";
+			return "PUSH(" + Expression + ")";
 		}
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexDup(Direction, Positions);
+			return new BCVertexExpression(Direction, Positions, Expression);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return Enumerable.Empty<MemoryAccess>();
+			return Expression.ListConstantVariableAccess();
 		}
 
 		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return Enumerable.Empty<MemoryAccess>();
+			return Expression.ListDynamicVariableAccess();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
-			stackbuilder.Dup();
-
-			if (Children.Count > 1)
-				throw new ArgumentException("#");
+			stackbuilder.Push(Expression.Calculate(ci));
 			return Children.FirstOrDefault();
 		}
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
 		{
-			return false;
+			bool found = false;
+
+			if (prerequisite(Expression))
+			{
+				Expression = replacement(Expression);
+				found = true;
+			}
+
+			if (Expression.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 
 		public override bool IsNotGridAccess()
 		{
-			return true;
+			return Expression.IsNotGridAccess();
 		}
 
 		public override bool IsNotStackAccess()
@@ -67,7 +79,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool IsNotVariableAccess()
 		{
-			return true;
+			return Expression.IsNotVariableAccess();
 		}
 
 		public override bool IsCodePathSplit()
@@ -87,7 +99,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return Enumerable.Empty<ExpressionVariable>();
+			return Expression.GetVariables();
 		}
 
 		public override IEnumerable<int> GetAllJumps(BCGraph g)
@@ -97,17 +109,17 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return "sa(sr());";
+			return "sa(" + Expression.GenerateCodeCSharp(g) + ");";
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return "sa(sr());";
+			return "sa(" + Expression.GenerateCodeC(g) + ");";
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return "sa(sr())";
+			return "sa(" + Expression.GenerateCodePython(g) + ");";
 		}
 	}
 }

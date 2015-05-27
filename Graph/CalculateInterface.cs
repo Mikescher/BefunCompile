@@ -9,5 +9,7 @@ namespace BefunCompile.Graph
 
 		void SetVariableValue(ExpressionVariable v, long value);
 		void SetGridValue(long xx, long yy, long value);
+
+		long PeekStack();
 	}
 }

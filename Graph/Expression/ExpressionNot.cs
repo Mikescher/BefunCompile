@@ -107,9 +107,19 @@ namespace BefunCompile.Graph.Expression
 			return string.Format("(0)if({0}!=0)else(1)", Paren(Value.GenerateCodePython(g), NeedsParen()));
 		}
 
-		public override bool IsOnlyStackManipulation()
+		public override bool IsNotGridAccess()
 		{
-			return Value.IsOnlyStackManipulation();
+			return Value.IsNotGridAccess();
+		}
+
+		public override bool IsNotStackAccess()
+		{
+			return Value.IsNotStackAccess();
+		}
+
+		public override bool IsNotVariableAccess()
+		{
+			return Value.IsNotVariableAccess();
 		}
 	}
 }

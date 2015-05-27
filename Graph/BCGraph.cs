@@ -434,8 +434,8 @@ namespace BefunCompile.Graph
 			rule4.AddRep((l, p) => { var v = l[0].Duplicate(); v.Positions = p; return v; });
 
 			var rule5 = new BCModRule();
-			rule5.AddPreq(v => !v.IsCodePathSplit() && v.IsOnlyStackManipulation());
-			rule5.AddPreq(v => (v is BCVertexTotalSet || v is BCVertexTotalVarSet));
+			rule5.AddPreq(v => !v.IsCodePathSplit() && v.IsNotGridAccess() && v.IsNotVariableAccess()); // <-- Stack Access
+			rule5.AddPreq(v => ((v is BCVertexTotalSet || v is BCVertexTotalVarSet) && v.IsNotStackAccess())); // <-- No Stack Access
 			rule5.AddRep((l, p) => l[1].Duplicate());
 			rule5.AddRep((l, p) => l[0].Duplicate());
 
@@ -571,7 +571,12 @@ namespace BefunCompile.Graph
 			BCModRule combRule1 = new BCModRule();
 			combRule1.AddPreq(p => p is BCVertexPush);
 			combRule1.AddPreq(p => p is BCVertexBinaryMath);
-			combRule1.AddRep((l, p) => new BCVertexExprBinaryMath(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value, ((BCVertexBinaryMath)l[1]).MathType));
+			combRule1.AddRep((l, p) => new BCVertexExprPopBinaryMath(BCDirection.UNKNOWN, p, ((BCVertexPush)l[0]).Value, ((BCVertexBinaryMath)l[1]).MathType));
+
+			BCModRule combRule2 = new BCModRule();
+			combRule2.AddPreq(p => p is BCVertexDup);
+			combRule2.AddPreq(p => p is BCVertexExprPopBinaryMath);
+			combRule2.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionPeek.Create(), ((BCVertexExprPopBinaryMath)l[1]).MathType, ((BCVertexExprPopBinaryMath)l[1]).SecondExpression));
 
 			bool changed = true;
 
@@ -582,8 +587,9 @@ namespace BefunCompile.Graph
 				bool b3 = vertexRule3.Execute(this);
 				bool b4 = exprRule1.Execute(this);
 				bool b5 = combRule1.Execute(this);
+				bool b6 = combRule2.Execute(this);
 
-				changed = b1 || b2 || b3 || b4 || b5;
+				changed = b1 || b2 || b3 || b4 || b5 || b6;
 			}
 		}
 

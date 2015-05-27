@@ -23,7 +23,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return "NOP";
+			return "PUSH(~RAND~)";
 		}
 
 		public override BCVertex Duplicate()
@@ -53,7 +53,17 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
-		public override bool IsOnlyStackManipulation()
+		public override bool IsNotGridAccess()
+		{
+			return true;
+		}
+
+		public override bool IsNotStackAccess()
+		{
+			return false;
+		}
+
+		public override bool IsNotVariableAccess()
 		{
 			return true;
 		}

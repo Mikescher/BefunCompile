@@ -80,5 +80,10 @@ namespace BefunCompile.Graph
 			else
 				return 0;
 		}
+
+		public long PeekStack()
+		{
+			return stackbuilder.Peek();
+		}
 	}
 }

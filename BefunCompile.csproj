@@ -59,6 +59,7 @@
     <Compile Include="Graph\BCModRule.cs" />
     <Compile Include="Graph\BCVertex.cs" />
     <Compile Include="Graph\CalculateInterface.cs" />
+    <Compile Include="Graph\Expression\ExpressionPeek.cs" />
     <Compile Include="Graph\Expression\ExpressionVariable.cs" />
     <Compile Include="Graph\GraphRunner.cs" />
     <Compile Include="Graph\GraphRunnerStack.cs" />
@@ -92,7 +93,8 @@
     <Compile Include="Graph\Vertex\BCVertexBlock.cs" />
     <Compile Include="Graph\Vertex\BCVertexDecisionBlock.cs" />
     <Compile Include="Graph\Vertex\BCVertexExprDecisionBlock.cs" />
-    <Compile Include="Graph\Vertex\BCVertexExprBinaryMath.cs" />
+    <Compile Include="Graph\Vertex\BCVertexExprPopBinaryMath.cs" />
+    <Compile Include="Graph\Vertex\BCVertexExpression.cs" />
     <Compile Include="Graph\Vertex\IDecisionVertex.cs" />
     <Compile Include="Math\MSZipImplementation.cs" />
     <Compile Include="Math\Vec2l.cs" />

@@ -11,6 +11,11 @@ namespace BefunCompile.Graph
 			return stack.Count == 0 ? 0 : stack.Pop();
 		}
 
+		public long Peek()
+		{
+			return stack.Count == 0 ? 0 : stack.Peek();
+		}
+
 		public bool PopBool()
 		{
 			return Pop() != 0;
@@ -26,9 +31,7 @@ namespace BefunCompile.Graph
 
 		public void Dup()
 		{
-			var a = Pop();
-			Push(a);
-			Push(a);
+			Push(Peek());
 		}
 
 		public void Push(long v)

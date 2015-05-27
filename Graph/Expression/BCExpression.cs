@@ -12,7 +12,10 @@ namespace BefunCompile.Graph.Expression
 		public abstract IEnumerable<MemoryAccess> ListConstantVariableAccess();
 		public abstract IEnumerable<MemoryAccess> ListDynamicVariableAccess();
 
-		public abstract bool IsOnlyStackManipulation();
+		public abstract bool IsNotGridAccess();
+		public abstract bool IsNotStackAccess();
+		public abstract bool IsNotVariableAccess();
+
 		public abstract bool Subsitute(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
 
 		public abstract IEnumerable<ExpressionVariable> GetVariables();

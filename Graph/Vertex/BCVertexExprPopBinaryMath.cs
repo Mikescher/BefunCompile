@@ -7,22 +7,22 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexExprBinaryMath : BCVertex
+	public class BCVertexExprPopBinaryMath : BCVertex
 	{
 		public readonly BinaryMathType MathType;
 
-		public BCExpression FirstExpression;
+		public BCExpression SecondExpression;
 
-		public BCVertexExprBinaryMath(BCDirection d, Vec2i[] pos, BCExpression expr, BinaryMathType type)
+		public BCVertexExprPopBinaryMath(BCDirection d, Vec2i[] pos, BCExpression expr, BinaryMathType type)
 			: base(d, pos)
 		{
-			FirstExpression = expr;
+			SecondExpression = expr;
 			MathType = type;
 		}
 
 		public override string ToString()
 		{
-			return "PUSH(" + FirstExpression + " " + ExpressionBinMath.MathTypeToChar(MathType) + " #pop#)";
+			return "PUSH(" + SecondExpression + " " + ExpressionBinMath.MathTypeToChar(MathType) + " #pop#)";
 		}
 
 		private long Calc(long a, long b) // Reihenfolge:   a  b  +
@@ -48,23 +48,23 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexExprBinaryMath(Direction, Positions, FirstExpression, MathType);
+			return new BCVertexExprPopBinaryMath(Direction, Positions, SecondExpression, MathType);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return FirstExpression.ListConstantVariableAccess();
+			return SecondExpression.ListConstantVariableAccess();
 		}
 
 		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return FirstExpression.ListDynamicVariableAccess();
+			return SecondExpression.ListDynamicVariableAccess();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
 			var b = stackbuilder.Pop();
-			var a = FirstExpression.Calculate(ci);
+			var a = SecondExpression.Calculate(ci);
 
 			stackbuilder.Push(Calc(a, b));
 
@@ -78,13 +78,13 @@ namespace BefunCompile.Graph.Vertex
 		{
 			bool found = false;
 
-			if (prerequisite(FirstExpression))
+			if (prerequisite(SecondExpression))
 			{
-				FirstExpression = replacement(FirstExpression);
+				SecondExpression = replacement(SecondExpression);
 				found = true;
 			}
 
-			if (FirstExpression.Subsitute(prerequisite, replacement))
+			if (SecondExpression.Subsitute(prerequisite, replacement))
 			{
 				found = true;
 			}
@@ -92,9 +92,19 @@ namespace BefunCompile.Graph.Vertex
 			return found;
 		}
 
-		public override bool IsOnlyStackManipulation()
+		public override bool IsNotGridAccess()
 		{
-			return FirstExpression.IsOnlyStackManipulation();
+			return SecondExpression.IsNotGridAccess();
+		}
+
+		public override bool IsNotStackAccess()
+		{
+			return false;
+		}
+
+		public override bool IsNotVariableAccess()
+		{
+			return SecondExpression.IsNotVariableAccess();
 		}
 
 		public override bool IsCodePathSplit()
@@ -114,7 +124,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return FirstExpression.GetVariables();
+			return SecondExpression.GetVariables();
 		}
 
 		public override IEnumerable<int> GetAllJumps(BCGraph g)
@@ -124,19 +134,19 @@ namespace BefunCompile.Graph.Vertex
 
 		private bool NeedsParen()
 		{
-			if (FirstExpression is ExpressionConstant)
+			if (SecondExpression is ExpressionConstant)
 				return false;
 
-			if (FirstExpression is ExpressionGet)
+			if (SecondExpression is ExpressionGet)
 				return false;
 
-			if (FirstExpression is ExpressionVariable)
+			if (SecondExpression is ExpressionVariable)
 				return false;
 
-			if (MathType == BinaryMathType.MUL && FirstExpression is ExpressionBinMath && ((ExpressionBinMath)FirstExpression).Type == BinaryMathType.MUL)
+			if (MathType == BinaryMathType.MUL && SecondExpression is ExpressionBinMath && ((ExpressionBinMath)SecondExpression).Type == BinaryMathType.MUL)
 				return false;
 
-			if (MathType == BinaryMathType.ADD && FirstExpression is ExpressionBinMath && ((ExpressionBinMath)FirstExpression).Type == BinaryMathType.ADD)
+			if (MathType == BinaryMathType.ADD && SecondExpression is ExpressionBinMath && ((ExpressionBinMath)SecondExpression).Type == BinaryMathType.ADD)
 				return false;
 
 			return true;
@@ -149,22 +159,22 @@ namespace BefunCompile.Graph.Vertex
 			switch (MathType)
 			{
 				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+" + Paren(FirstExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
+					codebuilder.AppendLine("sa(sp()+" + Paren(SecondExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.SUB:
-					codebuilder.AppendLine("sa(sp()-" + Paren(FirstExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
+					codebuilder.AppendLine("sa(sp()-" + Paren(SecondExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*" + Paren(FirstExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
+					codebuilder.AppendLine("sa(sp()*" + Paren(SecondExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{long v0=" + FirstExpression.GenerateCodeCSharp(g) + ";sa((v0==0)?0:(sp()/v0));}");
+					codebuilder.AppendLine("{long v0=" + SecondExpression.GenerateCodeCSharp(g) + ";sa((v0==0)?0:(sp()/v0));}");
 					break;
 				case BinaryMathType.GT:
-					codebuilder.AppendLine("{long v0=" + FirstExpression.GenerateCodeCSharp(g) + ";sa((sp()>v0)?1:0);}");
+					codebuilder.AppendLine("{long v0=" + SecondExpression.GenerateCodeCSharp(g) + ";sa((sp()>v0)?1:0);}");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{long v0=" + FirstExpression.GenerateCodeCSharp(g) + ";sa((v0==0)?0:(sp()%v0));}");
+					codebuilder.AppendLine("{long v0=" + SecondExpression.GenerateCodeCSharp(g) + ";sa((v0==0)?0:(sp()%v0));}");
 					break;
 				default:
 					throw new Exception("uwotm8");
@@ -180,22 +190,22 @@ namespace BefunCompile.Graph.Vertex
 			switch (MathType)
 			{
 				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+" + Paren(FirstExpression.GenerateCodeC(g), NeedsParen()) + ");");
+					codebuilder.AppendLine("sa(sp()+" + Paren(SecondExpression.GenerateCodeC(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.SUB:
-					codebuilder.AppendLine("sa(sp()-" + Paren(FirstExpression.GenerateCodeC(g), NeedsParen()) + ");");
+					codebuilder.AppendLine("sa(sp()-" + Paren(SecondExpression.GenerateCodeC(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*" + Paren(FirstExpression.GenerateCodeC(g), NeedsParen()) + ");");
+					codebuilder.AppendLine("sa(sp()*" + Paren(SecondExpression.GenerateCodeC(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{int64 v0=" + FirstExpression.GenerateCodeC(g) + ";sa((v0==0)?0:(sp()/v0));}");
+					codebuilder.AppendLine("{int64 v0=" + SecondExpression.GenerateCodeC(g) + ";sa((v0==0)?0:(sp()/v0));}");
 					break;
 				case BinaryMathType.GT:
-					codebuilder.AppendLine("{int64 v0=" + FirstExpression.GenerateCodeC(g) + ";sa((sp()>v0)?1:0);}");
+					codebuilder.AppendLine("{int64 v0=" + SecondExpression.GenerateCodeC(g) + ";sa((sp()>v0)?1:0);}");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{int64 v0=" + FirstExpression.GenerateCodeC(g) + ";sa((v0==0)?0:(sp()%v0));}");
+					codebuilder.AppendLine("{int64 v0=" + SecondExpression.GenerateCodeC(g) + ";sa((v0==0)?0:(sp()%v0));}");
 					break;
 				default:
 					throw new Exception("uwotm8");
@@ -211,22 +221,22 @@ namespace BefunCompile.Graph.Vertex
 			switch (MathType)
 			{
 				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+" + Paren(FirstExpression.GenerateCodePython(g), NeedsParen()) + ");");
+					codebuilder.AppendLine("sa(sp()+" + Paren(SecondExpression.GenerateCodePython(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.SUB:
-					codebuilder.AppendLine("sa(sp()-" + Paren(FirstExpression.GenerateCodePython(g), NeedsParen()) + ");");
+					codebuilder.AppendLine("sa(sp()-" + Paren(SecondExpression.GenerateCodePython(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*" + Paren(FirstExpression.GenerateCodePython(g), NeedsParen()) + ");");
+					codebuilder.AppendLine("sa(sp()*" + Paren(SecondExpression.GenerateCodePython(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("sa(td(sp()," + FirstExpression.GenerateCodePython(g) + "))");
+					codebuilder.AppendLine("sa(td(sp()," + SecondExpression.GenerateCodePython(g) + "))");
 					break;
 				case BinaryMathType.GT:
-					codebuilder.AppendLine("sa((1)if(sp()>(" + FirstExpression.GenerateCodePython(g) + "))else(0))");
+					codebuilder.AppendLine("sa((1)if(sp()>(" + SecondExpression.GenerateCodePython(g) + "))else(0))");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("sa(tm(sp()," + FirstExpression.GenerateCodePython(g) + "))");
+					codebuilder.AppendLine("sa(tm(sp()," + SecondExpression.GenerateCodePython(g) + "))");
 					break;
 				default:
 					throw new Exception("uwotm8");
