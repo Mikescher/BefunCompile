@@ -734,6 +734,15 @@ namespace BefunCompile.Graph
 
 		#endregion
 
+		#region O:7 Unstack
+
+		public bool UnstackBlocks()
+		{
+			return false;
+		}
+
+		#endregion
+
 		#region CodeGeneration
 
 		private string indent(string code, string indent)

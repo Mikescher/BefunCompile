@@ -11,6 +11,18 @@ namespace BefunCompile
 	{
 		public const string VERSION = "1.0.5";
 
+		public class GenerationLevel 
+		{
+			public int Level;
+			public string Name;
+			public Func<GenerationLevel, int, BCGraph> Function;
+
+			public BCGraph Run(int runlevel = -1) { return Function(this, runlevel); }
+			public override string ToString() { return string.Format("O:{0} {1}", Level, Name); }
+		}
+
+		public readonly GenerationLevel[] GENERATION_LEVELS;
+
 		private readonly long[,] sourceGrid;
 		private readonly int width;
 		private readonly int height;
@@ -21,12 +33,7 @@ namespace BefunCompile
 		private readonly bool useGZip;
 		private readonly bool formatOutput;
 
-		public int log_Cycles_Minimize { get; private set; }
-		public int log_Cycles_Substitute { get; private set; }
-		public int log_Cycles_Flatten { get; private set; }
-		public int log_Cycles_Variablize { get; private set; }
-		public int log_Cycles_CombineBlocks { get; private set; }
-		public int log_Cycles_ReduceBlocks { get; private set; }
+		public int[] log_Cycles;
 
 		public BefunCompiler(string befsource, bool fmtOut, bool ignoreSelfMod, bool safeStackAcc, bool safeGridAcc, bool usegzip)
 		{
@@ -40,6 +47,21 @@ namespace BefunCompile
 			implementSafeGridAccess = safeGridAcc;
 			formatOutput = fmtOut;
 			useGZip = usegzip;
+
+			//##########################################################################
+
+			GENERATION_LEVELS = new[]
+			{
+				new GenerationLevel(){Level = 0, Name = "Raw",        Function = GenerateUntouchedGraph},
+				new GenerationLevel(){Level = 1, Name = "Minimize",   Function = GenerateMinimizedGraph},
+				new GenerationLevel(){Level = 2, Name = "Substitute", Function = GenerateSubstitutedGraph},
+				new GenerationLevel(){Level = 3, Name = "Flatten",    Function = GenerateFlattenedGraph},
+				new GenerationLevel(){Level = 4, Name = "Variablize", Function = GenerateVariablizedGraph},
+				new GenerationLevel(){Level = 5, Name = "Combine",    Function = GenerateBlockCombinedGraph},
+				new GenerationLevel(){Level = 6, Name = "Reduce",     Function = GenerateBlockReducedGraph},
+				new GenerationLevel(){Level = 7, Name = "Unstack",    Function = GenerateUnstackedGraph},
+			};
+			log_Cycles = new int[GENERATION_LEVELS.Length];
 		}
 
 		private long[,] StringToCharArr(string str)
@@ -73,7 +95,7 @@ namespace BefunCompile
 
 		public BCGraph GenerateGraph()
 		{
-			return GenerateBlockReducedGraph();
+			return GENERATION_LEVELS.Last().Run();
 		}
 
 		public string GenerateCode(OutputLanguage lang)
@@ -91,7 +113,7 @@ namespace BefunCompile
 			}
 		}
 
-		public BCGraph GenerateUntouchedGraph() // O:0 
+		public BCGraph GenerateUntouchedGraph(GenerationLevel lvl, int level = -1) // O:0 
 		{
 			var unfinished = new Stack<Tuple<BCVertex, Vec2i, BCDirection>>(); /*<parent, position, direction>*/
 
@@ -139,12 +161,14 @@ namespace BefunCompile
 			if (!graph.TestGraph())
 				throw new Exception("Internal Parent Exception :( ");
 
+			log_Cycles[lvl.Level] = 1;
+
 			return graph;
 		}
 
-		public BCGraph GenerateMinimizedGraph(int level = -1) // O:1 
+		public BCGraph GenerateMinimizedGraph(GenerationLevel lvl, int level = -1) // O:1 
 		{
-			BCGraph graph = GenerateUntouchedGraph();
+			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -155,7 +179,7 @@ namespace BefunCompile
 
 				if (!op)
 				{
-					log_Cycles_Minimize = level - i;
+					log_Cycles[lvl.Level] = level - i;
 
 					break;
 				}
@@ -164,9 +188,9 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph GenerateSubstitutedGraph(int level = -1) // O:2 
+		public BCGraph GenerateSubstitutedGraph(GenerationLevel lvl, int level = -1) // O:2 
 		{
-			BCGraph graph = GenerateMinimizedGraph();
+			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -177,7 +201,7 @@ namespace BefunCompile
 
 				if (!op)
 				{
-					log_Cycles_Substitute = level - i;
+					log_Cycles[lvl.Level] = level - i;
 
 					break;
 				}
@@ -186,9 +210,9 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph GenerateFlattenedGraph(int level = -1) // O:3 
+		public BCGraph GenerateFlattenedGraph(GenerationLevel lvl, int level = -1) // O:3 
 		{
-			BCGraph graph = GenerateSubstitutedGraph();
+			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -199,7 +223,7 @@ namespace BefunCompile
 
 				if (!op)
 				{
-					log_Cycles_Flatten = level - i;
+					log_Cycles[lvl.Level] = level - i;
 
 					break;
 				}
@@ -208,9 +232,9 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph GenerateVariablizedGraph() // O:4 
+		public BCGraph GenerateVariablizedGraph(GenerationLevel lvl, int level = -1) // O:4 
 		{
-			BCGraph graph = GenerateFlattenedGraph();
+			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
 			var constGets = graph.ListConstantVariableAccess().ToList();
 			var dynamGets = graph.ListDynamicVariableAccess().ToList();
@@ -226,12 +250,14 @@ namespace BefunCompile
 			if (dynamGets.Count == 0)
 				graph.SubstituteConstMemoryAccess(GetGridValue);
 
+			log_Cycles[lvl.Level] = 1;
+
 			return graph;
 		}
 
-		public BCGraph GenerateBlockCombinedGraph(int level = -1) // O:5 
+		public BCGraph GenerateBlockCombinedGraph(GenerationLevel lvl, int level = -1) // O:5 
 		{
-			BCGraph graph = GenerateVariablizedGraph();
+			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -242,7 +268,7 @@ namespace BefunCompile
 
 				if (!op)
 				{
-					log_Cycles_CombineBlocks = level - i;
+					log_Cycles[lvl.Level] = level - i;
 
 					break;
 				}
@@ -251,9 +277,9 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph GenerateBlockReducedGraph(int level = -1) // O:6 
+		public BCGraph GenerateBlockReducedGraph(GenerationLevel lvl, int level = -1) // O:6 
 		{
-			BCGraph graph = GenerateBlockCombinedGraph();
+			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -264,7 +290,7 @@ namespace BefunCompile
 
 				if (!op)
 				{
-					log_Cycles_ReduceBlocks = level - i;
+					log_Cycles[lvl.Level] = level - i;
 
 					break;
 				}
@@ -273,6 +299,27 @@ namespace BefunCompile
 			return graph;
 		}
 
+		public BCGraph GenerateUnstackedGraph(GenerationLevel lvl, int level = -1) // O:7 
+		{
+			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
+
+			for (int i = level; i != 0; i--)
+			{
+				bool op = graph.UnstackBlocks();
+
+				if (!graph.TestGraph())
+					throw new Exception("Internal Parent Exception :( ");
+
+				if (!op)
+				{
+					log_Cycles[lvl.Level] = level - i;
+
+					break;
+				}
+			}
+
+			return graph;
+		}
 	}
 }
 
