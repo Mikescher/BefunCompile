@@ -214,7 +214,7 @@ namespace BefunCompile.Graph.Vertex
 					codebuilder.AppendLine("sa(sp()+" + Paren(FirstExpression.GenerateCodePython(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.SUB:
-					codebuilder.AppendLine("sa(sp()-" + Paren(FirstExpression.GenerateCodePython(g), NeedsParen())) + ");");
+					codebuilder.AppendLine("sa(sp()-" + Paren(FirstExpression.GenerateCodePython(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.MUL:
 					codebuilder.AppendLine("sa(sp()*" + Paren(FirstExpression.GenerateCodePython(g), NeedsParen()) + ");");

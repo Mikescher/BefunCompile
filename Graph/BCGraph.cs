@@ -1250,8 +1250,9 @@ namespace BefunCompile.Graph
 			TestGraph();
 
 			StringBuilder codebuilder = new StringBuilder();
+			codebuilder.AppendLine(@"#!/usr/bin/env python3");
+			codebuilder.AppendLine();
 			codebuilder.AppendLine(@"# compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015");
-			codebuilder.AppendLine(@"# execute with at least Python3");
 
 			if (Vertices.Any(p => p.IsRandom()))
 				codebuilder.AppendLine(@"from random import randint");
