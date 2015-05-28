@@ -168,13 +168,13 @@ namespace BefunCompile.Graph.Vertex
 					codebuilder.AppendLine("sa(sp()*" + Paren(SecondExpression.GenerateCodeCSharp(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{long v0=" + SecondExpression.GenerateCodeCSharp(g) + ";sa((v0==0)?0:(sp()/v0));}");
+					codebuilder.AppendLine("sa(td(sp()," + SecondExpression.GenerateCodeCSharp(g) + "));");
 					break;
 				case BinaryMathType.GT:
-					codebuilder.AppendLine("{long v0=" + SecondExpression.GenerateCodeCSharp(g) + ";sa((sp()>v0)?1:0);}");
+					codebuilder.AppendLine("sa((sp()>" + Paren(SecondExpression.GenerateCodeCSharp(g), NeedsParen()) + ")?1:0);");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{long v0=" + SecondExpression.GenerateCodeCSharp(g) + ";sa((v0==0)?0:(sp()%v0));}");
+					codebuilder.AppendLine("sa(tm(sp()," + SecondExpression.GenerateCodeCSharp(g) + "));");
 					break;
 				default:
 					throw new Exception("uwotm8");
@@ -199,13 +199,13 @@ namespace BefunCompile.Graph.Vertex
 					codebuilder.AppendLine("sa(sp()*" + Paren(SecondExpression.GenerateCodeC(g), NeedsParen()) + ");");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{int64 v0=" + SecondExpression.GenerateCodeC(g) + ";sa((v0==0)?0:(sp()/v0));}");
+					codebuilder.AppendLine("sa(td(sp()," + SecondExpression.GenerateCodeCSharp(g) + "));");
 					break;
 				case BinaryMathType.GT:
-					codebuilder.AppendLine("{int64 v0=" + SecondExpression.GenerateCodeC(g) + ";sa((sp()>v0)?1:0);}");
+					codebuilder.AppendLine("sa((sp()>" + Paren(SecondExpression.GenerateCodeCSharp(g), NeedsParen()) + ")?1:0);");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{int64 v0=" + SecondExpression.GenerateCodeC(g) + ";sa((v0==0)?0:(sp()%v0));}");
+					codebuilder.AppendLine("sa(tm(sp()," + SecondExpression.GenerateCodeCSharp(g) + "));");
 					break;
 				default:
 					throw new Exception("uwotm8");
@@ -233,7 +233,7 @@ namespace BefunCompile.Graph.Vertex
 					codebuilder.AppendLine("sa(td(sp()," + SecondExpression.GenerateCodePython(g) + "))");
 					break;
 				case BinaryMathType.GT:
-					codebuilder.AppendLine("sa((1)if(sp()>(" + SecondExpression.GenerateCodePython(g) + "))else(0))");
+					codebuilder.AppendLine("sa((1)if(sp()>" + Paren(SecondExpression.GenerateCodePython(g), NeedsParen()) + ")else(0))");
 					break;
 				case BinaryMathType.MOD:
 					codebuilder.AppendLine("sa(tm(sp()," + SecondExpression.GenerateCodePython(g) + "))");

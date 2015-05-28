@@ -59,7 +59,6 @@ namespace BefunCompile
 				new GenerationLevel(){Level = 4, Name = "Variablize", Function = GenerateVariablizedGraph},
 				new GenerationLevel(){Level = 5, Name = "Combine",    Function = GenerateBlockCombinedGraph},
 				new GenerationLevel(){Level = 6, Name = "Reduce",     Function = GenerateBlockReducedGraph},
-				new GenerationLevel(){Level = 7, Name = "Unstack",    Function = GenerateUnstackedGraph},
 			};
 			log_Cycles = new int[GENERATION_LEVELS.Length];
 		}
@@ -294,28 +293,6 @@ namespace BefunCompile
 			for (int i = level; i != 0; i--)
 			{
 				bool op = graph.ReduceBlocks();
-
-				if (!graph.TestGraph())
-					throw new Exception("Internal Parent Exception :( ");
-
-				if (!op)
-				{
-					log_Cycles[lvl.Level] = level - i;
-
-					break;
-				}
-			}
-
-			return graph;
-		}
-
-		public BCGraph GenerateUnstackedGraph(GenerationLevel lvl, int level = -1) // O:7 
-		{
-			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
-
-			for (int i = level; i != 0; i--)
-			{
-				bool op = graph.UnstackBlocks();
 
 				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");

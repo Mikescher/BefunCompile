@@ -24,6 +24,12 @@ namespace BefunCompile.Graph
 			Positions = pos;
 		}
 
+		protected BCVertex(BCDirection d, Vec2i pos)
+		{
+			Direction = d;
+			Positions = new Vec2i[]{ pos };
+		}
+
 		public virtual void AfterGen()
 		{
 			// NOP
@@ -75,7 +81,7 @@ namespace BefunCompile.Graph
 			if (BCDirectionHelper.isSMDirection(d) && c != '"')
 			{
 				outgoingEdges = new[] { d };
-				return new BCVertexPush(d, pos, ExpressionConstant.Create(c));
+				return new BCVertexExpression(d, pos, ExpressionConstant.Create(c));
 			}
 
 			switch (c)
@@ -95,7 +101,7 @@ namespace BefunCompile.Graph
 				case '8':
 				case '9':
 					outgoingEdges = new[] { d };
-					return new BCVertexPush(d, pos, ExpressionConstant.Create(c - '0'));
+					return new BCVertexExpression(d, pos, ExpressionConstant.Create(c - '0'));
 
 				case '$':
 					outgoingEdges = new[] { d };

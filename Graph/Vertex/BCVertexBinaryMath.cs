@@ -169,13 +169,13 @@ namespace BefunCompile.Graph.Vertex
 					codebuilder.AppendLine("sa(sp()*sp());");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{long v0=sp();sa((v0==0)?0:(sp()/v0));}");
+					codebuilder.AppendLine("{long v0=sp();sa(td(sp(),v0));}");
 					break;
 				case BinaryMathType.GT:
 					codebuilder.AppendLine("{long v0=sp();sa((sp()>v0)?1:0);}");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{long v0=sp();sa((v0==0)?0:(sp()%v0));}");
+					codebuilder.AppendLine("{long v0=sp();sa(tm(sp(),v0));}");
 					break;
 				default:
 					throw new Exception("uwotm8");
@@ -200,13 +200,13 @@ namespace BefunCompile.Graph.Vertex
 					codebuilder.AppendLine("sa(sp()*sp());");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{int64 v0=sp();sa((v0==0)?0:(sp()/v0));}");
+					codebuilder.AppendLine("{int64 v0=sp();sa(td(sp(),v0));}");
 					break;
 				case BinaryMathType.GT:
 					codebuilder.AppendLine("{int64 v0=sp();sa((sp()>v0)?1:0);}");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{int64 v0=sp();sa((v0==0)?0:(sp()%v0));}");
+					codebuilder.AppendLine("{int64 v0=sp();sa(tm(sp(),v0));}");
 					break;
 				default:
 					throw new Exception("uwotm8");

@@ -69,7 +69,6 @@
     <Compile Include="Graph\Expression\ExpressionGet.cs" />
     <Compile Include="Graph\Expression\BCExpression.cs" />
     <Compile Include="Graph\MemoryAccess.cs" />
-    <Compile Include="Graph\Vertex\BCVertexPush.cs" />
     <Compile Include="Graph\Vertex\BCVertexPop.cs" />
     <Compile Include="Graph\Vertex\BCVertexNOP.cs" />
     <Compile Include="Graph\Vertex\BCVertexBinaryMath.cs" />

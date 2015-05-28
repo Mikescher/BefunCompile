@@ -11,10 +11,22 @@ namespace BefunCompile.Graph.Vertex
 	{
 		public BCExpression Expression;
 
+		public BCVertexExpression(BCDirection d, Vec2i pos, BCExpression expr)
+			: base(d, pos)
+		{
+			Expression = expr;
+		}
+
 		public BCVertexExpression(BCDirection d, Vec2i[] pos, BCExpression expr)
 			: base(d, pos)
 		{
 			Expression = expr;
+		}
+
+		public BCVertexExpression(BCDirection d, Vec2i pos, BCExpression expr_left, BinaryMathType type, BCExpression expr_right)
+			: base(d, pos)
+		{
+			Expression = ExpressionBinMath.Create(expr_left, expr_right, type);
 		}
 
 		public BCVertexExpression(BCDirection d, Vec2i[] pos, BCExpression expr_left, BinaryMathType type, BCExpression expr_right)
@@ -109,17 +121,17 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return "sa(" + Expression.GenerateCodeCSharp(g) + ");";
+			return string.Format("sa({0});", Expression.GenerateCodeCSharp(g));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return "sa(" + Expression.GenerateCodeC(g) + ");";
+			return string.Format("sa({0});", Expression.GenerateCodeC(g));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return "sa(" + Expression.GenerateCodePython(g) + ");";
+			return string.Format("sa({0})", Expression.GenerateCodePython(g));
 		}
 	}
 }
