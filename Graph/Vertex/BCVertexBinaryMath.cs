@@ -14,6 +14,9 @@ namespace BefunCompile.Graph.Vertex
 		MUL,
 		DIV,
 		GT,
+		LT,
+		GET,
+		LET,
 		MOD
 	}
 
@@ -49,7 +52,7 @@ namespace BefunCompile.Graph.Vertex
 			}
 		}
 
-		private BCVertexBinaryMath(BCDirection d, Vec2i[] pos, BinaryMathType type)
+		public BCVertexBinaryMath(BCDirection d, Vec2i[] pos, BinaryMathType type)
 			: base(d, pos)
 		{
 			MathType = type;
@@ -74,6 +77,12 @@ namespace BefunCompile.Graph.Vertex
 					return b == 0 ? 0 : (a / b);
 				case BinaryMathType.GT:
 					return (a > b) ? 1 : 0;
+				case BinaryMathType.LT:
+					return (a < b) ? 1 : 0;
+				case BinaryMathType.GET:
+					return (a >= b) ? 1 : 0;
+				case BinaryMathType.LET:
+					return (a <= b) ? 1 : 0;
 				case BinaryMathType.MOD:
 					return b == 0 ? 0 : (a % b);
 				default:
@@ -174,6 +183,15 @@ namespace BefunCompile.Graph.Vertex
 				case BinaryMathType.GT:
 					codebuilder.AppendLine("{long v0=sp();sa((sp()>v0)?1:0);}");
 					break;
+				case BinaryMathType.LT:
+					codebuilder.AppendLine("{long v0=sp();sa((sp()<v0)?1:0);}");
+					break;
+				case BinaryMathType.GET:
+					codebuilder.AppendLine("{long v0=sp();sa((sp()>=v0)?1:0);}");
+					break;
+				case BinaryMathType.LET:
+					codebuilder.AppendLine("{long v0=sp();sa((sp()<=v0)?1:0);}");
+					break;
 				case BinaryMathType.MOD:
 					codebuilder.AppendLine("{long v0=sp();sa(tm(sp(),v0));}");
 					break;
@@ -204,6 +222,15 @@ namespace BefunCompile.Graph.Vertex
 					break;
 				case BinaryMathType.GT:
 					codebuilder.AppendLine("{int64 v0=sp();sa((sp()>v0)?1:0);}");
+					break;
+				case BinaryMathType.LT:
+					codebuilder.AppendLine("{int64 v0=sp();sa((sp()<v0)?1:0);}");
+					break;
+				case BinaryMathType.GET:
+					codebuilder.AppendLine("{int64 v0=sp();sa((sp()>=v0)?1:0);}");
+					break;
+				case BinaryMathType.LET:
+					codebuilder.AppendLine("{int64 v0=sp();sa((sp()<=v0)?1:0);}");
 					break;
 				case BinaryMathType.MOD:
 					codebuilder.AppendLine("{int64 v0=sp();sa(tm(sp(),v0));}");
@@ -238,6 +265,18 @@ namespace BefunCompile.Graph.Vertex
 				case BinaryMathType.GT:
 					codebuilder.AppendLine("v0=sp()");
 					codebuilder.AppendLine("sa((1)if(sp()>v0)else(0))");
+					break;
+				case BinaryMathType.LT:
+					codebuilder.AppendLine("v0=sp()");
+					codebuilder.AppendLine("sa((1)if(sp()<v0)else(0))");
+					break;
+				case BinaryMathType.GET:
+					codebuilder.AppendLine("v0=sp()");
+					codebuilder.AppendLine("sa((1)if(sp()>=v0)else(0))");
+					break;
+				case BinaryMathType.LET:
+					codebuilder.AppendLine("v0=sp()");
+					codebuilder.AppendLine("sa((1)if(sp()<=v0)else(0))");
 					break;
 				case BinaryMathType.MOD:
 					codebuilder.AppendLine("v0=sp()");

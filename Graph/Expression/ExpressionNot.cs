@@ -20,8 +20,20 @@ namespace BefunCompile.Graph.Expression
 
 			if (v is ExpressionConstant)
 				return ExpressionConstant.Create(r.Calculate(null));
-			else
-				return r;
+
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.GT)
+				return ExpressionBinMath.Create((v as ExpressionBinMath).ValueA, (v as ExpressionBinMath).ValueB, Vertex.BinaryMathType.LET);
+
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.LT)
+				return ExpressionBinMath.Create((v as ExpressionBinMath).ValueA, (v as ExpressionBinMath).ValueB, Vertex.BinaryMathType.GET);
+
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.GET)
+				return ExpressionBinMath.Create((v as ExpressionBinMath).ValueA, (v as ExpressionBinMath).ValueB, Vertex.BinaryMathType.LT);
+
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.LET)
+				return ExpressionBinMath.Create((v as ExpressionBinMath).ValueA, (v as ExpressionBinMath).ValueB, Vertex.BinaryMathType.GT);
+
+			return r;
 		}
 
 		public override long Calculate(CalculateInterface ci)

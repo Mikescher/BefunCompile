@@ -397,6 +397,26 @@ namespace BefunCompile.Graph
 			rule6.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[1]).Expression));
 			rule6.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression));
 
+			var rule7_1 = new BCModRule();
+			rule7_1.AddPreq(v => v is BCVertexSwap);
+			rule7_1.AddPreq(v => v is BCVertexBinaryMath && (v as BCVertexBinaryMath).MathType == BinaryMathType.GT);
+			rule7_1.AddRep((l, p) => new BCVertexBinaryMath(BCDirection.UNKNOWN, p, BinaryMathType.LT));
+
+			var rule7_2 = new BCModRule();
+			rule7_2.AddPreq(v => v is BCVertexSwap);
+			rule7_2.AddPreq(v => v is BCVertexBinaryMath && (v as BCVertexBinaryMath).MathType == BinaryMathType.LT);
+			rule7_2.AddRep((l, p) => new BCVertexBinaryMath(BCDirection.UNKNOWN, p, BinaryMathType.GT));
+
+			var rule7_3 = new BCModRule();
+			rule7_3.AddPreq(v => v is BCVertexSwap);
+			rule7_3.AddPreq(v => v is BCVertexBinaryMath && (v as BCVertexBinaryMath).MathType == BinaryMathType.GET);
+			rule7_3.AddRep((l, p) => new BCVertexBinaryMath(BCDirection.UNKNOWN, p, BinaryMathType.LET));
+
+			var rule7_4 = new BCModRule();
+			rule7_4.AddPreq(v => v is BCVertexSwap);
+			rule7_4.AddPreq(v => v is BCVertexBinaryMath && (v as BCVertexBinaryMath).MathType == BinaryMathType.LET);
+			rule7_4.AddRep((l, p) => new BCVertexBinaryMath(BCDirection.UNKNOWN, p, BinaryMathType.GET));
+
 			bool[] cb = new[]
 			{
 				rule1.Execute(this),
@@ -405,6 +425,11 @@ namespace BefunCompile.Graph
 				rule4.Execute(this),
 				rule5.Execute(this),
 				rule6.Execute(this),
+
+				rule7_1.Execute(this),
+				rule7_2.Execute(this),
+				rule7_3.Execute(this),
+				rule7_4.Execute(this),
 			};
 
 			return cb.Any(p => p);
