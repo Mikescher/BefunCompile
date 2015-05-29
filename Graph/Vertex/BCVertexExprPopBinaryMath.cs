@@ -61,6 +61,11 @@ namespace BefunCompile.Graph.Vertex
 			return SecondExpression.ListDynamicVariableAccess();
 		}
 
+		public override bool TestVertex()
+		{
+			return base.TestVertex() && SecondExpression.IsNotStackAccess();
+		}
+
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
 			var b = stackbuilder.Pop();

@@ -85,7 +85,7 @@ namespace BefunCompile.Graph
 		{
 			foreach (var v in Vertices)
 			{
-				if (!v.TestParents())
+				if (!v.TestVertex())
 					return false;
 
 				if (v is BCVertexRandom && v.Children.Count != 4)
@@ -604,13 +604,13 @@ namespace BefunCompile.Graph
 		private bool RecombineExpressions()
 		{
 			BCModRule combRule1 = new BCModRule();
-			combRule1.AddPreq(p => p is BCVertexExpression);
+			combRule1.AddPreq(p => p is BCVertexExpression && p.IsNotStackAccess());
 			combRule1.AddPreq(p => p is BCVertexBinaryMath);
 			combRule1.AddRep((l, p) => new BCVertexExprPopBinaryMath(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexBinaryMath)l[1]).MathType));
 
-			BCModRule combRule2 = new BCModRule();
+			BCModRule combRule2 = new BCModRule(false);
 			combRule2.AddPreq(p => p is BCVertexDup);
-			combRule2.AddPreq(p => p is BCVertexExprPopBinaryMath);
+			combRule2.AddPreq(p => p is BCVertexExprPopBinaryMath && (p as BCVertexExprPopBinaryMath).SecondExpression.IsNotStackAccess());
 			combRule2.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionPeek.Create(), ((BCVertexExprPopBinaryMath)l[1]).MathType, ((BCVertexExprPopBinaryMath)l[1]).SecondExpression));
 
 			BCModRule combRule3 = new BCModRule();
@@ -628,21 +628,21 @@ namespace BefunCompile.Graph
 			combRule5.AddPreq(p => p is BCVertexDecision);
 			combRule5.AddRep((l, p) => new BCVertexExprDecision(BCDirection.UNKNOWN, p, (l[1] as BCVertexDecision).EdgeTrue, (l[1] as BCVertexDecision).EdgeFalse, (l[0] as BCVertexExpression).Expression));
 
-			BCModRule combRule6 = new BCModRule(true, true);
+			BCModRule combRule6 = new BCModRule();
 			combRule6.AddPreq(p => p is BCVertexExpression);
-			combRule6.AddPreq(p => p is BCVertexExprPopBinaryMath);
+			combRule6.AddPreq(p => p is BCVertexExprPopBinaryMath && (p as BCVertexExprPopBinaryMath).SecondExpression.IsNotStackAccess());
 			combRule6.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionBinMath.Create((l[0] as BCVertexExpression).Expression, (l[1] as BCVertexExprPopBinaryMath).SecondExpression, (l[1] as BCVertexExprPopBinaryMath).MathType)));
 
 			bool[] cb = new[]
 			{
 				combRule1.Execute(this),
-				combRule2.Execute(this),
-				combRule3.Execute(this),
-				combRule4.Execute(this),
-				combRule5.Execute(this),
-				combRule6.Execute(this),
-
-				RemovePredeterminedDecisions(),
+				combRule2.Debug(this),
+				/**/combRule3.Execute(this),
+				/**/combRule4.Execute(this),
+				/**/combRule5.Execute(this),
+				/**/combRule6.Execute(this),
+				/**/
+				/**/RemovePredeterminedDecisions(),
 			};
 
 			return cb.Any(p => p);
@@ -666,8 +666,10 @@ namespace BefunCompile.Graph
 			foreach (var v in Vertices.Where(p => p is BCVertexDecision))
 			{
 				var prev = v.Parents.FirstOrDefault(p => p is BCVertexExpression && (p as BCVertexExpression).Expression is ExpressionConstant);
-				if (prev == null) continue;
-				if (prev.Parents.Count == 0) continue;
+				if (prev == null)
+					continue;
+				if (prev.Parents.Count == 0)
+					continue;
 
 				chain = new List<BCVertex>() { prev, v };
 			}
@@ -678,7 +680,7 @@ namespace BefunCompile.Graph
 
 			var Expression = chain[0] as BCVertexExpression;
 			var Decision = chain[1] as BCVertexDecision;
-			
+
 			var Prev = Expression.Parents;
 			var Next = Expression.Expression.Calculate(null) != 0 ? Decision.EdgeTrue : Decision.EdgeFalse;
 
@@ -692,8 +694,10 @@ namespace BefunCompile.Graph
 
 				if (node is IDecisionVertex)
 				{
-					if ((node as IDecisionVertex).EdgeTrue == Expression) (node as IDecisionVertex).EdgeTrue = Next;
-					if ((node as IDecisionVertex).EdgeFalse == Expression) (node as IDecisionVertex).EdgeFalse = Next;
+					if ((node as IDecisionVertex).EdgeTrue == Expression)
+						(node as IDecisionVertex).EdgeTrue = Next;
+					if ((node as IDecisionVertex).EdgeFalse == Expression)
+						(node as IDecisionVertex).EdgeFalse = Next;
 				}
 			}
 			Decision.Parents.Remove(Expression);
@@ -773,7 +777,8 @@ namespace BefunCompile.Graph
 			for (; ; )
 			{
 				var headless = Vertices.FirstOrDefault(p => p.Parents.Count == 0 && p != Root);
-				if (headless == null) break;
+				if (headless == null)
+					break;
 
 				Vertices.Remove(headless);
 				headless.Children.ForEach(p => p.Parents.Remove(headless));
@@ -804,7 +809,7 @@ namespace BefunCompile.Graph
 				ruleCombine.Execute(this),
 				ruleMinimize.Execute(this),
 				
-				RemovePredeterminedDecisions(),
+				/**/RemovePredeterminedDecisions(),
 			};
 
 			return cb.Any(p => p);
@@ -1005,7 +1010,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine(@"public static class Program ");
 			codebuilder.AppendLine("{");
 
-			if (ListDynamicVariableAccess().Any())
+			if (ListDynamicVariableAccess().Any() || ListConstantVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccessCSharp(implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateStackAccessCSharp(implementSafeStackAccess));
 			codebuilder.Append(GenerateHelperMethodsCSharp());
@@ -1204,7 +1209,7 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("#include <stdlib.h>");
 			codebuilder.AppendLine("#define int64 long long");
 
-			if (ListDynamicVariableAccess().Any())
+			if (ListDynamicVariableAccess().Any() || ListConstantVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccessC(implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateHelperMethodsC());
 			codebuilder.Append(GenerateStackAccessC(implementSafeStackAccess));
@@ -1403,7 +1408,7 @@ namespace BefunCompile.Graph
 			if (Vertices.Any(p => p.IsRandom()))
 				codebuilder.AppendLine(@"from random import randint");
 
-			if (ListDynamicVariableAccess().Any())
+			if (ListDynamicVariableAccess().Any() || ListConstantVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccessPython(implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateHelperMethodsPython());
 			codebuilder.Append(GenerateStackAccessPython(implementSafeStackAccess));

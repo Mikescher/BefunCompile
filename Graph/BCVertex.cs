@@ -27,7 +27,7 @@ namespace BefunCompile.Graph
 		protected BCVertex(BCDirection d, Vec2i pos)
 		{
 			Direction = d;
-			Positions = new Vec2i[]{ pos };
+			Positions = new Vec2i[] { pos };
 		}
 
 		public virtual void AfterGen()
@@ -43,7 +43,7 @@ namespace BefunCompile.Graph
 			}
 		}
 
-		public bool TestParents()
+		public virtual bool TestVertex()
 		{
 			return Children.All(child => child.Parents.Contains(this)) && Parents.All(parent => parent.Children.Contains(this));
 		}

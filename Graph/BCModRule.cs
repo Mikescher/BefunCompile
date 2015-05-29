@@ -41,7 +41,7 @@ namespace BefunCompile.Graph
 		{
 			foreach (var curr in g.Vertices)
 			{
-				if (Execute(g, curr))
+				if (Execute(g, curr, false))
 					return true;
 			}
 
@@ -58,7 +58,7 @@ namespace BefunCompile.Graph
 			{
 				BCVertex curr = untravelled.Pop();
 
-				if (Execute(g, curr))
+				if (Execute(g, curr, false))
 					return true;
 
 				travelled.Add(curr);
@@ -72,7 +72,31 @@ namespace BefunCompile.Graph
 			return false;
 		}
 
-		private bool Execute(BCGraph g, BCVertex v)
+		public bool Debug(BCGraph g)
+		{
+			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
+			Stack<BCVertex> untravelled = new Stack<BCVertex>();
+			untravelled.Push(g.Root);
+
+			while (untravelled.Count > 0)
+			{
+				BCVertex curr = untravelled.Pop();
+
+				if (Execute(g, curr, true))
+					return true;
+
+				travelled.Add(curr);
+
+				foreach (var child in curr.Children.Where(child => !travelled.Contains(child)))
+				{
+					untravelled.Push(child);
+				}
+			}
+
+			return false;
+		}
+
+		private bool Execute(BCGraph g, BCVertex v, bool debug)
 		{
 			var chainlist = allowPathExtraction ? GetMatchingExtractedChain(g, v) : GetMatchingChain(v);
 
@@ -208,6 +232,15 @@ namespace BefunCompile.Graph
 					prev[0].Positions = prev[0].Positions.Concat(posarr).Distinct().ToArray();
 				else
 					throw new ArgumentException("We lost a code point :( ");
+			}
+
+			if (debug)
+			{
+				Console.Out.WriteLine("######## BEFORE ########");
+				chain.ToList().ForEach(e => Console.Out.WriteLine(e.ToString()));
+				Console.Out.WriteLine("######## AFTER #########");
+				repChain.ToList().ForEach(e => Console.Out.WriteLine(e.ToString()));
+				Console.Out.WriteLine();
 			}
 
 			return true;
