@@ -26,6 +26,12 @@ namespace BefunCompile.Graph.Expression
 			if (a is ExpressionConstant && b is ExpressionConstant)
 				return ExpressionConstant.Create(r.Calculate(null));
 
+			if (t == BinaryMathType.DIV && a is ExpressionConstant && a.Calculate(null) == 0)
+				return ExpressionConstant.Create(0);
+
+			if (t == BinaryMathType.MOD && a is ExpressionConstant && a.Calculate(null) == 0)
+				return ExpressionConstant.Create(0);
+
 			return r;
 		}
 
@@ -192,7 +198,7 @@ namespace BefunCompile.Graph.Expression
 				case BinaryMathType.DIV:
 					return "td(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")";
 				case BinaryMathType.GT:
-					return "(" + ValueA.GenerateCodeCSharp(g) + ")>(" + ValueB.GenerateCodeCSharp(g) + ")?1:0";
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen()) + "?1:0";
 				case BinaryMathType.MOD:
 					return "tm(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")";
 				default:
@@ -213,7 +219,7 @@ namespace BefunCompile.Graph.Expression
 				case BinaryMathType.DIV:
 					return "td(" + ValueA.GenerateCodeC(g) + "," + ValueB.GenerateCodeC(g) + ")";
 				case BinaryMathType.GT:
-					return "(" + ValueA.GenerateCodeC(g) + ")>(" + ValueB.GenerateCodeC(g) + ")?1:0";
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen()) + "?1:0";
 				case BinaryMathType.MOD:
 					return "tm(" + ValueA.GenerateCodeC(g) + "," + ValueB.GenerateCodeC(g) + ")";
 				default:

@@ -604,7 +604,7 @@ namespace BefunCompile.Graph
 		private bool RecombineExpressions()
 		{
 			BCModRule combRule1 = new BCModRule();
-			combRule1.AddPreq(p => p is BCVertexExpression && p.IsNotStackAccess());
+			combRule1.AddPreq(p => p is BCVertexExpression && (p as BCVertexExpression).Expression.IsNotStackAccess());
 			combRule1.AddPreq(p => p is BCVertexBinaryMath);
 			combRule1.AddRep((l, p) => new BCVertexExprPopBinaryMath(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexBinaryMath)l[1]).MathType));
 
@@ -633,16 +633,22 @@ namespace BefunCompile.Graph
 			combRule6.AddPreq(p => p is BCVertexExprPopBinaryMath && (p as BCVertexExprPopBinaryMath).SecondExpression.IsNotStackAccess());
 			combRule6.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionBinMath.Create((l[0] as BCVertexExpression).Expression, (l[1] as BCVertexExprPopBinaryMath).SecondExpression, (l[1] as BCVertexExprPopBinaryMath).MathType)));
 
+			BCModRule combRule7 = new BCModRule();
+			combRule7.AddPreq(p => p is BCVertexDup);
+			combRule7.AddPreq(p => p is BCVertexExprVarSet);
+			combRule7.AddRep((l, p) => new BCVertexTotalVarSet(BCDirection.UNKNOWN, p, (l[1] as BCVertexExprVarSet).Variable, ExpressionPeek.Create()));
+
 			bool[] cb = new[]
 			{
 				combRule1.Execute(this),
-				combRule2.Debug(this),
-				/**/combRule3.Execute(this),
-				/**/combRule4.Execute(this),
-				/**/combRule5.Execute(this),
-				/**/combRule6.Execute(this),
-				/**/
-				/**/RemovePredeterminedDecisions(),
+				combRule2.Execute(this),
+				combRule3.Execute(this),
+				combRule4.Execute(this),
+				combRule5.Execute(this),
+				combRule6.Execute(this),
+				combRule7.Execute(this),
+				
+				RemovePredeterminedDecisions(),
 			};
 
 			return cb.Any(p => p);
@@ -809,7 +815,7 @@ namespace BefunCompile.Graph
 				ruleCombine.Execute(this),
 				ruleMinimize.Execute(this),
 				
-				/**/RemovePredeterminedDecisions(),
+				RemovePredeterminedDecisions(),
 			};
 
 			return cb.Any(p => p);
