@@ -119,6 +119,21 @@ namespace BefunCompile.Graph.Expression
 			return string.Format("(0)if({0}!=0)else(1)", Paren(Value.GenerateCodePython(g), NeedsParen()));
 		}
 
+		public string GenerateDecisionCodeCSharp(BCGraph g)
+		{
+			return string.Format("{0}==0", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
+		}
+
+		public string GenerateDecisionCodeC(BCGraph g)
+		{
+			return string.Format("{0}==0", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
+		}
+
+		public string GenerateDecisionCodePython(BCGraph g)
+		{
+			return string.Format("{0}==0", Paren(Value.GenerateCodePython(g), NeedsParen()));
+		}
+
 		public override bool IsNotGridAccess()
 		{
 			return Value.IsNotGridAccess();

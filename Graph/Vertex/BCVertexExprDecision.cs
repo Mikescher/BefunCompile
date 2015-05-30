@@ -109,17 +109,50 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeCSharp(g), g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));
+			int vtrue = g.Vertices.IndexOf(EdgeTrue);
+			int vfalse = g.Vertices.IndexOf(EdgeFalse);
+
+			var ExprBinMathValue = Value as ExpressionBinMath;
+			var ExprNotValue = Value as ExpressionNot;
+
+			if (ExprBinMathValue != null)
+				return string.Format("if({0})goto _{1};else goto _{2};", ExprBinMathValue.GenerateDecisionCodeCSharp(g), vtrue, vfalse);
+			else if (ExprNotValue != null)
+				return string.Format("if({0})goto _{1};else goto _{2};", ExprNotValue.GenerateDecisionCodeCSharp(g), vtrue, vfalse);
+			else
+				return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeCSharp(g), vtrue, vfalse);
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeC(g), g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));
+			int vtrue = g.Vertices.IndexOf(EdgeTrue);
+			int vfalse = g.Vertices.IndexOf(EdgeFalse);
+
+			var ExprBinMathValue = Value as ExpressionBinMath;
+			var ExprNotValue = Value as ExpressionNot;
+
+			if (ExprBinMathValue != null)
+				return string.Format("if({0})goto _{1};else goto _{2};", ExprBinMathValue.GenerateDecisionCodeC(g), vtrue, vfalse);
+			else if (ExprNotValue != null)
+				return string.Format("if({0})goto _{1};else goto _{2};", ExprNotValue.GenerateDecisionCodeC(g), vtrue, vfalse);
+			else
+				return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeC(g), vtrue, vfalse);
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("return ({1})if({0})else({2})", Value.GenerateCodePython(g), g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));
+			int vtrue = g.Vertices.IndexOf(EdgeTrue);
+			int vfalse = g.Vertices.IndexOf(EdgeFalse);
+
+			var ExprBinMathValue = Value as ExpressionBinMath;
+			var ExprNotValue = Value as ExpressionNot;
+
+			if (ExprBinMathValue != null)
+				return string.Format("return ({1})if({0})else({2})", ExprBinMathValue.GenerateDecisionCodePython(g), vtrue, vfalse);
+			else if (ExprNotValue != null)
+				return string.Format("return ({1})if({0})else({2})", ExprNotValue.GenerateDecisionCodePython(g), vtrue, vfalse);
+			else
+				return string.Format("return ({1})if(({0})!=0)else({2})", Value.GenerateCodePython(g), vtrue, vfalse);
 		}
 	}
 }

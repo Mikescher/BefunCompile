@@ -281,6 +281,87 @@ namespace BefunCompile.Graph.Expression
 			}
 		}
 
+		public string GenerateDecisionCodeCSharp(BCGraph g)
+		{
+			switch (Type)
+			{
+				case BinaryMathType.ADD:
+					return "(" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen()) + ")!=0";
+				case BinaryMathType.SUB:
+					return Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + "!=" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
+				case BinaryMathType.MUL:
+					return "(" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen()) + ")!=0";
+				case BinaryMathType.DIV:
+					return "td(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")!=0";
+				case BinaryMathType.GT:
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
+				case BinaryMathType.LT:
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + "<" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
+				case BinaryMathType.GET:
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + ">=" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
+				case BinaryMathType.LET:
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + "<=" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
+				case BinaryMathType.MOD:
+					return "tm(" + ValueA.GenerateCodeCSharp(g) + "," + ValueB.GenerateCodeCSharp(g) + ")!=0";
+				default:
+					throw new ArgumentException();
+			}
+		}
+
+		public string GenerateDecisionCodeC(BCGraph g)
+		{
+			switch (Type)
+			{
+				case BinaryMathType.ADD:
+					return "(" + Paren(ValueA.GenerateCodeC(g), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodeC(g), NeedsRSParen()) + ")!=0";
+				case BinaryMathType.SUB:
+					return Paren(ValueA.GenerateCodeC(g), NeedsLSParen()) + "!=" + Paren(ValueB.GenerateCodeC(g), NeedsRSParen());
+				case BinaryMathType.MUL:
+					return "(" + Paren(ValueA.GenerateCodeC(g), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodeC(g), NeedsRSParen()) + ")!=0";
+				case BinaryMathType.DIV:
+					return "td(" + ValueA.GenerateCodeC(g) + "," + ValueB.GenerateCodeC(g) + ")!=0";
+				case BinaryMathType.GT:
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
+				case BinaryMathType.LT:
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + "<" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
+				case BinaryMathType.GET:
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + ">=" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
+				case BinaryMathType.LET:
+					return "" + Paren(ValueA.GenerateCodeCSharp(g), NeedsLSParen()) + "<=" + Paren(ValueB.GenerateCodeCSharp(g), NeedsRSParen());
+				case BinaryMathType.MOD:
+					return "tm(" + ValueA.GenerateCodeC(g) + "," + ValueB.GenerateCodeC(g) + ")!=0";
+				default:
+					throw new ArgumentException();
+			}
+		}
+
+		public string GenerateDecisionCodePython(BCGraph g)
+		{
+			switch (Type)
+			{
+				case BinaryMathType.ADD:
+					return "(" + Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodePython(g), NeedsRSParen()) + ")!=0";
+				case BinaryMathType.SUB:
+					return Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + "!=" + Paren(ValueB.GenerateCodePython(g), NeedsRSParen());
+				case BinaryMathType.MUL:
+					return "(" + Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodePython(g), NeedsRSParen()) + ")!=0";
+				case BinaryMathType.DIV:
+					return "td(" + ValueA.GenerateCodePython(g) + "," + ValueB.GenerateCodePython(g) + ")!=0";
+				case BinaryMathType.GT:
+					return "" + Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodePython(g), NeedsRSParen());
+				case BinaryMathType.LT:
+					return "" + Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + "<" + Paren(ValueB.GenerateCodePython(g), NeedsRSParen());
+				case BinaryMathType.GET:
+					return "" + Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + ">=" + Paren(ValueB.GenerateCodePython(g), NeedsRSParen());
+				case BinaryMathType.LET:
+					return "" + Paren(ValueA.GenerateCodePython(g), NeedsLSParen()) + "<=" + Paren(ValueB.GenerateCodePython(g), NeedsRSParen());
+				case BinaryMathType.MOD:
+					return "tm(" + ValueA.GenerateCodePython(g) + "," + ValueB.GenerateCodePython(g) + ")!=0";
+				default:
+					throw new ArgumentException();
+			}
+		}
+
 		public override bool IsNotGridAccess()
 		{
 			return ValueA.IsNotGridAccess() && ValueB.IsNotGridAccess();
