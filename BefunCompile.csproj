@@ -95,6 +95,8 @@
     <Compile Include="Graph\Vertex\BCVertexExprPopBinaryMath.cs" />
     <Compile Include="Graph\Vertex\BCVertexExpression.cs" />
     <Compile Include="Graph\Vertex\IDecisionVertex.cs" />
+    <Compile Include="Math\CommonZipImplementation.cs" />
+    <Compile Include="Math\GZipImplementation.cs" />
     <Compile Include="Math\MSZipImplementation.cs" />
     <Compile Include="Math\Vec2l.cs" />
     <Compile Include="Math\CustomLinq.cs" />

@@ -4,8 +4,6 @@ using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 
@@ -24,6 +22,9 @@ namespace BefunCompile.Graph
 		public readonly long[,] SourceGrid;
 		public readonly long Width;
 		public readonly long Height;
+
+		private readonly MSZipImplementation MSZip = new MSZipImplementation();
+		private readonly GZipImplementation GZip = new GZipImplementation();
 
 		public BCGraph(long[,] sg, long w, long h)
 		{
@@ -923,35 +924,6 @@ namespace BefunCompile.Graph
 			return string.Join(Environment.NewLine, code.Split(new[] { Environment.NewLine }, StringSplitOptions.None).Select(p => indent + p));
 		}
 
-		private byte[] CompressData(byte[] data)
-		{
-			byte compressioncount = 0;
-			while (compressioncount < 32)
-			{
-				byte[] compress = CompressSingleData(data);
-
-				if (compress.Length >= data.Length)
-					break;
-
-				data = compress;
-				compressioncount++;
-			}
-
-			return new[] { compressioncount }.Concat(data).ToArray();
-		}
-
-		private byte[] CompressSingleData(byte[] raw)
-		{
-			using (MemoryStream memory = new MemoryStream())
-			{
-				using (GZipStream gzip = new GZipStream(memory, CompressionMode.Compress, true))
-				{
-					gzip.Write(raw, 0, raw.Length);
-				}
-				return memory.ToArray();
-			}
-		}
-
 		private string GenerateGridData()
 		{
 			StringBuilder codebuilder = new StringBuilder();
@@ -965,32 +937,6 @@ namespace BefunCompile.Graph
 			}
 
 			return codebuilder.ToString();
-		}
-
-		private List<string> GenerateGridMSZipDataStringList(out int length)
-		{
-			string data = MSZipImplementation.CompressToString(GenerateGridData());
-			length = data.Length;
-
-			return Enumerable
-				.Range(0, data.Length / 128 + 2)
-				.Select(i => (i * 128 > data.Length) ? "" : data.Substring(i * 128, System.Math.Min(i * 128 + 128, data.Length) - i * 128))
-				.Where(p => p != "")
-				.Select(p => p.Replace("\\", "\\\\"))
-				.Select(p => p.Replace("\"", "\\\""))
-				.ToList();
-		}
-
-		private string GenerateGridBase64DataString()
-		{
-			return Convert.ToBase64String(CompressData(Encoding.ASCII.GetBytes(GenerateGridData())));
-		}
-
-		private List<string> GenerateGridBase64DataStringList()
-		{
-			string data = GenerateGridBase64DataString();
-
-			return Enumerable.Range(0, data.Length / 128 + 2).Select(i => (i * 128 > data.Length) ? "" : data.Substring(i * 128, System.Math.Min(i * 128 + 128, data.Length) - i * 128)).Where(p => p != "").ToList();
 		}
 
 		private void OrderVerticesForFallThrough()
@@ -1155,7 +1101,7 @@ namespace BefunCompile.Graph
 			string w = Width.ToString();
 			string h = Height.ToString();
 
-			var b64 = GenerateGridBase64DataStringList();
+			var b64 = GZip.GenerateBase64StringList(GenerateGridData());
 			for (int i = 0; i < b64.Count; i++)
 			{
 				if (i == 0 && (i + 1) == b64.Count)
@@ -1336,8 +1282,8 @@ namespace BefunCompile.Graph
 			string w = Width.ToString();
 			string h = Height.ToString();
 
-			int len_msz;
-			var msz = GenerateGridMSZipDataStringList(out len_msz);
+			var msz = GZip.GenerateAnsiCEscapedStringList(GenerateGridData());
+
 			for (int i = 0; i < msz.Count; i++)
 			{
 				if (i == 0 && (i + 1) == msz.Count)
@@ -1351,7 +1297,7 @@ namespace BefunCompile.Graph
 			}
 			codebuilder.AppendLine(@"int t=0;int z=0;");
 			codebuilder.AppendLine(@"int64 g[" + (Width * Height) + "];");
-			codebuilder.AppendLine(@"int d(){int s,w,i,j,h;h=z;for(;t<" + len_msz + ";t++)if(_g[t]==';')g[z++]=_g[++t];" +
+			codebuilder.AppendLine(@"int d(){int s,w,i,j,h;h=z;for(;t<" + msz.Count + ";t++)if(_g[t]==';')g[z++]=_g[++t];" +
 									"else if(_g[t]=='}')return z-h;else if(_g[t]=='{'){t++;s=z;w=d();" +
 									"for(i=1;i<_g[t+1]*9025+_g[t+2]*95+_g[t+3]-291872;i++)for(j=0;j<w;g[z++]=g[s+j++]);t+=3;}" +
 									"else g[z++]=_g[t];return z-h;}");
@@ -1577,7 +1523,7 @@ namespace BefunCompile.Graph
 
 			codebuilder.AppendLine(@"import gzip, base64");
 
-			var b64 = GenerateGridBase64DataStringList();
+			var b64 = GZip.GenerateBase64StringList(GenerateGridData());
 			for (int i = 0; i < b64.Count; i++)
 			{
 				if (i == 0 && (i + 1) == b64.Count)

@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BefunCompile.Math
 {
-	public class MSZipImplementation
+	public class MSZipImplementation : CommonZipImplementation
 	{
 		const int MAX_REPEAT = 64;
 
@@ -12,16 +11,11 @@ namespace BefunCompile.Math
 		const byte REPL_CLOSE = 0xF1;
 		const byte REPL_ESCAPE = 0xF2;
 
-		private MSZipImplementation()
-		{
-			// priv
-		}
-
-		public static List<byte> Compress(List<byte> g)
+		public override List<byte> Compress(List<byte> g, ref int cc)
 		{
 			List<byte> current = g;
 
-			for (int cc = 0; ; cc++)
+			for (cc = 0; ; cc++)
 			{
 				List<byte> next = new List<byte>();
 
@@ -38,7 +32,18 @@ namespace BefunCompile.Math
 			}
 		}
 
-		public static void CompressSingle(List<byte> result, List<byte> data, int idatapos, int datacount)
+		public override List<byte> Decompress(List<byte> x, int resultsize)
+		{
+			byte[] result = new byte[resultsize];
+			int rpos = 0;
+			int xpos = 0;
+
+			DecompressSingle(x.ToArray(), ref xpos, ref result, ref rpos);
+
+			return result.ToList();
+		}
+
+		public void CompressSingle(List<byte> result, List<byte> data, int idatapos, int datacount)
 		{
 			for (int datapos = idatapos; datapos < idatapos + datacount; datapos++)
 			{
@@ -72,7 +77,7 @@ namespace BefunCompile.Math
 			}
 		}
 
-		public static byte chrEscape(int c)
+		public byte chrEscape(int c)
 		{
 			switch (c)
 			{
@@ -87,7 +92,7 @@ namespace BefunCompile.Math
 			}
 		}
 
-		public static List<byte> Escape(List<byte> data)
+		public List<byte> Escape(List<byte> data)
 		{
 			List<byte> result = new List<byte>();
 
@@ -119,7 +124,7 @@ namespace BefunCompile.Math
 			return result;
 		}
 
-		public static int getRepetitions(List<byte> data, int start, int length, int datacount)
+		public int getRepetitions(List<byte> data, int start, int length, int datacount)
 		{
 			int rep = 1;
 
@@ -139,18 +144,7 @@ namespace BefunCompile.Math
 			return rep;
 		}
 
-		public static byte[] Decompress(byte[] x, int resultsize)
-		{
-			byte[] result = new byte[resultsize];
-			int rpos = 0;
-			int xpos = 0;
-
-			DecompressSingle(x, ref xpos, ref result, ref rpos);
-
-			return result;
-		}
-
-		public static int DecompressSingle(byte[] x, ref int xpos, ref byte[] result, ref int rpos)
+		public int DecompressSingle(byte[] x, ref int xpos, ref byte[] result, ref int rpos)
 		{
 			int irpos = rpos;
 			for (; xpos < x.Length; xpos++)
@@ -191,11 +185,6 @@ namespace BefunCompile.Math
 			}
 
 			return rpos - irpos;
-		}
-
-		public static string CompressToString(string data)
-		{
-			return string.Join("", Compress(Encoding.ASCII.GetBytes(data).ToList()).Select(p => (char)p).ToList());
 		}
 	}
 }
