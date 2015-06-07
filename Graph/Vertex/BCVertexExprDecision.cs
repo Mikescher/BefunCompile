@@ -1,7 +1,9 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BefunCompile.Graph.Vertex
@@ -153,6 +155,27 @@ namespace BefunCompile.Graph.Vertex
 				return string.Format("return ({1})if({0})else({2})", ExprNotValue.GenerateDecisionCodePython(g), vtrue, vfalse);
 			else
 				return string.Format("return ({1})if(({0})!=0)else({2})", Value.GenerateCodePython(g), vtrue, vfalse);
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			if (Value.IsNotStackAccess())
+			{
+				// all is good
+			}
+			else
+			{
+				state.Peek().AddAccess(this, UnstackifyValueAccessType.READ);
+			}
+
+			return state;
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			return new BCVertexExprDecision(Direction, Positions, EdgeTrue, EdgeFalse, Value.ReplaceUnstackify(access.Single()));
 		}
 	}
 }

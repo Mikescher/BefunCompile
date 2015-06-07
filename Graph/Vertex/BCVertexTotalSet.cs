@@ -1,4 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -187,6 +188,42 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodePython(BCGraph g)
 		{
 			return string.Format("gw({0},{1},{2})", X.GenerateCodePython(g), Y.GenerateCodePython(g), Value.GenerateCodePython(g));
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			if (X.IsNotStackAccess() && Y.IsNotStackAccess() && Value.IsNotStackAccess())
+			{
+				// all is good
+			}
+			else
+			{
+				if (!X.IsNotStackAccess())
+					state.Peek().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDX));
+
+				if (!Y.IsNotStackAccess())
+					state.Peek().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDY));
+
+				if (!Value.IsNotStackAccess())
+					state.Peek().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_VALUE));
+			}
+
+			return state;
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			var var_readx = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDX);
+			var var_ready = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDY);
+			var var_readv = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_VALUE);
+
+			var expr_x = (var_readx == null) ? X : X.ReplaceUnstackify(var_readx);
+			var expr_y = (var_ready == null) ? Y : Y.ReplaceUnstackify(var_ready);
+			var expr_v = (var_readv == null) ? Value : Value.ReplaceUnstackify(var_readv);
+
+			return new BCVertexTotalSet(Direction, Positions, expr_x, expr_y, expr_v);
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
@@ -151,6 +152,49 @@ namespace BefunCompile.Graph
 					yield return jump;
 				}
 			}
+		}
+
+		public void ReplaceVertex(BCVertex oldVertex, BCVertex newVertex)
+		{
+			Vertices.Remove(oldVertex);
+			Vertices.Add(newVertex);
+
+			if (Root == oldVertex)
+				Root = newVertex;
+
+			foreach (var parent in oldVertex.Parents)
+			{
+				parent.Children.Remove(oldVertex);
+				parent.Children.Add(newVertex);
+				if (parent is IDecisionVertex)
+				{
+					if ((parent as IDecisionVertex).EdgeTrue == oldVertex)
+						(parent as IDecisionVertex).EdgeTrue = newVertex;
+
+					if ((parent as IDecisionVertex).EdgeFalse == oldVertex)
+						(parent as IDecisionVertex).EdgeFalse = newVertex;
+				}
+
+				newVertex.Parents.Add(parent);
+			}
+
+			foreach (var child in oldVertex.Children)
+			{
+				child.Parents.Remove(oldVertex);
+				child.Parents.Add(newVertex);
+
+				if (newVertex is IDecisionVertex && (oldVertex as IDecisionVertex).EdgeTrue == child)
+					(newVertex as IDecisionVertex).EdgeTrue = child;
+
+				if (newVertex is IDecisionVertex && (oldVertex as IDecisionVertex).EdgeFalse == child)
+					(newVertex as IDecisionVertex).EdgeFalse = child;
+
+				newVertex.Children.Add(child);
+			}
+
+
+			if (!TestGraph())
+				throw new Exception("Internal Parent Exception :( ");
 		}
 
 		#region O:1 Minimize
@@ -589,7 +633,7 @@ namespace BefunCompile.Graph
 			Variables = ios
 				.Select(p => new Vec2l(p.getX().Calculate(null), p.getY().Calculate(null)))
 				.Distinct()
-				.Select((p, i) => ExpressionVariable.Create("x" + i, gridGetter(p.X, p.Y), p))
+				.Select((p, i) => ExpressionVariable.CreateUserVariable(i, gridGetter(p.X, p.Y), p))
 				.ToList();
 
 			var vardic = new Dictionary<Vec2l, ExpressionVariable>();
@@ -819,7 +863,18 @@ namespace BefunCompile.Graph
 
 		#endregion
 
-		#region O:5 Combine
+		#region O:5 Unstackify
+
+		public void Unstackify()
+		{
+			var walker = new UnstackifyWalker(this);
+
+			walker.Run();
+		}
+
+		#endregion
+
+		#region O:6 Combine
 
 		public bool CombineBlocks()
 		{
@@ -849,7 +904,7 @@ namespace BefunCompile.Graph
 
 		#endregion
 
-		#region O:6 Reduce
+		#region O:7 Reduce
 
 		public bool ReduceBlocks()
 		{

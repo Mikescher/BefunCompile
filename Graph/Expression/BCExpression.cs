@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BefunCompile.Graph.Optimizations.Unstackify;
+using System;
 using System.Collections.Generic;
 
 namespace BefunCompile.Graph.Expression
@@ -23,6 +24,8 @@ namespace BefunCompile.Graph.Expression
 		public abstract string GenerateCodeCSharp(BCGraph g);
 		public abstract string GenerateCodeC(BCGraph g);
 		public abstract string GenerateCodePython(BCGraph g);
+
+		public abstract BCExpression ReplaceUnstackify(UnstackifyValueAccess access);
 
 		public override string ToString()
 		{

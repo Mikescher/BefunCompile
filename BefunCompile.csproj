@@ -70,6 +70,11 @@
     <Compile Include="Graph\Expression\ExpressionGet.cs" />
     <Compile Include="Graph\Expression\BCExpression.cs" />
     <Compile Include="Graph\MemoryAccess.cs" />
+    <Compile Include="Graph\Optimizations\Unstackify\UnstackifyValueAccess.cs" />
+    <Compile Include="Graph\Optimizations\Unstackify\UnstackifyState.cs" />
+    <Compile Include="Graph\Optimizations\Unstackify\UnstackifyStateHistory.cs" />
+    <Compile Include="Graph\Optimizations\Unstackify\UnstackifyValue.cs" />
+    <Compile Include="Graph\Optimizations\Unstackify\UnstackifyWalker.cs" />
     <Compile Include="Graph\Vertex\BCVertexPop.cs" />
     <Compile Include="Graph\Vertex\BCVertexNOP.cs" />
     <Compile Include="Graph\Vertex\BCVertexBinaryMath.cs" />
@@ -95,6 +100,7 @@
     <Compile Include="Graph\Vertex\BCVertexExprDecisionBlock.cs" />
     <Compile Include="Graph\Vertex\BCVertexExprPopBinaryMath.cs" />
     <Compile Include="Graph\Vertex\BCVertexExpression.cs" />
+    <Compile Include="Graph\Vertex\BCVertexInputVarSet.cs" />
     <Compile Include="Graph\Vertex\IDecisionVertex.cs" />
     <Compile Include="Math\CommonZipImplementation.cs" />
     <Compile Include="Math\GZipImplementation.cs" />

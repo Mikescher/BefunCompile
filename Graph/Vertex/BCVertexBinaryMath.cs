@@ -1,4 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -287,6 +288,28 @@ namespace BefunCompile.Graph.Vertex
 			}
 
 			return codebuilder.ToString();
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.RIGHT_EXPR));
+			state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.LEFT_EXPR));
+			state.Push(new UnstackifyValue(this, UnstackifyValueAccessType.WRITE));
+
+			return state;
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			var var_target = access.Single(p => p.Type == UnstackifyValueAccessType.WRITE);
+			var var_left = access.Single(p => p.Modifier == UnstackifyValueAccessModifier.LEFT_EXPR);
+			var var_right = access.Single(p => p.Modifier == UnstackifyValueAccessModifier.RIGHT_EXPR);
+
+			var expr = ExpressionBinMath.Create(var_left.Value.Replacement, var_right.Value.Replacement, MathType);
+
+			return new BCVertexTotalVarSet(Direction, Positions, var_target.Value.Replacement, expr);
 		}
 	}
 }

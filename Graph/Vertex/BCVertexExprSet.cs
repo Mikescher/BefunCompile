@@ -1,4 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -162,6 +163,28 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodePython(BCGraph g)
 		{
 			return string.Format("gw({0},{1},sp())", X.GenerateCodePython(g), Y.GenerateCodePython(g));
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			if (X.IsNotStackAccess() && Y.IsNotStackAccess())
+			{
+				state.Pop();
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+
+			return state;
+		}
+
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

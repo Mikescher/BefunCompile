@@ -1,4 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -167,6 +168,33 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodePython(BCGraph g)
 		{
 			return string.Format("sa(gr({0},{1}))", X.GenerateCodePython(g), Y.GenerateCodePython(g));
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			if (!X.IsNotStackAccess())
+				state.Peek().AddAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDX);
+
+			if (!Y.IsNotStackAccess())
+				state.Peek().AddAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDY);
+
+			state.Push(new UnstackifyValue(this, UnstackifyValueAccessType.WRITE));
+
+			return state;
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			var var_write = access.Single(p => p.Type == UnstackifyValueAccessType.WRITE);
+			var var_readx = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDX);
+			var var_ready = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDY);
+
+			var expr_x = (var_readx == null) ? X : X.ReplaceUnstackify(var_readx);
+			var expr_y = (var_ready == null) ? Y : Y.ReplaceUnstackify(var_ready);
+
+			return new BCVertexTotalVarSet(Direction, Positions, var_write.Value.Replacement, ExpressionGet.Create(expr_x, expr_y));
 		}
 	}
 }

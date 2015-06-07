@@ -1,4 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return "PUSH(~RAND~)";
+			return "<~RAND~>";
 		}
 
 		public override BCVertex Duplicate()
@@ -118,6 +119,16 @@ namespace BefunCompile.Graph.Vertex
 				.Replace("g1", "" + g.Vertices.IndexOf(Children[1]))
 				.Replace("g2", "" + g.Vertices.IndexOf(Children[2]))
 				.Replace("g3", "" + g.Vertices.IndexOf(Children[3]));
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			return state.Clone();
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -108,6 +109,24 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodePython(BCGraph g)
 		{
 			return "sa(sr())";
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			state.Peek().AddAccess(this, UnstackifyValueAccessType.READ);
+			state.Push(new UnstackifyValue(this, UnstackifyValueAccessType.WRITE));
+
+			return state;
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			var var_read = access.Single(p => p.Type == UnstackifyValueAccessType.READ);
+			var var_write = access.Single(p => p.Type == UnstackifyValueAccessType.WRITE);
+
+			return new BCVertexTotalVarSet(Direction, Positions, var_write.Value.Replacement, var_read.Value.Replacement);
 		}
 	}
 }
