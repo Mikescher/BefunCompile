@@ -50,12 +50,12 @@ namespace BefunCompile.Graph.Expression
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return Value.ToString();
+			return Value.ToString() + "L";
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return Value.ToString();
+			return Value.ToString() + "LL";
 		}
 
 		public override string GenerateCodePython(BCGraph g)
