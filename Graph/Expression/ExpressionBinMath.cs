@@ -23,14 +23,179 @@ namespace BefunCompile.Graph.Expression
 		{
 			ExpressionBinMath r = new ExpressionBinMath(a, b, t);
 
+			//########  C o C  ########
+
 			if (a is ExpressionConstant && b is ExpressionConstant)
 				return ExpressionConstant.Create(r.Calculate(null));
+
+			//########  0/x  ########
 
 			if (t == BinaryMathType.DIV && a is ExpressionConstant && a.Calculate(null) == 0)
 				return ExpressionConstant.Create(0);
 
+			//########  0*x  ########
+
+			if (t == BinaryMathType.MUL && a is ExpressionConstant && a.Calculate(null) == 1)
+				return b;
+
+			//########  x*0  ########
+
+			if (t == BinaryMathType.MUL && b is ExpressionConstant && b.Calculate(null) == 1)
+				return a;
+
+			//########  X*1  ########
+
+			if (t == BinaryMathType.MUL && b is ExpressionConstant && b.Calculate(null) == 1)
+				return a;
+
+			//########  1*X  ########
+
+			if (t == BinaryMathType.MUL && a is ExpressionConstant && a.Calculate(null) == 1)
+				return b;
+
+			//########  X/1  ########
+
+			if (t == BinaryMathType.DIV && b is ExpressionConstant && b.Calculate(null) == 1)
+				return a;
+
+			//########  0%X  ########
+
 			if (t == BinaryMathType.MOD && a is ExpressionConstant && a.Calculate(null) == 0)
 				return ExpressionConstant.Create(0);
+
+			//########  X+0  ########
+
+			if (t == BinaryMathType.ADD && b is ExpressionConstant && b.Calculate(null) == 0)
+				return a;
+
+			//########  0+X  ########
+
+			if (t == BinaryMathType.ADD && a is ExpressionConstant && a.Calculate(null) == 0)
+				return b;
+
+			//########  X-0  ########
+
+			if (t == BinaryMathType.SUB && b is ExpressionConstant && b.Calculate(null) == 0)
+				return a;
+
+			//########  X o (X o X) || (X o X) o X  ########
+
+			if ((t == BinaryMathType.ADD || t == BinaryMathType.SUB))
+			{
+				ExpressionConstant c1 = null;
+				ExpressionConstant c2 = null;
+				BCExpression x1 = null;
+				bool x1_neg = false;
+
+				// C o (? o ?)
+				if (a is ExpressionConstant && b is ExpressionBinMath && ((b as ExpressionBinMath).Type == BinaryMathType.ADD || (b as ExpressionBinMath).Type == BinaryMathType.SUB))
+				{
+					ExpressionBinMath mathExpr = b as ExpressionBinMath;
+					c1 = a as ExpressionConstant;
+
+					// C o (C o X)
+					if (mathExpr.ValueA is ExpressionConstant)
+					{
+						if (t == BinaryMathType.SUB)
+							c2 = ExpressionConstant.Create(-mathExpr.ValueA.Calculate(null)) as ExpressionConstant;
+						else
+							c2 = mathExpr.ValueA as ExpressionConstant;
+
+						x1 = mathExpr.ValueB;
+						x1_neg = (t != mathExpr.Type);
+					}
+					// C o (X o C)
+					else if (mathExpr.ValueB is ExpressionConstant)
+					{
+						if (t != mathExpr.Type)
+							c2 = ExpressionConstant.Create(-mathExpr.ValueB.Calculate(null)) as ExpressionConstant;
+						else
+							c2 = mathExpr.ValueA as ExpressionConstant;
+
+						x1 = mathExpr.ValueA;
+						x1_neg = (t == BinaryMathType.SUB);
+					}
+				}
+				// (? o ?) o C
+				else if (b is ExpressionConstant && a is ExpressionBinMath && ((a as ExpressionBinMath).Type == BinaryMathType.ADD || (a as ExpressionBinMath).Type == BinaryMathType.SUB))
+				{
+					ExpressionBinMath mathExpr = a as ExpressionBinMath;
+
+					// (C o X) o C
+					if (mathExpr.ValueA is ExpressionConstant)
+					{
+						c1 = mathExpr.ValueA as ExpressionConstant;
+
+						if (t == BinaryMathType.SUB)
+							c2 = ExpressionConstant.Create(-b.Calculate(null)) as ExpressionConstant;
+						else
+							c2 = b as ExpressionConstant;
+
+						x1 = mathExpr.ValueB;
+						x1_neg = (mathExpr.Type == BinaryMathType.SUB);
+					}
+					// (X o C) o C 
+					else if (mathExpr.ValueB is ExpressionConstant)
+					{
+						if (mathExpr.Type == BinaryMathType.SUB)
+							c1 = ExpressionConstant.Create(-mathExpr.ValueB.Calculate(null)) as ExpressionConstant;
+						else
+							c1 = mathExpr.ValueB as ExpressionConstant;
+
+						if (t == BinaryMathType.SUB)
+							c2 = ExpressionConstant.Create(-b.Calculate(null)) as ExpressionConstant;
+						else
+							c2 = b as ExpressionConstant;
+
+						x1 = mathExpr.ValueA;
+						x1_neg = false;
+					}
+				}
+
+				if (c1 != null && c2 != null && x1 != null)
+				{
+					long new_c = c1.Calculate(null) + c2.Calculate(null);
+
+					BCExpression new_expr;
+
+					if (x1_neg)
+					{
+						new_expr = ExpressionBinMath.Create(ExpressionConstant.Create(new_c), x1, BinaryMathType.SUB);
+					}
+					else
+					{
+						if (new_c < 0)
+							new_expr = ExpressionBinMath.Create(x1, ExpressionConstant.Create(-new_c), BinaryMathType.SUB);
+						else
+							new_expr = ExpressionBinMath.Create(x1, ExpressionConstant.Create(new_c), BinaryMathType.ADD);
+					}
+
+					Console.WriteLine(r.ToString());
+					Console.WriteLine(new_expr.ToString());
+					Console.WriteLine();
+					return new_expr;
+				}
+			}
+
+			//########  C * (C * X)  ########
+
+			if (t == BinaryMathType.MUL && b is ExpressionBinMath && (b as ExpressionBinMath).Type == BinaryMathType.MUL && a is ExpressionConstant && (b as ExpressionBinMath).ValueA is ExpressionConstant)
+				return ExpressionBinMath.Create(ExpressionConstant.Create(a.Calculate(null) * (b as ExpressionBinMath).ValueA.Calculate(null)), (b as ExpressionBinMath).ValueB, t);
+
+			//########  C * (X * C)  ########
+
+			if (t == BinaryMathType.MUL && b is ExpressionBinMath && (b as ExpressionBinMath).Type == BinaryMathType.MUL && a is ExpressionConstant && (b as ExpressionBinMath).ValueB is ExpressionConstant)
+				return ExpressionBinMath.Create(ExpressionConstant.Create(a.Calculate(null) * (b as ExpressionBinMath).ValueB.Calculate(null)), (b as ExpressionBinMath).ValueA, t);
+
+			//########  (C * X) * C  ########
+
+			if (t == BinaryMathType.MUL && a is ExpressionBinMath && (a as ExpressionBinMath).Type == BinaryMathType.MUL && b is ExpressionConstant && (a as ExpressionBinMath).ValueA is ExpressionConstant)
+				return ExpressionBinMath.Create(ExpressionConstant.Create(b.Calculate(null) * (a as ExpressionBinMath).ValueA.Calculate(null)), (a as ExpressionBinMath).ValueB, t);
+
+			//########  (X * C) * C  ########
+
+			if (t == BinaryMathType.MUL && a is ExpressionBinMath && (a as ExpressionBinMath).Type == BinaryMathType.MUL && b is ExpressionConstant && (a as ExpressionBinMath).ValueB is ExpressionConstant)
+				return ExpressionBinMath.Create(ExpressionConstant.Create(b.Calculate(null) * (a as ExpressionBinMath).ValueB.Calculate(null)), (a as ExpressionBinMath).ValueA, t);
 
 			return r;
 		}
