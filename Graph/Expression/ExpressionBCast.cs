@@ -5,51 +5,52 @@ using System.Linq;
 
 namespace BefunCompile.Graph.Expression
 {
-	public class ExpressionNot : BCExpression
+	public class ExpressionBCast : BCExpression
 	{
 		public BCExpression Value;
 
-		private ExpressionNot(BCExpression v)
+		private ExpressionBCast(BCExpression v)
 		{
 			this.Value = v;
 		}
 
 		public static BCExpression Create(BCExpression v)
 		{
-			ExpressionNot r = new ExpressionNot(v);
+			ExpressionBCast r = new ExpressionBCast(v);
 
 			if (v is ExpressionConstant)
 				return ExpressionConstant.Create(r.Calculate(null));
 
-			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.GT)
-				return ExpressionBinMath.Create((v as ExpressionBinMath).ValueA, (v as ExpressionBinMath).ValueB, Vertex.BinaryMathType.LET);
-
-			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.LT)
-				return ExpressionBinMath.Create((v as ExpressionBinMath).ValueA, (v as ExpressionBinMath).ValueB, Vertex.BinaryMathType.GET);
-
-			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.GET)
-				return ExpressionBinMath.Create((v as ExpressionBinMath).ValueA, (v as ExpressionBinMath).ValueB, Vertex.BinaryMathType.LT);
-
-			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.LET)
-				return ExpressionBinMath.Create((v as ExpressionBinMath).ValueA, (v as ExpressionBinMath).ValueB, Vertex.BinaryMathType.GT);
-
 			if (v is ExpressionNot)
-				return ExpressionBCast.Create((v as ExpressionNot).Value);
+				return ExpressionNot.Create((v as ExpressionNot).Value);
 
 			if (v is ExpressionBCast)
-				return ExpressionNot.Create((v as ExpressionNot).Value);
+				return ExpressionBCast.Create((v as ExpressionBCast).Value);
+
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.GT)
+				return v;
+
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.LT)
+				return v;
+
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.GET)
+				return v;
+
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.LET)
+				return v;
+
 
 			return r;
 		}
 
 		public override long Calculate(CalculateInterface ci)
 		{
-			return (Value.Calculate(ci) != 0) ? (0) : (1);
+			return (Value.Calculate(ci) != 0) ? (1) : (0);
 		}
 
 		public override string GetRepresentation()
 		{
-			return "NOT(" + Value.GetRepresentation() + ")";
+			return "B_CAST(" + Value.GetRepresentation() + ")";
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
@@ -112,32 +113,17 @@ namespace BefunCompile.Graph.Expression
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
+			return string.Format("({0}!=0)?1:0", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
+			return string.Format("({0}!=0)?1:0", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("(0)if({0}!=0)else(1)", Paren(Value.GenerateCodePython(g), NeedsParen()));
-		}
-
-		public string GenerateDecisionCodeCSharp(BCGraph g)
-		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
-		}
-
-		public string GenerateDecisionCodeC(BCGraph g)
-		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
-		}
-
-		public string GenerateDecisionCodePython(BCGraph g)
-		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodePython(g), NeedsParen()));
+			return string.Format("(1)if({0}!=0)else(0)", Paren(Value.GenerateCodePython(g), NeedsParen()));
 		}
 
 		public override bool IsNotGridAccess()

@@ -59,6 +59,7 @@
     <Compile Include="Graph\BCModRule.cs" />
     <Compile Include="Graph\BCVertex.cs" />
     <Compile Include="Graph\CalculateInterface.cs" />
+    <Compile Include="Graph\Expression\ExpressionBCast.cs" />
     <Compile Include="Graph\Expression\ExpressionPeek.cs" />
     <Compile Include="Graph\Expression\ExpressionVariable.cs" />
     <Compile Include="Graph\GraphRunner.cs" />
