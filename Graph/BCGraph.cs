@@ -1282,7 +1282,8 @@ namespace BefunCompile.Graph
 			string w = Width.ToString();
 			string h = Height.ToString();
 
-			var msz = GZip.GenerateAnsiCEscapedStringList(GenerateGridData());
+			int msz_len;
+			var msz = MSZip.GenerateAnsiCEscapedStringList(GenerateGridData(), out msz_len);
 
 			for (int i = 0; i < msz.Count; i++)
 			{
@@ -1297,7 +1298,7 @@ namespace BefunCompile.Graph
 			}
 			codebuilder.AppendLine(@"int t=0;int z=0;");
 			codebuilder.AppendLine(@"int64 g[" + (Width * Height) + "];");
-			codebuilder.AppendLine(@"int d(){int s,w,i,j,h;h=z;for(;t<" + msz.Count + ";t++)if(_g[t]==';')g[z++]=_g[++t];" +
+			codebuilder.AppendLine(@"int d(){int s,w,i,j,h;h=z;for(;t<" + msz_len + ";t++)if(_g[t]==';')g[z++]=_g[++t];" +
 									"else if(_g[t]=='}')return z-h;else if(_g[t]=='{'){t++;s=z;w=d();" +
 									"for(i=1;i<_g[t+1]*9025+_g[t+2]*95+_g[t+3]-291872;i++)for(j=0;j<w;g[z++]=g[s+j++]);t+=3;}" +
 									"else g[z++]=_g[t];return z-h;}");

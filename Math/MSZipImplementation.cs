@@ -9,15 +9,16 @@ namespace BefunCompile.Math
 
 		const byte REPL_OPEN = 0xF0;
 		const byte REPL_CLOSE = 0xF1;
-		const byte REPL_ESCAPE = 0xF2;
+
+		const uint MASK_COUNTER = 0x800;
 
 		public override List<byte> Compress(List<byte> g, ref int cc)
 		{
-			List<byte> current = g;
+			List<uint> current = g.Select(p => (uint)p).ToList();
 
 			for (cc = 0; ; cc++)
 			{
-				List<byte> next = new List<byte>();
+				List<uint> next = new List<uint>();
 
 				CompressSingle(next, current, 0, current.Count);
 
@@ -40,14 +41,14 @@ namespace BefunCompile.Math
 
 			DecompressSingle(x.ToArray(), ref xpos, ref result, ref rpos);
 
-			return result.ToList();
+			return result.TakeWhile(p => p != 0).ToList();
 		}
 
-		public void CompressSingle(List<byte> result, List<byte> data, int idatapos, int datacount)
+		public void CompressSingle(List<uint> result, List<uint> data, int idatapos, int datacount)
 		{
 			for (int datapos = idatapos; datapos < idatapos + datacount; datapos++)
 			{
-				byte current = (byte)data[datapos];
+				uint current = data[datapos];
 
 				bool replacement = false;
 				for (int repLength = 1; repLength < MAX_REPEAT; repLength++)
@@ -63,9 +64,9 @@ namespace BefunCompile.Math
 						CompressSingle(result, data, datapos, repLength);
 
 						result.Add(REPL_CLOSE);
-						result.Add(chrEscape(' ' + (repetitions / (95 * 95)) % 95));
-						result.Add(chrEscape(' ' + (repetitions / 95) % 95));
-						result.Add(chrEscape(' ' + (repetitions / 1) % 95));
+						result.Add(counterDataEscape((uint)(' ' + (repetitions / (95 * 95)) % 95)));
+						result.Add(counterDataEscape((uint)(' ' + (repetitions / 95) % 95)));
+						result.Add(counterDataEscape((uint)(' ' + (repetitions / 1) % 95)));
 
 						datapos += (repetitions * repLength) - 1;
 
@@ -77,62 +78,94 @@ namespace BefunCompile.Math
 			}
 		}
 
-		public byte chrEscape(int c)
+		public uint counterDataEscape(uint c)
 		{
-			switch (c)
-			{
-				case '{':
-					return REPL_OPEN;
-				case '}':
-					return REPL_CLOSE;
-				case ';':
-					return REPL_ESCAPE;
-				default:
-					return (byte)c;
-			}
+			return c | MASK_COUNTER;
 		}
 
-		public List<byte> Escape(List<byte> data)
+		public bool isCounterData(uint c)
+		{
+			return (c & MASK_COUNTER) != 0;
+		}
+
+		public List<byte> Escape(List<uint> data)
 		{
 			List<byte> result = new List<byte>();
 
 			foreach (var current in data)
 			{
-				switch (current)
+				if (isCounterData(current))
 				{
-					case (byte)'{':
-					case (byte)'}':
-					case (byte)';':
-						result.Add((byte)';');
-						result.Add(current);
-						break;
-					case REPL_OPEN:
-						result.Add((byte)'{');
-						break;
-					case REPL_CLOSE:
-						result.Add((byte)'}');
-						break;
-					case REPL_ESCAPE:
-						result.Add((byte)';');
-						break;
-					default:
-						result.Add(current);
-						break;
+					result.Add((byte)(current & ~MASK_COUNTER));
+				}
+				else
+				{
+					switch (current)
+					{
+						case (byte)'{':
+						case (byte)'}':
+						case (byte)';':
+							result.Add((byte)';');
+							result.Add((byte)current);
+							break;
+						case REPL_OPEN:
+							result.Add((byte)'{');
+							break;
+						case REPL_CLOSE:
+							result.Add((byte)'}');
+							break;
+						default:
+							result.Add((byte)current);
+							break;
+					}
 				}
 			}
 
 			return result;
 		}
 
-		public int getRepetitions(List<byte> data, int start, int length, int datacount)
+		public int getRepetitions(List<uint> data, int start, int length, int datacount)
 		{
 			int rep = 1;
+
+			if (start + length * 2 > datacount)
+				return 1;
+
+			int height = 0;
+			for (int i = 0; i < length; i++)
+			{
+				if (height < 0)
+					return 1;
+
+				if (data[start + i] == REPL_OPEN)
+				{
+					height++;
+				}
+				else if (data[start + i] == REPL_CLOSE)
+				{
+					if (i + 3 < length && isCounterData(data[start + i + 1]) && isCounterData(data[start + i + 2]) && isCounterData(data[start + i + 3]))
+					{
+						height--;
+						i += 3;
+					}
+					else
+					{
+						return 1;
+					}
+				}
+				else if (isCounterData(data[start + i]))
+				{
+					return 1;
+				}
+			}
+			if (height != 0)
+				return 1;
 
 			for (int pos = length; start + pos + length <= datacount; pos += length)
 			{
 				for (int i = 0; i < length; i++)
 				{
-					if (data[start + i] != data[start + pos + i] || data[start + i] == REPL_CLOSE || data[start + i] == REPL_ESCAPE || data[start + i] == REPL_OPEN)
+					if (data[start + i] != data[start + pos + i])
 						return rep;
 				}
 				rep++;
