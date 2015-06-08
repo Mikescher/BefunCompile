@@ -1,5 +1,8 @@
-﻿using BefunCompile.Graph.Expression;
+﻿using BefunCompile.Exceptions;
+using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Vertex;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BefunCompile.Graph.Optimizations.Unstackify
@@ -26,7 +29,21 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 		{
 			history.AddState(vertex, state);
 
-			var out_state = vertex.WalkUnstackify(history, state);
+			UnstackifyState out_state;
+			try
+			{
+				out_state = vertex.WalkUnstackify(history, state);
+			}
+			catch (UnstackifyWalkException)
+			{
+				PoisonState(state);
+				foreach (var child in vertex.Children.Where(p => history.Contains(p)))
+				{
+					PoisonState(history.StateDict[child]);
+				}
+
+				return;
+			}
 
 			foreach (var child in vertex.Children)
 			{
@@ -78,7 +95,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			}
 		}
 
-		private void ReplaceVariablesInVertex(System.Collections.Generic.List<UnstackifyValue> Variables, BCVertex vertex)
+		private void ReplaceVariablesInVertex(List<UnstackifyValue> Variables, BCVertex vertex)
 		{
 			var replacements = Variables
 				.SelectMany(p => p.AccessCounter)
@@ -87,7 +104,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 			if (replacements.Count > 0)
 			{
-				bool duplicate_err = replacements.Any(p => 
+				bool duplicate_err = replacements.Any(p =>
 					replacements
 						.Where(q => q != p)
 						.Where(q => p.Type == q.Type)
@@ -100,7 +117,16 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 				var newVertex = vertex.ReplaceUnstackify(replacements);
 
-				Graph.ReplaceVertex(vertex, newVertex);
+				if (newVertex is BCVertexBlock)
+				{
+					Graph.ReplaceVertex(vertex, (newVertex as BCVertexBlock).nodes.ToList());
+					
+				}
+				else
+				{
+					Graph.ReplaceVertex(vertex, newVertex);
+				}
+
 			}
 		}
 	}

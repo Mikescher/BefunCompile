@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Graph.Expression;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BefunCompile.Graph.Optimizations.Unstackify
 {
@@ -10,6 +11,8 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 		public ExpressionVariable Replacement;
 
 		public bool IsPoisoned { get; private set; }
+
+		private HashSet<UnstackifyValue> PoisonLinks = new HashSet<UnstackifyValue>();
 
 		public UnstackifyValue()
 		{
@@ -45,7 +48,18 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		public void Poison()
 		{
-			IsPoisoned = true;
+			if (!IsPoisoned)
+			{
+				IsPoisoned = true;
+
+				PoisonLinks.ToList().ForEach(p => p.Poison());
+			}
+		}
+
+		public void LinkPoison(UnstackifyValue other)
+		{
+			PoisonLinks.Add(other);
+			other.PoisonLinks.Add(this);
 		}
 	}
 }

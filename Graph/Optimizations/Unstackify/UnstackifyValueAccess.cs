@@ -17,6 +17,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 		READ,
 		WRITE,
 		READWRITE,
+		REMOVE,
 	}
 
 	public class UnstackifyValueAccess

@@ -115,14 +115,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			state = state.Clone();
 
-			state.Pop();
+			state.Pop().AddAccess(this, UnstackifyValueAccessType.REMOVE);
 
 			return state;
 		}
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			throw new NotImplementedException();
+			return new BCVertexNOP(Direction, Positions);
 		}
 	}
 }

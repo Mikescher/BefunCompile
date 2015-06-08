@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BefunCompile.Exceptions;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BefunCompile.Graph.Optimizations.Unstackify
@@ -27,6 +28,9 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		public UnstackifyValue Pop()
 		{
+			if (!Stack.Any())
+				throw new UnstackifyWalkInvalidPopException();
+
 			var last = Stack.Last();
 			Stack.RemoveAt(Stack.Count - 1);
 			return last;
@@ -34,6 +38,9 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		public UnstackifyValue Peek()
 		{
+			if (!Stack.Any())
+				throw new UnstackifyWalkInvalidPeekException();
+
 			return Stack.Last();
 		}
 
@@ -53,6 +60,9 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		public void Swap()
 		{
+			if (Stack.Count < 2)
+				throw new UnstackifyWalkInvalidSwapException();
+
 			var x1 = Pop();
 			var x2 = Pop();
 

@@ -24,7 +24,7 @@ namespace BefunCompile.Graph.Vertex
 			nodes = new BCVertex[] { inner };
 		}
 
-		public BCVertexBlock(BCDirection d, Vec2i[] pos, BCVertex[] nodearr)
+		public BCVertexBlock(BCDirection d, Vec2i[] pos, params BCVertex[] nodearr)
 			: base(d, pos)
 		{
 			nodes = nodearr.ToArray();

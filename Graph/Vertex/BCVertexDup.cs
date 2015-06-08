@@ -115,8 +115,13 @@ namespace BefunCompile.Graph.Vertex
 		{
 			state = state.Clone();
 
-			state.Peek().AddAccess(this, UnstackifyValueAccessType.READ);
-			state.Push(new UnstackifyValue(this, UnstackifyValueAccessType.WRITE));
+			var first = state.Peek();
+			var second = new UnstackifyValue(this, UnstackifyValueAccessType.WRITE);
+
+			first.AddAccess(this, UnstackifyValueAccessType.READ);
+			state.Push(second);
+
+			first.LinkPoison(second);
 
 			return state;
 		}

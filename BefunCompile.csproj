@@ -50,9 +50,13 @@
     <Compile Include="Consoleprogram\Program.cs" />
     <Compile Include="Exceptions\CodeGenException.cs" />
     <Compile Include="Exceptions\CodeParseException.cs" />
+    <Compile Include="Exceptions\UnstackifyWalkInvalidSwapException.cs" />
+    <Compile Include="Exceptions\UnstackifyWalkInvalidPeekException.cs" />
+    <Compile Include="Exceptions\UnstackifyWalkInvalidPopException.cs" />
     <Compile Include="Exceptions\UnknownCharacterException.cs" />
     <Compile Include="Exceptions\SelfModificationException.cs" />
     <Compile Include="Exceptions\GraphGenException.cs" />
+    <Compile Include="Exceptions\UnstackifyWalkException.cs" />
     <Compile Include="Graph\BCDirection.cs" />
     <Compile Include="Graph\BCExprModRule.cs" />
     <Compile Include="Graph\BCGraph.cs" />

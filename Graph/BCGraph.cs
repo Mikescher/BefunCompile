@@ -197,6 +197,60 @@ namespace BefunCompile.Graph
 				throw new Exception("Internal Parent Exception :( ");
 		}
 
+		public void ReplaceVertex(BCVertex oldVertex, List<BCVertex> newVerticies)
+		{
+			if (newVerticies.Count == 1)
+			{
+				ReplaceVertex(oldVertex, newVerticies.Single());
+				return;
+			}
+
+			var newFirst = newVerticies.First();
+			var newLast = newVerticies.Last();
+
+			Vertices.Remove(oldVertex);
+			Vertices.AddRange(newVerticies);
+
+			if (Root == oldVertex)
+				Root = newFirst;
+
+			for (int i = 1; i < newVerticies.Count; i++)
+			{
+				newVerticies[i - 1].Children.Add(newVerticies[i]);
+				newVerticies[i].Parents.Add(newVerticies[i - 1]);
+			}
+
+			foreach (var parent in oldVertex.Parents)
+			{
+				parent.Children.Remove(oldVertex);
+				parent.Children.Add(newFirst);
+				if (parent is IDecisionVertex)
+				{
+					if ((parent as IDecisionVertex).EdgeTrue == oldVertex)
+						(parent as IDecisionVertex).EdgeTrue = newFirst;
+
+					if ((parent as IDecisionVertex).EdgeFalse == oldVertex)
+						(parent as IDecisionVertex).EdgeFalse = newFirst;
+				}
+
+				newFirst.Parents.Add(parent);
+			}
+
+			foreach (var child in oldVertex.Children)
+			{
+				child.Parents.Remove(oldVertex);
+				child.Parents.Add(newLast);
+
+				if (newLast is IDecisionVertex && (oldVertex as IDecisionVertex).EdgeTrue == child)
+					(newLast as IDecisionVertex).EdgeTrue = child;
+
+				if (newLast is IDecisionVertex && (oldVertex as IDecisionVertex).EdgeFalse == child)
+					(newLast as IDecisionVertex).EdgeFalse = child;
+
+				newLast.Children.Add(child);
+			}
+		}
+
 		#region O:1 Minimize
 
 		public bool Minimize()
