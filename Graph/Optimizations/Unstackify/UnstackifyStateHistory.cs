@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BefunCompile.Graph.Optimizations.Unstackify
 {
@@ -28,6 +29,11 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 		public bool Contains(BCVertex vx)
 		{
 			return StateDict.ContainsKey(vx);
+		}
+
+		public void UpdatePoison()
+		{
+			StackValues.ToList().ForEach(p => p.UpdatePoison());
 		}
 	}
 }

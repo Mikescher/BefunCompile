@@ -22,6 +22,8 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 			Walk(Graph.Root, history, new UnstackifyState());
 
+			history.UpdatePoison();
+
 			ReplaceSystemVariables(history);
 		}
 

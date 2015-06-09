@@ -48,12 +48,12 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		public void Poison()
 		{
-			if (!IsPoisoned)
-			{
-				IsPoisoned = true;
+			IsPoisoned = true;
+		}
 
-				PoisonLinks.ToList().ForEach(p => p.Poison());
-			}
+		public void UpdatePoison()
+		{
+			PoisonLinks.ToList().ForEach(p => p.Poison());
 		}
 
 		public void LinkPoison(UnstackifyValue other)
