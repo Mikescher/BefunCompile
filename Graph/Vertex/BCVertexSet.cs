@@ -140,20 +140,28 @@ namespace BefunCompile.Graph.Vertex
 		{
 			state = state.Clone();
 
-			state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDY));
-			state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDX));
-			state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_VALUE));
+			var v_y = state.Pop();
+			var v_x = state.Pop();
+			var v_v = state.Pop();
+
+			v_y.AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDY));
+			v_x.AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDX));
+			v_v.AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_VALUE));
+
+			v_y.LinkPoison(v_x);
+			v_x.LinkPoison(v_v);
+			v_v.LinkPoison(v_y);
 
 			return state;
 		}
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			var var_readx = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDX);
-			var var_ready = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDY);
-			var var_readv = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_VALUE);
+			var var_readx = access.Single(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDX);
+			var var_ready = access.Single(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDY);
+			var var_readv = access.Single(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_VALUE);
 
-			return new BCVertexTotalSet(Direction, Positions, var_readx.Value.Replacement, var_ready.Value.Replacement, var_readv.Value.Replacement);
+			return new BCVertexExprSet(Direction, Positions, var_readx.Value.Replacement, var_ready.Value.Replacement, var_readv.Value.Replacement);
 		}
 	}
 }

@@ -297,7 +297,7 @@ namespace BefunCompile.Graph.Vertex
 		{
 			var avar = access.Single();
 
-			return new BCVertexTotalVarSet(Direction, Positions, avar.Value.Replacement, ExpressionBinMath.Create(avar.Value.Replacement, SecondExpression, MathType));
+			return new BCVertexExprVarSet(Direction, Positions, avar.Value.Replacement, ExpressionBinMath.Create(avar.Value.Replacement, SecondExpression, MathType));
 		}
 	}
 }

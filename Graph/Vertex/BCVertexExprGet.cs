@@ -194,7 +194,7 @@ namespace BefunCompile.Graph.Vertex
 			var expr_x = (var_readx == null) ? X : X.ReplaceUnstackify(var_readx);
 			var expr_y = (var_ready == null) ? Y : Y.ReplaceUnstackify(var_ready);
 
-			return new BCVertexTotalVarSet(Direction, Positions, var_write.Value.Replacement, ExpressionGet.Create(expr_x, expr_y));
+			return new BCVertexExprVarSet(Direction, Positions, var_write.Value.Replacement, ExpressionGet.Create(expr_x, expr_y));
 		}
 	}
 }

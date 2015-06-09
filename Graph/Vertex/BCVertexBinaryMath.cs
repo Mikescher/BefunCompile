@@ -332,7 +332,7 @@ namespace BefunCompile.Graph.Vertex
 			if (var_target != null && var_left == null && var_right == null) // 1 . 0 . 0
 			{
 				var v_a = new BCVertexBinaryMath(Direction, Positions, MathType);
-				var v_b = new BCVertexExprVarSet(Direction, Positions, var_target.Value.Replacement);
+				var v_b = new BCVertexVarSet(Direction, Positions, var_target.Value.Replacement);
 
 				return new BCVertexBlock(Direction, Positions, v_a, v_b);
 			}
@@ -340,7 +340,7 @@ namespace BefunCompile.Graph.Vertex
 			if (var_target != null && var_left == null && var_right != null) // 1 . 0 . 1
 			{
 				var v_a = new BCVertexExprPopBinaryMath(Direction, Positions, var_right.Value.Replacement, MathType);
-				var v_b = new BCVertexExprVarSet(Direction, Positions, var_target.Value.Replacement);
+				var v_b = new BCVertexVarSet(Direction, Positions, var_target.Value.Replacement);
 
 				return new BCVertexBlock(Direction, Positions, v_a, v_b);
 			}
@@ -350,7 +350,7 @@ namespace BefunCompile.Graph.Vertex
 				var v_a = new BCVertexExpression(Direction, Positions, var_left.Value.Replacement);
 				var v_b = new BCVertexSwap(Direction, Positions);
 				var v_c = new BCVertexBinaryMath(Direction, Positions, MathType);
-				var v_d = new BCVertexExprVarSet(Direction, Positions, var_target.Value.Replacement);
+				var v_d = new BCVertexVarSet(Direction, Positions, var_target.Value.Replacement);
 
 				return new BCVertexBlock(Direction, Positions, v_a, v_b, v_c, v_d);
 			}
@@ -359,7 +359,7 @@ namespace BefunCompile.Graph.Vertex
 			{
 				var expr = ExpressionBinMath.Create(var_left.Value.Replacement, var_right.Value.Replacement, MathType);
 
-				return new BCVertexTotalVarSet(Direction, Positions, var_target.Value.Replacement, expr);
+				return new BCVertexExprVarSet(Direction, Positions, var_target.Value.Replacement, expr);
 			}
 
 			throw new Exception();

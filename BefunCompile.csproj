@@ -91,13 +91,13 @@
     <Compile Include="Graph\Vertex\BCVertexGet.cs" />
     <Compile Include="Graph\Vertex\BCVertexSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexExprGet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexExprPopSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexExprSet.cs" />
-    <Compile Include="Graph\Vertex\BCVertexTotalSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexExprOutput.cs" />
     <Compile Include="Graph\Vertex\BCVertexExprDecision.cs" />
-    <Compile Include="Graph\Vertex\BCVertexExprVarGet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexVarGet.cs" />
+    <Compile Include="Graph\Vertex\BCVertexVarSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexExprVarSet.cs" />
-    <Compile Include="Graph\Vertex\BCVertexTotalVarSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexRandom.cs" />
     <Compile Include="Graph\Vertex\BCVertexBlock.cs" />
     <Compile Include="Graph\Vertex\BCVertexDecisionBlock.cs" />

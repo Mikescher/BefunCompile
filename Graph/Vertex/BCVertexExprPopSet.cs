@@ -8,48 +8,54 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexExprVarSet : BCVertex, MemoryAccess
+	public class BCVertexExprPopSet : BCVertex, MemoryAccess
 	{
-		public ExpressionVariable Variable;
-		public BCExpression Value;
+		public BCExpression X;
+		public BCExpression Y;
 
-		public BCVertexExprVarSet(BCDirection d, Vec2i pos, ExpressionVariable var, BCExpression val)
+		public BCVertexExprPopSet(BCDirection d, Vec2i pos, BCExpression xx, BCExpression yy)
 			: base(d, new Vec2i[] { pos })
 		{
-			this.Variable = var;
-			this.Value = val;
+			this.X = xx;
+			this.Y = yy;
 		}
 
-		public BCVertexExprVarSet(BCDirection d, Vec2i[] pos, ExpressionVariable var, BCExpression val)
+		public BCVertexExprPopSet(BCDirection d, Vec2i[] pos, BCExpression xx, BCExpression yy)
 			: base(d, pos)
 		{
-			this.Variable = var;
-			this.Value = val;
+			this.X = xx;
+			this.Y = yy;
 		}
 
 		public override string ToString()
 		{
-			return string.Format("SET({0}) = {1}", Variable, Value);
+			return string.Format("SET({0}, {1})", X, Y);
 		}
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexExprVarSet(Direction, Positions, Variable, Value);
+			return new BCVertexExprPopSet(Direction, Positions, X, Y);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return Value.ListConstantVariableAccess();
+			if (X is ExpressionConstant && Y is ExpressionConstant)
+				return new MemoryAccess[] { this }.Concat(X.ListConstantVariableAccess()).Concat(Y.ListConstantVariableAccess());
+			else
+				return X.ListConstantVariableAccess().Concat(Y.ListConstantVariableAccess());
 		}
 
 		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return Value.ListDynamicVariableAccess();
+			if (X is ExpressionConstant && Y is ExpressionConstant)
+				return X.ListDynamicVariableAccess().Concat(Y.ListDynamicVariableAccess());
+			else
+				return new MemoryAccess[] { this }.Concat(X.ListDynamicVariableAccess()).Concat(Y.ListDynamicVariableAccess());
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
-			ci.SetVariableValue(Variable, Value.Calculate(ci));
+			ci.SetGridValue(X.Calculate(ci), Y.Calculate(ci), stackbuilder.Pop());
 
 			if (Children.Count > 1)
 				throw new ArgumentException("#");
@@ -58,12 +64,12 @@ namespace BefunCompile.Graph.Vertex
 
 		public BCExpression getX()
 		{
-			return null;
+			return X;
 		}
 
 		public BCExpression getY()
 		{
-			return null;
+			return Y;
 		}
 
 		public Vec2l getConstantPos()
@@ -81,22 +87,22 @@ namespace BefunCompile.Graph.Vertex
 		{
 			bool found = false;
 
-			if (prerequisite(Variable))
+			if (prerequisite(X))
 			{
-				Variable = (ExpressionVariable)replacement(Variable);
+				X = replacement(X);
 				found = true;
 			}
-			if (Variable.Subsitute(prerequisite, replacement))
+			if (X.Subsitute(prerequisite, replacement))
 			{
 				found = true;
 			}
 
-			if (prerequisite(Value))
+			if (prerequisite(Y))
 			{
-				Value = replacement(Value);
+				Y = replacement(Y);
 				found = true;
 			}
-			if (Value.Subsitute(prerequisite, replacement))
+			if (Y.Subsitute(prerequisite, replacement))
 			{
 				found = true;
 			}
@@ -106,17 +112,17 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool IsNotGridAccess()
 		{
-			return Value.IsNotGridAccess();
+			return false;
 		}
 
 		public override bool IsNotStackAccess()
 		{
-			return Value.IsNotStackAccess();
+			return false;
 		}
 
 		public override bool IsNotVariableAccess()
 		{
-			return false;
+			return X.IsNotVariableAccess() && Y.IsNotVariableAccess();
 		}
 
 		public override bool IsCodePathSplit()
@@ -136,7 +142,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return Variable.GetVariables().Concat(Value.GetVariables());
+			return X.GetVariables().Concat(Y.GetVariables());
 		}
 
 		public override IEnumerable<int> GetAllJumps(BCGraph g)
@@ -146,38 +152,39 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("{0}={1};", Variable.Identifier, Value.GenerateCodeCSharp(g));
+			return string.Format("gw({0},{1},sp());", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("{0}={1};", Variable.Identifier, Value.GenerateCodeC(g));
+			return string.Format("gw({0},{1},sp());", X.GenerateCodeC(g), Y.GenerateCodeC(g));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("{0}={1}", Variable.Identifier, Value.GenerateCodePython(g));
+			return string.Format("gw({0},{1},sp())", X.GenerateCodePython(g), Y.GenerateCodePython(g));
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
 		{
 			state = state.Clone();
 
-			if (Value.IsNotStackAccess())
+			if (X.IsNotStackAccess() && Y.IsNotStackAccess())
 			{
-				// all is good
+				state.Pop();
 			}
 			else
 			{
-				state.Peek().AddAccess(this, UnstackifyValueAccessType.READ);
+				throw new NotImplementedException();
 			}
 
 			return state;
 		}
 
+
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			return new BCVertexExprVarSet(Direction, Positions, Variable, Value.ReplaceUnstackify(access.Single()));
+			throw new NotImplementedException();
 		}
 	}
 }

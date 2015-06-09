@@ -550,12 +550,12 @@ namespace BefunCompile.Graph
 			rule2.AddPreq(v => v is BCVertexExpression);
 			rule2.AddPreq(v => v is BCVertexExpression);
 			rule2.AddPreq(v => v is BCVertexSet);
-			rule2.AddRep((l, p) => new BCVertexExprSet(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression));
+			rule2.AddRep((l, p) => new BCVertexExprPopSet(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression));
 
 			var rule3 = new BCModRule();
 			rule3.AddPreq(v => v is BCVertexExpression);
-			rule3.AddPreq(v => v is BCVertexExprSet);
-			rule3.AddRep((l, p) => new BCVertexTotalSet(BCDirection.UNKNOWN, p, ((BCVertexExprSet)l[1]).X, ((BCVertexExprSet)l[1]).Y, ((BCVertexExpression)l[0]).Expression));
+			rule3.AddPreq(v => v is BCVertexExprPopSet);
+			rule3.AddRep((l, p) => new BCVertexExprSet(BCDirection.UNKNOWN, p, ((BCVertexExprPopSet)l[1]).X, ((BCVertexExprPopSet)l[1]).Y, ((BCVertexExpression)l[0]).Expression));
 
 			var rule4 = new BCModRule();
 			rule4.AddPreq(v => v is BCVertexExprGet);
@@ -565,7 +565,7 @@ namespace BefunCompile.Graph
 
 			var rule5 = new BCModRule();
 			rule5.AddPreq(v => !v.IsCodePathSplit() && v.IsNotGridAccess() && v.IsNotVariableAccess()); // <-- Stack Access
-			rule5.AddPreq(v => ((v is BCVertexTotalSet || v is BCVertexTotalVarSet) && v.IsNotStackAccess())); // <-- No Stack Access
+			rule5.AddPreq(v => ((v is BCVertexExprSet || v is BCVertexExprVarSet) && v.IsNotStackAccess())); // <-- No Stack Access
 			rule5.AddRep((l, p) => l[1].Duplicate());
 			rule5.AddRep((l, p) => l[0].Duplicate());
 
@@ -695,15 +695,15 @@ namespace BefunCompile.Graph
 
 			BCModRule vertexRule1 = new BCModRule();
 			vertexRule1.AddPreq(p => p is BCVertexExprGet && ios.Contains((MemoryAccess)p));
-			vertexRule1.AddRep((l, p) => new BCVertexExprVarGet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprGet)l[0]).getConstantPos()]));
+			vertexRule1.AddRep((l, p) => new BCVertexVarGet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprGet)l[0]).getConstantPos()]));
 
 			BCModRule vertexRule2 = new BCModRule();
-			vertexRule2.AddPreq(p => p is BCVertexExprSet && ios.Contains((MemoryAccess)p));
-			vertexRule2.AddRep((l, p) => new BCVertexExprVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprSet)l[0]).getConstantPos()]));
+			vertexRule2.AddPreq(p => p is BCVertexExprPopSet && ios.Contains((MemoryAccess)p));
+			vertexRule2.AddRep((l, p) => new BCVertexVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprPopSet)l[0]).getConstantPos()]));
 
 			BCModRule vertexRule3 = new BCModRule();
-			vertexRule3.AddPreq(p => p is BCVertexTotalSet && ios.Contains((MemoryAccess)p));
-			vertexRule3.AddRep((l, p) => new BCVertexTotalVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexTotalSet)l[0]).getConstantPos()], ((BCVertexTotalSet)l[0]).Value));
+			vertexRule3.AddPreq(p => p is BCVertexExprSet && ios.Contains((MemoryAccess)p));
+			vertexRule3.AddRep((l, p) => new BCVertexExprVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprSet)l[0]).getConstantPos()], ((BCVertexExprSet)l[0]).Value));
 
 			BCExprModRule exprRule1 = new BCExprModRule();
 			exprRule1.setPreq(p => p is ExpressionGet && ios.Contains((MemoryAccess)p));
@@ -759,8 +759,8 @@ namespace BefunCompile.Graph
 
 			BCModRule combRule7 = new BCModRule();
 			combRule7.AddPreq(p => p is BCVertexDup);
-			combRule7.AddPreq(p => p is BCVertexExprVarSet);
-			combRule7.AddRep((l, p) => new BCVertexTotalVarSet(BCDirection.UNKNOWN, p, (l[1] as BCVertexExprVarSet).Variable, ExpressionPeek.Create()));
+			combRule7.AddPreq(p => p is BCVertexVarSet);
+			combRule7.AddRep((l, p) => new BCVertexExprVarSet(BCDirection.UNKNOWN, p, (l[1] as BCVertexVarSet).Variable, ExpressionPeek.Create()));
 
 			bool[] cb = new[]
 			{
@@ -999,9 +999,9 @@ namespace BefunCompile.Graph
 				for (int i = 0; i < BRoot.nodes.Length; i++)
 				{
 					BCVertex node = BRoot.nodes[i];
-					if (node is BCVertexTotalVarSet && (node as BCVertexTotalVarSet).Variable == variable && (node as BCVertexTotalVarSet).Value is ExpressionConstant)
+					if (node is BCVertexExprVarSet && (node as BCVertexExprVarSet).Variable == variable && (node as BCVertexExprVarSet).Value is ExpressionConstant)
 					{
-						long ivalue = ((node as BCVertexTotalVarSet).Value as ExpressionConstant).Value;
+						long ivalue = ((node as BCVertexExprVarSet).Value as ExpressionConstant).Value;
 						variable.initial = ivalue;
 
 						BCVertex newnode = BRoot.GetWithRemovedNode(node);

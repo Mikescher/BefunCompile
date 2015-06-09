@@ -159,11 +159,11 @@ namespace BefunCompile.Graph.Vertex
 
 			if (var_read != null)
 			{
-				return new BCVertexTotalVarSet(Direction, Positions, var_write.Value.Replacement, Expression.ReplaceUnstackify(var_read));
+				return new BCVertexExprVarSet(Direction, Positions, var_write.Value.Replacement, Expression.ReplaceUnstackify(var_read));
 			}
 			else
 			{
-				return new BCVertexTotalVarSet(Direction, Positions, var_write.Value.Replacement, Expression);
+				return new BCVertexExprVarSet(Direction, Positions, var_write.Value.Replacement, Expression);
 			}
 		}
 	}

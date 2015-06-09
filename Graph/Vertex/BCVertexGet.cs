@@ -139,20 +139,44 @@ namespace BefunCompile.Graph.Vertex
 		{
 			state = state.Clone();
 
-			state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDY));
-			state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDX));
+			UnstackifyValue state_y = state.Pop();
+			UnstackifyValue state_x = state.Pop();
+
+
+			state_y.AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDY));
+			state_x.AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDX));
 			state.Push(new UnstackifyValue(this, UnstackifyValueAccessType.WRITE));
+
+			state_y.LinkPoison(state_x);
 
 			return state;
 		}
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			var var_write = access.Single(p => p.Type == UnstackifyValueAccessType.WRITE);
-			var var_readx = access.Single(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDX);
-			var var_ready = access.Single(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDY);
+			var var_write = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.WRITE);
+			var var_readx = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDX);
+			var var_ready = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDY);
 
-			return new BCVertexTotalVarSet(Direction, Positions, var_write.Value.Replacement, ExpressionGet.Create(var_readx.Value.Replacement, var_ready.Value.Replacement));
+			if (var_write != null && var_readx != null)
+			{
+				return new BCVertexExprVarSet(Direction, Positions, var_write.Value.Replacement, ExpressionGet.Create(var_readx.Value.Replacement, var_ready.Value.Replacement));
+			}
+
+			if (var_write != null)
+			{
+				var v_a = new BCVertexGet(Direction, Positions);
+				var v_b = new BCVertexVarSet(Direction, Positions, var_write.Value.Replacement);
+
+				return new BCVertexBlock(Direction, Positions, v_a, v_b);
+			}
+
+			if (var_readx != null)
+			{
+				return new BCVertexExpression(Direction, Positions, ExpressionGet.Create(var_readx.Value.Replacement, var_ready.Value.Replacement));
+			}
+
+			throw new Exception();
 		}
 	}
 }

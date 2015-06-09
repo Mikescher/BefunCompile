@@ -122,7 +122,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			return new BCVertexTotalVarSet(Direction, Positions, access.Single().Value.Replacement, ExpressionNot.Create(access.Single().Value.Replacement));
+			return new BCVertexExprVarSet(Direction, Positions, access.Single().Value.Replacement, ExpressionNot.Create(access.Single().Value.Replacement));
 		}
 	}
 }

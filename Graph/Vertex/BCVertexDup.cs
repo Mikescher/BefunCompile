@@ -131,7 +131,7 @@ namespace BefunCompile.Graph.Vertex
 			var var_read = access.Single(p => p.Type == UnstackifyValueAccessType.READ);
 			var var_write = access.Single(p => p.Type == UnstackifyValueAccessType.WRITE);
 
-			return new BCVertexTotalVarSet(Direction, Positions, var_write.Value.Replacement, var_read.Value.Replacement);
+			return new BCVertexExprVarSet(Direction, Positions, var_write.Value.Replacement, var_read.Value.Replacement);
 		}
 	}
 }
