@@ -169,10 +169,6 @@ namespace BefunCompile.Graph.Expression
 						else
 							new_expr = ExpressionBinMath.Create(x1, ExpressionConstant.Create(new_c), BinaryMathType.ADD);
 					}
-
-					Console.WriteLine(r.ToString());
-					Console.WriteLine(new_expr.ToString());
-					Console.WriteLine();
 					return new_expr;
 				}
 			}
