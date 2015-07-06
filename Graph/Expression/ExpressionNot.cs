@@ -117,7 +117,7 @@ namespace BefunCompile.Graph.Expression
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
+			return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeC(g), NeedsParen()));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
