@@ -132,7 +132,7 @@ namespace BefunCompile.Graph.Expression
 
 		public string GenerateDecisionCodeC(BCGraph g)
 		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
+			return string.Format("{0}==0", Paren(Value.GenerateCodeC(g), NeedsParen()));
 		}
 
 		public string GenerateDecisionCodePython(BCGraph g)
