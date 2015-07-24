@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BefunCompile.Exceptions;
 
 namespace BefunCompile.Graph.Vertex
 {
@@ -165,6 +166,13 @@ namespace BefunCompile.Graph.Vertex
 			return string.Format("gw({0},{1},sp())", X.GenerateCodePython(g), Y.GenerateCodePython(g));
 		}
 
+		public override bool TestVertex()
+		{
+			if (!base.TestVertex()) return false;
+
+			return X.IsNotStackAccess() && Y.IsNotStackAccess();
+		}
+
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
 		{
 			state = state.Clone();
@@ -175,7 +183,7 @@ namespace BefunCompile.Graph.Vertex
 			}
 			else
 			{
-				throw new NotImplementedException(); //TODO Implement O:5
+				throw new CodeGenException("Invalid Node state");
 			}
 
 			return state;
