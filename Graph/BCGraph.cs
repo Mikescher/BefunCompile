@@ -190,6 +190,8 @@ namespace BefunCompile.Graph
 
 		public void ReplaceVertex(BCVertex oldVertex, BCVertex newVertex)
 		{
+			if (oldVertex == newVertex) return;
+
 			Vertices.Remove(oldVertex);
 			Vertices.Add(newVertex);
 
