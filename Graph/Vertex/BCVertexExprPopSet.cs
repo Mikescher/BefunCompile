@@ -171,7 +171,7 @@ namespace BefunCompile.Graph.Vertex
 
 			if (X.IsNotStackAccess() && Y.IsNotStackAccess())
 			{
-				state.Pop();
+				state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_VALUE));
 			}
 			else
 			{
@@ -184,7 +184,9 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			throw new NotImplementedException();
+			var var_value = access.Single(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_VALUE);
+
+			return new BCVertexExprSet(Direction, Positions, X, Y, var_value.Value.Replacement);
 		}
 	}
 }
