@@ -128,9 +128,9 @@ namespace BefunCompile.Graph.Vertex
 			var var_top = access.SingleOrDefault(p => p.Modifier == UnstackifyValueAccessModifier.POS_TOP);
 			var var_bot = access.SingleOrDefault(p => p.Modifier == UnstackifyValueAccessModifier.POS_BOT);
 
-			if (var_top == null || var_bot == null) return new BCVertexNOP(Direction, Positions);
-			
-			return this;
+			if (var_top == null && var_bot == null) return this;
+
+			return new BCVertexNOP(Direction, Positions);
 		}
 	}
 }
