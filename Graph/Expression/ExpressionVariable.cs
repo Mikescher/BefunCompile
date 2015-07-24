@@ -12,30 +12,32 @@ namespace BefunCompile.Graph.Expression
 		public long initial;
 
 		public readonly Vec2l position;
+		public readonly List<List<BCVertex>> Scope; // [NULL] by user Variables
 
 		public readonly bool isUserDefinied;
 
-		private ExpressionVariable(string ident, long init, Vec2l pos, bool usrVar)
+		private ExpressionVariable(string ident, long init, Vec2l pos, bool usrVar, List<List<BCVertex>> scope)
 		{
 			this.Identifier = ident;
 			this.initial = init;
 			this.position = pos;
 			this.isUserDefinied = usrVar;
-		}
+			this.Scope = scope;
+        }
 
-		public static ExpressionVariable Create(string ident, long init, Vec2l pos, bool usrVar)
+		private static ExpressionVariable Create(string ident, long init, Vec2l pos, bool usrVar, List<List<BCVertex>> scope)
 		{
-			return new ExpressionVariable(ident, init, pos, usrVar);
+			return new ExpressionVariable(ident, init, pos, usrVar, scope);
 		}
 
 		public static ExpressionVariable CreateUserVariable(int ident_idx, long init, Vec2l pos)
 		{
-			return ExpressionVariable.Create("x" + ident_idx, init, pos, true);
+			return ExpressionVariable.Create("x" + ident_idx, init, pos, true, null);
 		}
 
-		public static ExpressionVariable CreateSystemVariable(int ident_idx)
+		public static ExpressionVariable CreateSystemVariable(int ident_idx, List<List<BCVertex>> scope)
 		{
-			return ExpressionVariable.Create("t" + ident_idx, 0, null, false);
+			return ExpressionVariable.Create("t" + ident_idx, 0, null, false, scope);
 		}
 
 		public override long Calculate(CalculateInterface ci)

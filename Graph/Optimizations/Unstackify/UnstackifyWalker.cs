@@ -32,6 +32,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 		private void Walk(BCVertex vertex, UnstackifyStateHistory history, UnstackifyState state)
 		{
 			history.AddState(vertex, state);
+			state.AddScope(vertex);
 
 			UnstackifyState out_state;
 			try
@@ -48,6 +49,8 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 				return;
 			}
+
+			out_state.AddScope(vertex);
 
 			foreach (var child in vertex.Children)
 			{
@@ -82,28 +85,20 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		private int ReplaceSystemVariables(UnstackifyStateHistory history)
 		{
-			var Variables = history.StackValues.Where(p => !p.IsPoisoned).ToList();
-
-			int idx = 0;
-			foreach (var variable in Variables)
-			{
-				var systemvar = ExpressionVariable.CreateSystemVariable(idx++);
-				Graph.Variables.Add(systemvar);
-
-				variable.Replacement = systemvar;
-			}
-
+			history.RemovePoison();
+			history.CreateVariables(Graph);
+			
 			foreach (var vertex in Graph.Vertices.ToList())
 			{
-				ReplaceVariablesInVertex(Variables, vertex);
+				ReplaceVariablesInVertex(history, vertex);
 			}
 
-			return Variables.Count;
+			return history.ValuesCount();
 		}
 
-		private void ReplaceVariablesInVertex(List<UnstackifyValue> Variables, BCVertex vertex)
+		private void ReplaceVariablesInVertex(UnstackifyStateHistory history, BCVertex vertex)
 		{
-			var replacements = Variables
+			var replacements = history.StackValues
 				.SelectMany(p => p.AccessCounter)
 				.Where(p => p.Vertex == vertex)
 				.ToList();

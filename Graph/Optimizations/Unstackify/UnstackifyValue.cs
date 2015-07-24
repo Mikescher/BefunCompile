@@ -1,12 +1,14 @@
 ﻿using BefunCompile.Graph.Expression;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace BefunCompile.Graph.Optimizations.Unstackify
 {
 	public class UnstackifyValue
 	{
 		public List<UnstackifyValueAccess> AccessCounter;
+		public HashSet<BCVertex> Scope;
 
 		public ExpressionVariable Replacement;
 
@@ -16,13 +18,14 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		public UnstackifyValue()
 		{
+			Scope = new HashSet<BCVertex>();
 			AccessCounter = new List<UnstackifyValueAccess>();
 			IsPoisoned = false;
 		}
 
 		public UnstackifyValue(UnstackifyValueAccess value)
+			: this()
 		{
-			AccessCounter = new List<UnstackifyValueAccess>();
 			AddAccess(value);
 		}
 
@@ -41,9 +44,19 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			AddAccess(new UnstackifyValueAccess(vx, type));
 		}
 
+		public void AddScope(BCVertex vertex)
+		{
+			Scope.Add(vertex);
+        }
+
 		public void AddAccess(BCVertex vx, UnstackifyValueAccessType type, UnstackifyValueAccessModifier mod)
 		{
 			AddAccess(new UnstackifyValueAccess(vx, type, mod));
+		}
+
+		public bool IsDistinctScope(UnstackifyValue other)
+		{
+			return !Scope.Any(p => other.Scope.Contains(p));
 		}
 
 		public void Poison()

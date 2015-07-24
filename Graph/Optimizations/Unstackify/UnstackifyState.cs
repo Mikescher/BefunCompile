@@ -1,6 +1,7 @@
 ﻿using BefunCompile.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace BefunCompile.Graph.Optimizations.Unstackify
 {
@@ -42,6 +43,11 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 				throw new UnstackifyWalkInvalidPeekException();
 
 			return Stack.Last();
+		}
+
+		public void AddScope(BCVertex vertex)
+		{
+			Stack.ForEach(p => p.AddScope(vertex));
 		}
 
 		public static bool StatesEqual(UnstackifyState a, UnstackifyState b)
