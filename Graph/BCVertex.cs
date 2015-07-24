@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
@@ -205,5 +206,8 @@ namespace BefunCompile.Graph
 		public abstract string GenerateCodeCSharp(BCGraph g);
 		public abstract string GenerateCodeC(BCGraph g);
 		public abstract string GenerateCodePython(BCGraph g);
+
+		public abstract UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state);
+		public abstract BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access);
 	}
 }

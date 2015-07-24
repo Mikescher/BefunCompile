@@ -1,5 +1,6 @@
 ﻿
 using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -109,6 +110,27 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodePython(BCGraph g)
 		{
 			return "v0=sp()" + Environment.NewLine + "v1=sp()" + Environment.NewLine + "sa(v0)" + Environment.NewLine + "sa(v1)";
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			state.Peek().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.POS_TOP));
+			state.Swap();
+			state.Peek().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.POS_BOT));
+
+			return state;
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			var var_top = access.SingleOrDefault(p => p.Modifier == UnstackifyValueAccessModifier.POS_TOP);
+			var var_bot = access.SingleOrDefault(p => p.Modifier == UnstackifyValueAccessModifier.POS_BOT);
+
+			if (var_top == null && var_bot == null) return this;
+
+			return new BCVertexNOP(Direction, Positions);
 		}
 	}
 }

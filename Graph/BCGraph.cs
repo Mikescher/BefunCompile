@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
@@ -150,6 +151,139 @@ namespace BefunCompile.Graph
 				{
 					yield return jump;
 				}
+			}
+		}
+
+		public void RemoveVertex(BCVertex oldVertex)
+		{
+			if (oldVertex.Children.Count != 1)
+			{
+				ReplaceVertex(oldVertex, new BCVertexNOP(BCDirection.UNKNOWN, oldVertex.Positions));
+				return;
+			}
+
+			Vertices.Remove(oldVertex);
+
+			var child = oldVertex.Children.Single();
+			child.Parents.Remove(oldVertex);
+
+			foreach (var parent in oldVertex.Parents)
+			{
+				parent.Children.Remove(oldVertex);
+
+				parent.Children.Add(child);
+				if (parent is IDecisionVertex)
+				{
+					if ((parent as IDecisionVertex).EdgeTrue == oldVertex)
+						(parent as IDecisionVertex).EdgeTrue = child;
+
+					if ((parent as IDecisionVertex).EdgeFalse == oldVertex)
+						(parent as IDecisionVertex).EdgeFalse = child;
+				}
+				child.Parents.Add(parent);
+			}
+
+
+			if (!TestGraph())
+				throw new Exception("Internal Parent Exception :( ");
+		}
+
+		public void ReplaceVertex(BCVertex oldVertex, BCVertex newVertex)
+		{
+			if (oldVertex == newVertex) return;
+
+			Vertices.Remove(oldVertex);
+			Vertices.Add(newVertex);
+
+			if (Root == oldVertex)
+				Root = newVertex;
+
+			foreach (var parent in oldVertex.Parents)
+			{
+				parent.Children.Remove(oldVertex);
+				parent.Children.Add(newVertex);
+				if (parent is IDecisionVertex)
+				{
+					if ((parent as IDecisionVertex).EdgeTrue == oldVertex)
+						(parent as IDecisionVertex).EdgeTrue = newVertex;
+
+					if ((parent as IDecisionVertex).EdgeFalse == oldVertex)
+						(parent as IDecisionVertex).EdgeFalse = newVertex;
+				}
+
+				newVertex.Parents.Add(parent);
+			}
+
+			foreach (var child in oldVertex.Children)
+			{
+				child.Parents.Remove(oldVertex);
+				child.Parents.Add(newVertex);
+
+				if (newVertex is IDecisionVertex && (oldVertex as IDecisionVertex).EdgeTrue == child)
+					(newVertex as IDecisionVertex).EdgeTrue = child;
+
+				if (newVertex is IDecisionVertex && (oldVertex as IDecisionVertex).EdgeFalse == child)
+					(newVertex as IDecisionVertex).EdgeFalse = child;
+
+				newVertex.Children.Add(child);
+			}
+
+
+			if (!TestGraph())
+				throw new Exception("Internal Parent Exception :( ");
+		}
+
+		public void ReplaceVertex(BCVertex oldVertex, List<BCVertex> newVerticies)
+		{
+			if (newVerticies.Count == 1)
+			{
+				ReplaceVertex(oldVertex, newVerticies.Single());
+				return;
+			}
+
+			var newFirst = newVerticies.First();
+			var newLast = newVerticies.Last();
+
+			Vertices.Remove(oldVertex);
+			Vertices.AddRange(newVerticies);
+
+			if (Root == oldVertex)
+				Root = newFirst;
+
+			for (int i = 1; i < newVerticies.Count; i++)
+			{
+				newVerticies[i - 1].Children.Add(newVerticies[i]);
+				newVerticies[i].Parents.Add(newVerticies[i - 1]);
+			}
+
+			foreach (var parent in oldVertex.Parents)
+			{
+				parent.Children.Remove(oldVertex);
+				parent.Children.Add(newFirst);
+				if (parent is IDecisionVertex)
+				{
+					if ((parent as IDecisionVertex).EdgeTrue == oldVertex)
+						(parent as IDecisionVertex).EdgeTrue = newFirst;
+
+					if ((parent as IDecisionVertex).EdgeFalse == oldVertex)
+						(parent as IDecisionVertex).EdgeFalse = newFirst;
+				}
+
+				newFirst.Parents.Add(parent);
+			}
+
+			foreach (var child in oldVertex.Children)
+			{
+				child.Parents.Remove(oldVertex);
+				child.Parents.Add(newLast);
+
+				if (newLast is IDecisionVertex && (oldVertex as IDecisionVertex).EdgeTrue == child)
+					(newLast as IDecisionVertex).EdgeTrue = child;
+
+				if (newLast is IDecisionVertex && (oldVertex as IDecisionVertex).EdgeFalse == child)
+					(newLast as IDecisionVertex).EdgeFalse = child;
+
+				newLast.Children.Add(child);
 			}
 		}
 
@@ -452,12 +586,12 @@ namespace BefunCompile.Graph
 			rule2.AddPreq(v => v is BCVertexExpression);
 			rule2.AddPreq(v => v is BCVertexExpression);
 			rule2.AddPreq(v => v is BCVertexSet);
-			rule2.AddRep((l, p) => new BCVertexExprSet(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression));
+			rule2.AddRep((l, p) => new BCVertexExprPopSet(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression));
 
 			var rule3 = new BCModRule();
 			rule3.AddPreq(v => v is BCVertexExpression);
-			rule3.AddPreq(v => v is BCVertexExprSet);
-			rule3.AddRep((l, p) => new BCVertexTotalSet(BCDirection.UNKNOWN, p, ((BCVertexExprSet)l[1]).X, ((BCVertexExprSet)l[1]).Y, ((BCVertexExpression)l[0]).Expression));
+			rule3.AddPreq(v => v is BCVertexExprPopSet);
+			rule3.AddRep((l, p) => new BCVertexExprSet(BCDirection.UNKNOWN, p, ((BCVertexExprPopSet)l[1]).X, ((BCVertexExprPopSet)l[1]).Y, ((BCVertexExpression)l[0]).Expression));
 
 			var rule4 = new BCModRule();
 			rule4.AddPreq(v => v is BCVertexExprGet);
@@ -467,7 +601,7 @@ namespace BefunCompile.Graph
 
 			var rule5 = new BCModRule();
 			rule5.AddPreq(v => !v.IsCodePathSplit() && v.IsNotGridAccess() && v.IsNotVariableAccess()); // <-- Stack Access
-			rule5.AddPreq(v => ((v is BCVertexTotalSet || v is BCVertexTotalVarSet) && v.IsNotStackAccess())); // <-- No Stack Access
+			rule5.AddPreq(v => ((v is BCVertexExprSet || v is BCVertexExprVarSet) && v.IsNotStackAccess())); // <-- No Stack Access
 			rule5.AddRep((l, p) => l[1].Duplicate());
 			rule5.AddRep((l, p) => l[0].Duplicate());
 
@@ -589,7 +723,7 @@ namespace BefunCompile.Graph
 			Variables = ios
 				.Select(p => new Vec2l(p.getX().Calculate(null), p.getY().Calculate(null)))
 				.Distinct()
-				.Select((p, i) => ExpressionVariable.Create("x" + i, gridGetter(p.X, p.Y), p))
+				.Select((p, i) => ExpressionVariable.CreateUserVariable(i, gridGetter(p.X, p.Y), p))
 				.ToList();
 
 			var vardic = new Dictionary<Vec2l, ExpressionVariable>();
@@ -597,15 +731,15 @@ namespace BefunCompile.Graph
 
 			BCModRule vertexRule1 = new BCModRule();
 			vertexRule1.AddPreq(p => p is BCVertexExprGet && ios.Contains((MemoryAccess)p));
-			vertexRule1.AddRep((l, p) => new BCVertexExprVarGet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprGet)l[0]).getConstantPos()]));
+			vertexRule1.AddRep((l, p) => new BCVertexVarGet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprGet)l[0]).getConstantPos()]));
 
 			BCModRule vertexRule2 = new BCModRule();
-			vertexRule2.AddPreq(p => p is BCVertexExprSet && ios.Contains((MemoryAccess)p));
-			vertexRule2.AddRep((l, p) => new BCVertexExprVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprSet)l[0]).getConstantPos()]));
+			vertexRule2.AddPreq(p => p is BCVertexExprPopSet && ios.Contains((MemoryAccess)p));
+			vertexRule2.AddRep((l, p) => new BCVertexVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprPopSet)l[0]).getConstantPos()]));
 
 			BCModRule vertexRule3 = new BCModRule();
-			vertexRule3.AddPreq(p => p is BCVertexTotalSet && ios.Contains((MemoryAccess)p));
-			vertexRule3.AddRep((l, p) => new BCVertexTotalVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexTotalSet)l[0]).getConstantPos()], ((BCVertexTotalSet)l[0]).Value));
+			vertexRule3.AddPreq(p => p is BCVertexExprSet && ios.Contains((MemoryAccess)p));
+			vertexRule3.AddRep((l, p) => new BCVertexExprVarSet(BCDirection.UNKNOWN, p, vardic[((BCVertexExprSet)l[0]).getConstantPos()], ((BCVertexExprSet)l[0]).Value));
 
 			BCExprModRule exprRule1 = new BCExprModRule();
 			exprRule1.setPreq(p => p is ExpressionGet && ios.Contains((MemoryAccess)p));
@@ -661,8 +795,8 @@ namespace BefunCompile.Graph
 
 			BCModRule combRule7 = new BCModRule();
 			combRule7.AddPreq(p => p is BCVertexDup);
-			combRule7.AddPreq(p => p is BCVertexExprVarSet);
-			combRule7.AddRep((l, p) => new BCVertexTotalVarSet(BCDirection.UNKNOWN, p, (l[1] as BCVertexExprVarSet).Variable, ExpressionPeek.Create()));
+			combRule7.AddPreq(p => p is BCVertexVarSet);
+			combRule7.AddRep((l, p) => new BCVertexExprVarSet(BCDirection.UNKNOWN, p, (l[1] as BCVertexVarSet).Variable, ExpressionPeek.Create()));
 
 			bool[] cb = new[]
 			{
@@ -819,7 +953,18 @@ namespace BefunCompile.Graph
 
 		#endregion
 
-		#region O:5 Combine
+		#region O:5 Unstackify
+
+		public bool Unstackify()
+		{
+			var walker = new UnstackifyWalker(this);
+
+			return walker.Run();
+		}
+
+		#endregion
+
+		#region O:6 Combine
 
 		public bool CombineBlocks()
 		{
@@ -849,7 +994,7 @@ namespace BefunCompile.Graph
 
 		#endregion
 
-		#region O:6 Reduce
+		#region O:7 Reduce
 
 		public bool ReduceBlocks()
 		{
@@ -890,9 +1035,9 @@ namespace BefunCompile.Graph
 				for (int i = 0; i < BRoot.nodes.Length; i++)
 				{
 					BCVertex node = BRoot.nodes[i];
-					if (node is BCVertexTotalVarSet && (node as BCVertexTotalVarSet).Variable == variable && (node as BCVertexTotalVarSet).Value is ExpressionConstant)
+					if (node is BCVertexExprVarSet && (node as BCVertexExprVarSet).Variable == variable && (node as BCVertexExprVarSet).Value is ExpressionConstant)
 					{
-						long ivalue = ((node as BCVertexTotalVarSet).Value as ExpressionConstant).Value;
+						long ivalue = ((node as BCVertexExprVarSet).Value as ExpressionConstant).Value;
 						variable.initial = ivalue;
 
 						BCVertex newnode = BRoot.GetWithRemovedNode(node);

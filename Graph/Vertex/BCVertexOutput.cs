@@ -1,4 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -126,6 +127,20 @@ namespace BefunCompile.Graph.Vertex
 				return string.Format("print({0},end=\"\",flush=True)", "sp()");
 			else
 				return string.Format("print(chr({0}),end=\"\",flush=True)", "sp()");
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			state.Pop().AddAccess(this, UnstackifyValueAccessType.READ);
+
+			return state;
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			return new BCVertexExprOutput(Direction, Positions, ModeInteger, access.Single().Value.Replacement);
 		}
 	}
 }

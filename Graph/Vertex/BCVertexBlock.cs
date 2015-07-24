@@ -1,9 +1,11 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BefunCompile.Exceptions;
 
 namespace BefunCompile.Graph.Vertex
 {
@@ -23,7 +25,7 @@ namespace BefunCompile.Graph.Vertex
 			nodes = new BCVertex[] { inner };
 		}
 
-		public BCVertexBlock(BCDirection d, Vec2i[] pos, BCVertex[] nodearr)
+		public BCVertexBlock(BCDirection d, Vec2i[] pos, params BCVertex[] nodearr)
 			: base(d, pos)
 		{
 			nodes = nodearr.ToArray();
@@ -138,6 +140,16 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodePython(BCGraph g)
 		{
 			return string.Join("", nodes.Select(p => p.GenerateCodePython(g) + Environment.NewLine));
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			throw new CodeGenException("O:5 is not valid on node type " + this.GetType().Name);
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			throw new CodeGenException("O:5 is not valid on node type " + this.GetType().Name);
 		}
 	}
 }

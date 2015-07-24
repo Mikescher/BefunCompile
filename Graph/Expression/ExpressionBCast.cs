@@ -1,4 +1,5 @@
 ﻿
+using BefunCompile.Graph.Optimizations.Unstackify;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -139,6 +140,11 @@ namespace BefunCompile.Graph.Expression
 		public override bool IsNotVariableAccess()
 		{
 			return Value.IsNotVariableAccess();
+		}
+
+		public override BCExpression ReplaceUnstackify(UnstackifyValueAccess access)
+		{
+			return ExpressionBCast.Create(Value.ReplaceUnstackify(access));
 		}
 	}
 }

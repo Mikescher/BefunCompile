@@ -1,4 +1,5 @@
 ﻿
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -12,16 +13,29 @@ namespace BefunCompile.Graph.Expression
 
 		public readonly Vec2l position;
 
-		private ExpressionVariable(string ident, long init, Vec2l pos)
+		public readonly bool isUserDefinied;
+
+		private ExpressionVariable(string ident, long init, Vec2l pos, bool usrVar)
 		{
 			this.Identifier = ident;
 			this.initial = init;
 			this.position = pos;
+			this.isUserDefinied = usrVar;
 		}
 
-		public static ExpressionVariable Create(string ident, long init, Vec2l pos)
+		public static ExpressionVariable Create(string ident, long init, Vec2l pos, bool usrVar)
 		{
-			return new ExpressionVariable(ident, init, pos);
+			return new ExpressionVariable(ident, init, pos, usrVar);
+		}
+
+		public static ExpressionVariable CreateUserVariable(int ident_idx, long init, Vec2l pos)
+		{
+			return ExpressionVariable.Create("x" + ident_idx, init, pos, true);
+		}
+
+		public static ExpressionVariable CreateSystemVariable(int ident_idx)
+		{
+			return ExpressionVariable.Create("t" + ident_idx, 0, null, false);
 		}
 
 		public override long Calculate(CalculateInterface ci)
@@ -103,6 +117,11 @@ namespace BefunCompile.Graph.Expression
 		public override bool IsNotVariableAccess()
 		{
 			return false;
+		}
+
+		public override BCExpression ReplaceUnstackify(UnstackifyValueAccess access)
+		{
+			return this;
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -7,17 +8,17 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexExprVarGet : BCVertex, MemoryAccess
+	public class BCVertexVarSet : BCVertex, MemoryAccess
 	{
 		public ExpressionVariable Variable;
 
-		public BCVertexExprVarGet(BCDirection d, Vec2i pos, ExpressionVariable var)
+		public BCVertexVarSet(BCDirection d, Vec2i pos, ExpressionVariable var)
 			: base(d, new Vec2i[] { pos })
 		{
 			this.Variable = var;
 		}
 
-		public BCVertexExprVarGet(BCDirection d, Vec2i[] pos, ExpressionVariable var)
+		public BCVertexVarSet(BCDirection d, Vec2i[] pos, ExpressionVariable var)
 			: base(d, pos)
 		{
 			this.Variable = var;
@@ -25,21 +26,12 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return "GET(" + Variable.GetRepresentation() + ")";
+			return "SET(" + Variable.GetRepresentation() + ")";
 		}
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexExprVarGet(Direction, Positions, Variable);
-		}
-
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
-		{
-			stackbuilder.Push(ci.GetVariableValue(Variable));
-
-			if (Children.Count > 1)
-				throw new ArgumentException("#");
-			return Children.FirstOrDefault();
+			return new BCVertexVarSet(Direction, Positions, Variable);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
@@ -52,9 +44,13 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public BCExpression ToExpression()
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
-			return Variable;
+			ci.SetVariableValue(Variable, stackbuilder.Pop());
+
+			if (Children.Count > 1)
+				throw new ArgumentException("#");
+			return Children.FirstOrDefault();
 		}
 
 		public BCExpression getX()
@@ -87,6 +83,7 @@ namespace BefunCompile.Graph.Vertex
 				Variable = (ExpressionVariable)replacement(Variable);
 				found = true;
 			}
+
 			if (Variable.Subsitute(prerequisite, replacement))
 			{
 				found = true;
@@ -137,17 +134,31 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("sa({0});", Variable.Identifier);
+			return string.Format("{0}=sp();", Variable.Identifier);
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("sa({0});", Variable.Identifier);
+			return string.Format("{0}=sp();", Variable.Identifier);
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("sa({0})", Variable.Identifier);
+			return string.Format("{0}=sp()", Variable.Identifier);
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			state.Pop().AddAccess(this, UnstackifyValueAccessType.READ);
+
+			return state;
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			return new BCVertexExprVarSet(Direction, Positions, Variable, access.Single().Value.Replacement);
 		}
 	}
 }

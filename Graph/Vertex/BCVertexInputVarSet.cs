@@ -1,58 +1,56 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BefunCompile.Exceptions;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexTotalVarSet : BCVertex, MemoryAccess
+	public class BCVertexInputVarSet : BCVertex, MemoryAccess
 	{
 		public ExpressionVariable Variable;
-		public BCExpression Value;
+		public readonly bool modeInteger; // true = int | false = char
 
-		public BCVertexTotalVarSet(BCDirection d, Vec2i pos, ExpressionVariable var, BCExpression val)
+		public BCVertexInputVarSet(BCDirection d, Vec2i pos, ExpressionVariable var, bool modeInt)
 			: base(d, new Vec2i[] { pos })
 		{
 			this.Variable = var;
-			this.Value = val;
+			this.modeInteger = modeInt;
 		}
 
-		public BCVertexTotalVarSet(BCDirection d, Vec2i[] pos, ExpressionVariable var, BCExpression val)
+		public BCVertexInputVarSet(BCDirection d, Vec2i[] pos, ExpressionVariable var, bool modeInt)
 			: base(d, pos)
 		{
 			this.Variable = var;
-			this.Value = val;
+			this.modeInteger = modeInt;
 		}
 
 		public override string ToString()
 		{
-			return string.Format("SET({0}) = {1}", Variable, Value);
+			return string.Format("SET({0}) = IN({1})", Variable, modeInteger ? "INT" : "CHAR");
 		}
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexTotalVarSet(Direction, Positions, Variable, Value);
+			return new BCVertexInputVarSet(Direction, Positions, Variable, modeInteger);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
-			return Value.ListConstantVariableAccess();
+			return Enumerable.Empty<MemoryAccess>();
 		}
 
 		public override IEnumerable<MemoryAccess> ListDynamicVariableAccess()
 		{
-			return Value.ListDynamicVariableAccess();
+			return Enumerable.Empty<MemoryAccess>();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
-			ci.SetVariableValue(Variable, Value.Calculate(ci));
-
-			if (Children.Count > 1)
-				throw new ArgumentException("#");
-			return Children.FirstOrDefault();
+			throw new GraphExecuteException();
 		}
 
 		public BCExpression getX()
@@ -90,27 +88,17 @@ namespace BefunCompile.Graph.Vertex
 				found = true;
 			}
 
-			if (prerequisite(Value))
-			{
-				Value = replacement(Value);
-				found = true;
-			}
-			if (Value.Subsitute(prerequisite, replacement))
-			{
-				found = true;
-			}
-
 			return found;
 		}
 
 		public override bool IsNotGridAccess()
 		{
-			return Value.IsNotGridAccess();
+			return true;
 		}
 
 		public override bool IsNotStackAccess()
 		{
-			return Value.IsNotStackAccess();
+			return true;
 		}
 
 		public override bool IsNotVariableAccess()
@@ -135,7 +123,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return Variable.GetVariables().Concat(Value.GetVariables());
+			return Variable.GetVariables();
 		}
 
 		public override IEnumerable<int> GetAllJumps(BCGraph g)
@@ -145,17 +133,36 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("{0}={1};", Variable.Identifier, Value.GenerateCodeCSharp(g));
+			if (modeInteger)
+				return string.Format("{long v0;while(long.TryParse(System.Console.ReadLine(),out v0));{0}=v0;}", Variable.Identifier);
+			else
+				return string.Format("{0}=System.Console.ReadLine();", Variable.Identifier);
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("{0}={1};", Variable.Identifier, Value.GenerateCodeC(g));
+			if (modeInteger)
+				return string.Format("{char v0[128];int64 v1;fgets(v0,sizeof(v0),stdin);sscanf(v0,\"%lld\",&v1);{0}=v1;}", Variable.Identifier);
+			else
+				return string.Format("{0}=getchar();", Variable.Identifier);
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("{0}={1}", Variable.Identifier, Value.GenerateCodePython(g));
+			if (modeInteger)
+				return string.Format("{0}=int(input(\"\"))", Variable.Identifier);
+			else
+				return string.Format("{0}=ord(input(\"\")[0])", Variable.Identifier);
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			return state.Clone();
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			return this;
 		}
 	}
 }

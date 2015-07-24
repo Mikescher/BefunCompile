@@ -1,4 +1,5 @@
 ﻿using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -287,6 +288,81 @@ namespace BefunCompile.Graph.Vertex
 			}
 
 			return codebuilder.ToString();
+		}
+
+		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
+		{
+			state = state.Clone();
+
+			state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.RIGHT_EXPR));
+			state.Pop().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.LEFT_EXPR));
+			state.Push(new UnstackifyValue(this, UnstackifyValueAccessType.WRITE));
+
+			return state;
+		}
+
+		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
+		{
+			var var_target = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.WRITE);
+			var var_left = access.SingleOrDefault(p => p.Modifier == UnstackifyValueAccessModifier.LEFT_EXPR);
+			var var_right = access.SingleOrDefault(p => p.Modifier == UnstackifyValueAccessModifier.RIGHT_EXPR);
+
+
+			if (var_target == null && var_left == null && var_right != null) // 0 . 0 . 1
+			{
+				return new BCVertexExprPopBinaryMath(Direction, Positions, var_right.Value.Replacement, MathType);
+			}
+
+			if (var_target == null && var_left != null && var_right == null) // 0 . 1 . 0
+			{
+				var v_a = new BCVertexExpression(Direction, Positions, var_left.Value.Replacement);
+				var v_b = new BCVertexSwap(Direction, Positions);
+				var v_c = new BCVertexBinaryMath(Direction, Positions, MathType);
+
+				return new BCVertexBlock(Direction, Positions, v_a, v_b, v_c);
+			}
+
+			if (var_target == null && var_left != null && var_right != null) // 0 . 1 . 1
+			{
+				var expr = ExpressionBinMath.Create(var_left.Value.Replacement, var_right.Value.Replacement, MathType);
+
+				return new BCVertexExpression(Direction, Positions, expr);
+			}
+
+			if (var_target != null && var_left == null && var_right == null) // 1 . 0 . 0
+			{
+				var v_a = new BCVertexBinaryMath(Direction, Positions, MathType);
+				var v_b = new BCVertexVarSet(Direction, Positions, var_target.Value.Replacement);
+
+				return new BCVertexBlock(Direction, Positions, v_a, v_b);
+			}
+
+			if (var_target != null && var_left == null && var_right != null) // 1 . 0 . 1
+			{
+				var v_a = new BCVertexExprPopBinaryMath(Direction, Positions, var_right.Value.Replacement, MathType);
+				var v_b = new BCVertexVarSet(Direction, Positions, var_target.Value.Replacement);
+
+				return new BCVertexBlock(Direction, Positions, v_a, v_b);
+			}
+
+			if (var_target != null && var_left != null && var_right == null) // 1 . 1 . 0
+			{
+				var v_a = new BCVertexExpression(Direction, Positions, var_left.Value.Replacement);
+				var v_b = new BCVertexSwap(Direction, Positions);
+				var v_c = new BCVertexBinaryMath(Direction, Positions, MathType);
+				var v_d = new BCVertexVarSet(Direction, Positions, var_target.Value.Replacement);
+
+				return new BCVertexBlock(Direction, Positions, v_a, v_b, v_c, v_d);
+			}
+
+			if (var_target != null && var_left != null && var_right != null) // 1 . 1 . 1
+			{
+				var expr = ExpressionBinMath.Create(var_left.Value.Replacement, var_right.Value.Replacement, MathType);
+
+				return new BCVertexExprVarSet(Direction, Positions, var_target.Value.Replacement, expr);
+			}
+
+			throw new Exception();
 		}
 	}
 }
