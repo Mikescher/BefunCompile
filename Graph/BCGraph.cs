@@ -955,11 +955,11 @@ namespace BefunCompile.Graph
 
 		#region O:5 Unstackify
 
-		public void Unstackify()
+		public bool Unstackify()
 		{
 			var walker = new UnstackifyWalker(this);
 
-			walker.Run();
+			return walker.Run();
 		}
 
 		#endregion

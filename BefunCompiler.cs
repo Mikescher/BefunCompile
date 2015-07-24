@@ -276,7 +276,29 @@ namespace BefunCompile
 
 			log_Cycles[lvl.Level] = 1;
 
+
 			return graph;
+
+			/*
+			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
+
+			for (int i = level; i != 0; i--)
+			{
+				bool op = graph.Unstackify();
+
+				if (!graph.TestGraph())
+					throw new Exception("Internal Parent Exception :( ");
+
+				if (!op)
+				{
+					log_Cycles[lvl.Level] = level - i;
+
+					break;
+				}
+			}
+
+			return graph;
+			 */
 		}
 
 		public BCGraph GenerateBlockCombinedGraph(GenerationLevel lvl, int level = -1) // O:6 
@@ -329,4 +351,4 @@ namespace BefunCompile
 //TODO BCVertexBinaryMath Replacements IN-BLOCK (+ possible others)
 //TODO evtl other optimizations (analyse code)
 //TODO Combine same blocks (see P059 :: [_29]==[_32]==[_33]=[_34])
-//TODO repeat until block
+//TODO repeat until block (O:7 - Structures)

@@ -16,7 +16,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			this.Graph = graph;
 		}
 
-		public void Run()
+		public bool Run()
 		{
 			UnstackifyStateHistory history = new UnstackifyStateHistory();
 
@@ -24,7 +24,9 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 			history.UpdatePoison();
 
-			ReplaceSystemVariables(history);
+			int repl = ReplaceSystemVariables(history);
+
+			return repl > 0;
 		}
 
 		private void Walk(BCVertex vertex, UnstackifyStateHistory history, UnstackifyState state)
@@ -78,7 +80,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			}
 		}
 
-		private void ReplaceSystemVariables(UnstackifyStateHistory history)
+		private int ReplaceSystemVariables(UnstackifyStateHistory history)
 		{
 			var Variables = history.StackValues.Where(p => !p.IsPoisoned).ToList();
 
@@ -95,6 +97,8 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			{
 				ReplaceVariablesInVertex(Variables, vertex);
 			}
+
+			return Variables.Count;
 		}
 
 		private void ReplaceVariablesInVertex(List<UnstackifyValue> Variables, BCVertex vertex)
