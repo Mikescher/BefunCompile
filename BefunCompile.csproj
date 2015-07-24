@@ -80,6 +80,7 @@
     <Compile Include="Graph\Optimizations\Unstackify\UnstackifyStateHistory.cs" />
     <Compile Include="Graph\Optimizations\Unstackify\UnstackifyValue.cs" />
     <Compile Include="Graph\Optimizations\Unstackify\UnstackifyWalker.cs" />
+    <Compile Include="Graph\Vertex\BCVertexGetVarSet.cs" />
     <Compile Include="Graph\Vertex\BCVertexPop.cs" />
     <Compile Include="Graph\Vertex\BCVertexNOP.cs" />
     <Compile Include="Graph\Vertex\BCVertexBinaryMath.cs" />

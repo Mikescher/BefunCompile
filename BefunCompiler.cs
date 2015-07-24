@@ -269,18 +269,6 @@ namespace BefunCompile
 		{
 			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
-			graph.Unstackify();
-
-			if (!graph.TestGraph())
-				throw new Exception("Internal Parent Exception :( ");
-
-			log_Cycles[lvl.Level] = 1;
-
-
-			return graph;
-
-			/*
-			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
 			for (int i = level; i != 0; i--)
 			{
@@ -298,7 +286,6 @@ namespace BefunCompile
 			}
 
 			return graph;
-			 */
 		}
 
 		public BCGraph GenerateBlockCombinedGraph(GenerationLevel lvl, int level = -1) // O:6 

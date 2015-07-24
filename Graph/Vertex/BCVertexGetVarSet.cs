@@ -8,28 +8,30 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexGet : BCVertex, MemoryAccess
+	public class BCVertexGetVarSet : BCVertex, MemoryAccess
 	{
-		public BCVertexGet(BCDirection d, Vec2i pos)
+		public ExpressionVariable Variable;
+
+		public BCVertexGetVarSet(BCDirection d, Vec2i pos, ExpressionVariable var)
 			: base(d, new Vec2i[] { pos })
 		{
-
+			this.Variable = var;
 		}
 
-		public BCVertexGet(BCDirection d, Vec2i[] pos)
+		public BCVertexGetVarSet(BCDirection d, Vec2i[] pos, ExpressionVariable var)
 			: base(d, pos)
 		{
-
+			this.Variable = var;
 		}
 
 		public override string ToString()
 		{
-			return "GET";
+			return "SET(" + Variable.GetRepresentation() + ") = GET";
 		}
 
 		public override BCVertex Duplicate()
 		{
-			return new BCVertexGet(Direction, Positions);
+			return new BCVertexGetVarSet(Direction, Positions, Variable);
 		}
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
@@ -47,7 +49,7 @@ namespace BefunCompile.Graph.Vertex
 			var yy = stackbuilder.Pop();
 			var xx = stackbuilder.Pop();
 
-			stackbuilder.Push(ci.GetGridValue(xx, yy));
+			ci.SetVariableValue(Variable, ci.GetGridValue(xx, yy));
 
 			if (Children.Count > 1)
 				throw new ArgumentException("#");
@@ -77,7 +79,20 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
 		{
-			return false;
+			bool found = false;
+
+			if (prerequisite(Variable))
+			{
+				Variable = (ExpressionVariable)replacement(Variable);
+				found = true;
+			}
+
+			if (Variable.Subsitute(prerequisite, replacement))
+			{
+				found = true;
+			}
+
+			return found;
 		}
 
 		public override bool IsNotGridAccess()
@@ -92,7 +107,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool IsNotVariableAccess()
 		{
-			return true;
+			return false;
 		}
 
 		public override bool IsCodePathSplit()
@@ -112,7 +127,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return Enumerable.Empty<ExpressionVariable>();
+			return Variable.GetVariables();
 		}
 
 		public override IEnumerable<int> GetAllJumps(BCGraph g)
@@ -122,17 +137,17 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return "{long v0=sp();sa(gr(sp(),v0));}";
+			return "{long v0=sp();"+ Variable.Identifier + "=gr(sp(),v0);}";
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return "{int64 v0=sp();sa(gr(sp(),v0));}";
+			return "{int64 v0=sp();" + Variable.Identifier + "=gr(sp(),v0);}";
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return "v0=sp()" + Environment.NewLine + "sa(gr(sp(),v0))";
+			return "v0=sp()" + Environment.NewLine + Variable.Identifier + "=gr(sp(),v0)";
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
@@ -141,11 +156,9 @@ namespace BefunCompile.Graph.Vertex
 
 			UnstackifyValue state_y = state.Pop();
 			UnstackifyValue state_x = state.Pop();
-
-
+			
 			state_y.AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDY));
 			state_x.AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDX));
-			state.Push(new UnstackifyValue(this, UnstackifyValueAccessType.WRITE));
 
 			state_y.LinkPoison(state_x);
 
@@ -154,26 +167,10 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			var var_write = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.WRITE);
-			var var_readx = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDX);
-			var var_ready = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDY);
-
-			if (var_write != null && var_readx != null)
-			{
-				return new BCVertexExprVarSet(Direction, Positions, var_write.Value.Replacement, ExpressionGet.Create(var_readx.Value.Replacement, var_ready.Value.Replacement));
-			}
-
-			if (var_write != null)
-			{
-				return new BCVertexGetVarSet(Direction, Positions, var_write.Value.Replacement);
-			}
-
-			if (var_readx != null)
-			{
-				return new BCVertexExpression(Direction, Positions, ExpressionGet.Create(var_readx.Value.Replacement, var_ready.Value.Replacement));
-			}
-
-			throw new Exception();
+			var var_readx = access.Single(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDX);
+			var var_ready = access.Single(p => p.Type == UnstackifyValueAccessType.READ && p.Modifier == UnstackifyValueAccessModifier.EXPR_GRIDY);
+			
+			return new BCVertexExprVarSet(Direction, Positions, Variable, ExpressionGet.Create(var_readx.Value.Replacement, var_ready.Value.Replacement));
 		}
 	}
 }

@@ -11,6 +11,10 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 	{
 		private readonly BCGraph Graph;
 
+		private int varIdentity = 0;
+
+		private HashSet<BCVertex> ProtectedVertices = new HashSet<BCVertex>();
+
 		public UnstackifyWalker(BCGraph graph)
 		{
 			this.Graph = graph;
@@ -85,8 +89,10 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		private int ReplaceSystemVariables(UnstackifyStateHistory history)
 		{
+			ProtectedVertices.ToList().ForEach(p => history.PoisonVertex(p));
+
 			history.RemovePoison();
-			history.CreateVariables(Graph);
+			history.CreateVariables(Graph, ref varIdentity);
 			
 			foreach (var vertex in Graph.Vertices.ToList())
 			{
@@ -128,13 +134,14 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 				}
 				else if (newVertex is BCVertexBlock)
 				{
+					(newVertex as BCVertexBlock).nodes.ToList().ForEach(p => ProtectedVertices.Add(p));
+
 					Graph.ReplaceVertex(vertex, (newVertex as BCVertexBlock).nodes.ToList());
 				}
 				else
 				{
 					Graph.ReplaceVertex(vertex, newVertex);
 				}
-
 			}
 		}
 	}

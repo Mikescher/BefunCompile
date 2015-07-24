@@ -27,11 +27,15 @@ namespace BefunCompile.Graph
 		private readonly MSZipImplementation MSZip = new MSZipImplementation();
 		private readonly GZipImplementation GZip = new GZipImplementation();
 
+		private readonly UnstackifyWalker UnstackifyWalker;
+
 		public BCGraph(long[,] sg, long w, long h)
 		{
 			SourceGrid = sg;
 			Width = w;
 			Height = h;
+
+			UnstackifyWalker = new UnstackifyWalker(this);
 		}
 
 		public BCVertex GetVertex(Vec2i pos, BCDirection dir)
@@ -957,9 +961,7 @@ namespace BefunCompile.Graph
 
 		public bool Unstackify()
 		{
-			var walker = new UnstackifyWalker(this);
-
-			return walker.Run();
+			return UnstackifyWalker.Run();
 		}
 
 		#endregion

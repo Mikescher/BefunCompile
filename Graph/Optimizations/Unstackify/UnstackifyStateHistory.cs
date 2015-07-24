@@ -42,7 +42,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			StackValues = new HashSet<UnstackifyValue>(StackValues.Where(p => !p.IsPoisoned));
 		}
 
-		public void CreateVariables(BCGraph graph)
+		public void CreateVariables(BCGraph graph, ref int identity)
 		{
 			var timetable = new List<List<UnstackifyValue>>();
 
@@ -65,10 +65,9 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 				}
 			}
 			
-			int idx = 0;
 			foreach (var row in timetable)
 			{
-				var systemvar = ExpressionVariable.CreateSystemVariable(idx++, row.Select(p => p.Scope.ToList()).ToList());
+				var systemvar = ExpressionVariable.CreateSystemVariable(identity++, row.Select(p => p.Scope.ToList()).ToList());
 				graph.Variables.Add(systemvar);
 
 				row.ForEach(p => p.Replacement = systemvar);
@@ -78,6 +77,13 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 		public int ValuesCount()
 		{
 			return StackValues.Count;
+		}
+
+		internal void PoisonVertex(BCVertex vertex)
+		{
+			StackValues.Where(p => p.Scope.Contains(vertex)).ToList().ForEach(p => p.Poison());
+
+			UpdatePoison();
 		}
 	}
 }
