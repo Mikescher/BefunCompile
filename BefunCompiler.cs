@@ -339,3 +339,4 @@ namespace BefunCompile
 //TODO evtl other optimizations (analyse code)
 //TODO Combine same blocks (see P059 :: [_29]==[_32]==[_33]=[_34])
 //TODO repeat until block (O:7 - Structures)
+//TODO stack unwindig (p-068 : output)

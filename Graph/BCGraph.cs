@@ -1142,7 +1142,12 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("static void Main(string[] args)");
 			codebuilder.AppendLine("{");
 
-			foreach (var variable in Variables)
+			if (Variables.Any(p => !p.isUserDefinied))
+			{
+				codebuilder.AppendLine(indent2 + "long " + string.Join(",", Variables.Where(p => !p.isUserDefinied)) + ";");
+			}
+
+			foreach (var variable in Variables.Where(p => p.isUserDefinied))
 			{
 				codebuilder.AppendLine(indent2 + "long " + variable.Identifier + "=" + variable.initial + ";");
 			}
@@ -1341,6 +1346,11 @@ namespace BefunCompile.Graph
 			codebuilder.AppendLine("int main(void)");
 			codebuilder.AppendLine("{");
 
+			if (Variables.Any(p => !p.isUserDefinied))
+			{
+				codebuilder.AppendLine(indent1 + "int64 " + string.Join(",", Variables.Where(p => !p.isUserDefinied)) + ";");
+			}
+
 			foreach (var variable in Variables)
 			{
 				codebuilder.AppendLine(indent1 + "int64 " + variable.Identifier + "=" + variable.initial + ";");
@@ -1538,7 +1548,7 @@ namespace BefunCompile.Graph
 			codebuilder.Append(GenerateHelperMethodsPython());
 			codebuilder.Append(GenerateStackAccessPython(implementSafeStackAccess));
 
-			foreach (var variable in Variables)
+			foreach (var variable in Variables.Where(p => p.isUserDefinied))
 				codebuilder.AppendLine(variable.Identifier + "=" + variable.initial);
 
 
