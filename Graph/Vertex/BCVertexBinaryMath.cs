@@ -313,7 +313,7 @@ namespace BefunCompile.Graph.Vertex
 				return new BCVertexExprPopBinaryMath(Direction, Positions, var_right.Value.Replacement, MathType);
 			}
 
-			if (var_target == null && var_left == null && var_right != null) // 0 . 1 . 0
+			if (var_target == null && var_left != null && var_right == null) // 0 . 1 . 0
 			{
 				var v_a = new BCVertexExpression(Direction, Positions, var_left.Value.Replacement);
 				var v_b = new BCVertexSwap(Direction, Positions);
