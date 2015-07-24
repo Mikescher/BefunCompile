@@ -119,10 +119,13 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 				var newVertex = vertex.ReplaceUnstackify(replacements);
 
-				if (newVertex is BCVertexBlock)
+				if (newVertex is BCVertexNOP)
+				{
+					Graph.RemoveVertex(vertex);
+				}
+				else if (newVertex is BCVertexBlock)
 				{
 					Graph.ReplaceVertex(vertex, (newVertex as BCVertexBlock).nodes.ToList());
-					
 				}
 				else
 				{

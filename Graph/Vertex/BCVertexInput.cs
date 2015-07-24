@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BefunCompile.Exceptions;
 
 namespace BefunCompile.Graph.Vertex
 {
@@ -52,7 +53,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
-			throw new System.NotImplementedException();
+			throw new GraphExecuteException();
 		}
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)

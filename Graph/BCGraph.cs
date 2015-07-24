@@ -154,6 +154,40 @@ namespace BefunCompile.Graph
 			}
 		}
 
+		public void RemoveVertex(BCVertex oldVertex)
+		{
+			if (oldVertex.Children.Count != 1)
+			{
+				ReplaceVertex(oldVertex, new BCVertexNOP(BCDirection.UNKNOWN, oldVertex.Positions));
+				return;
+			}
+
+			Vertices.Remove(oldVertex);
+
+			var child = oldVertex.Children.Single();
+			child.Parents.Remove(oldVertex);
+
+			foreach (var parent in oldVertex.Parents)
+			{
+				parent.Children.Remove(oldVertex);
+
+				parent.Children.Add(child);
+				if (parent is IDecisionVertex)
+				{
+					if ((parent as IDecisionVertex).EdgeTrue == oldVertex)
+						(parent as IDecisionVertex).EdgeTrue = child;
+
+					if ((parent as IDecisionVertex).EdgeFalse == oldVertex)
+						(parent as IDecisionVertex).EdgeFalse = child;
+				}
+				child.Parents.Add(parent);
+			}
+
+
+			if (!TestGraph())
+				throw new Exception("Internal Parent Exception :( ");
+		}
+
 		public void ReplaceVertex(BCVertex oldVertex, BCVertex newVertex)
 		{
 			Vertices.Remove(oldVertex);

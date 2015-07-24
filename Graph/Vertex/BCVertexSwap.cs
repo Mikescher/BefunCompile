@@ -116,14 +116,21 @@ namespace BefunCompile.Graph.Vertex
 		{
 			state = state.Clone();
 
+			state.Peek().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.POS_TOP));
 			state.Swap();
+			state.Peek().AddAccess(new UnstackifyValueAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.POS_BOT));
 
 			return state;
 		}
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			throw new NotImplementedException();
+			var var_top = access.SingleOrDefault(p => p.Modifier == UnstackifyValueAccessModifier.POS_TOP);
+			var var_bot = access.SingleOrDefault(p => p.Modifier == UnstackifyValueAccessModifier.POS_BOT);
+
+			if (var_top == null || var_bot == null) return new BCVertexNOP(Direction, Positions);
+			
+			return this;
 		}
 	}
 }

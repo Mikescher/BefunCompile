@@ -48,6 +48,7 @@
     <Compile Include="BefunCompiler.cs" />
     <Compile Include="Consoleprogram\CommandLineArguments.cs" />
     <Compile Include="Consoleprogram\Program.cs" />
+    <Compile Include="Exceptions\GraphExecuteException.cs" />
     <Compile Include="Exceptions\CodeGenException.cs" />
     <Compile Include="Exceptions\CodeParseException.cs" />
     <Compile Include="Exceptions\UnstackifyWalkInvalidSwapException.cs" />

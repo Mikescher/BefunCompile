@@ -10,6 +10,9 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 		EXPR_GRIDX,
 		EXPR_GRIDY,
 		EXPR_VALUE,
+
+		POS_TOP,
+		POS_BOT,
 	}
 
 	public enum UnstackifyValueAccessType
@@ -40,6 +43,11 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			Vertex = v;
 			Type = t;
 			Modifier = m;
+		}
+
+		public override string ToString()
+		{
+			return Type + " " + Modifier + ": " + Vertex;
 		}
 	}
 }

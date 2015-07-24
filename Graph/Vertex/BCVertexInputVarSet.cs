@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BefunCompile.Exceptions;
 
 namespace BefunCompile.Graph.Vertex
 {
@@ -49,7 +50,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
 		{
-			throw new System.NotImplementedException();
+			throw new GraphExecuteException();
 		}
 
 		public BCExpression getX()
@@ -161,7 +162,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			throw new NotImplementedException();
+			return this;
 		}
 	}
 }

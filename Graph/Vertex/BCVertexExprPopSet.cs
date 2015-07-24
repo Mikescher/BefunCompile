@@ -175,7 +175,7 @@ namespace BefunCompile.Graph.Vertex
 			}
 			else
 			{
-				throw new NotImplementedException();
+				throw new NotImplementedException(); //TODO Implement O:5
 			}
 
 			return state;

@@ -61,5 +61,11 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			PoisonLinks.Add(other);
 			other.PoisonLinks.Add(this);
 		}
+
+		public override string ToString()
+		{
+			return (IsPoisoned ? "[P]" : "[ ]") + "#" + AccessCounter.SelectMany(p => p.Vertex.Positions).Select(p => p.X*1000 + p.Y).Sum();
+		}
+
 	}
 }

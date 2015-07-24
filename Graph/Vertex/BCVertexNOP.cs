@@ -116,7 +116,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			throw new NotImplementedException();
+			return this;
 		}
 	}
 }
