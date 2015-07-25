@@ -343,6 +343,4 @@ namespace BefunCompile
 //      - while (??) { BLOCK }
 //      - if (??) { BLOCK }
 //      - if (??) { BLOCK } else (??) { BLOCK }
-//TODO stack unwindig (p-068 : output)
-//TODO ONly use L if needed
 //TODO Output: JAVA, JS

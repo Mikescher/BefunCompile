@@ -104,6 +104,15 @@ namespace BefunCompile.Graph
 					return false;
 			}
 
+			if (Variables.Where(p => !p.isUserDefinied).Any(p => p.initial != 0))
+				return false;
+
+			if (Variables.Where(p => !p.isUserDefinied).Any(p => p.Scope == null))
+				return false;
+
+			if (Variables.Where(p => p.isUserDefinied).Any(p => p.Scope != null))
+				return false;
+
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
 			Stack<BCVertex> untravelled = new Stack<BCVertex>();
 			untravelled.Push(Root);
@@ -604,8 +613,8 @@ namespace BefunCompile.Graph
 			rule4.AddRep((l, p) => { var v = l[0].Duplicate(); v.Positions = p; return v; });
 
 			var rule5 = new BCModRule();
-			rule5.AddPreq(v => !v.IsCodePathSplit() && v.IsNotGridAccess() && v.IsNotVariableAccess()); // <-- Stack Access
-			rule5.AddPreq(v => ((v is BCVertexExprSet || v is BCVertexExprVarSet) && v.IsNotStackAccess())); // <-- No Stack Access
+			rule5.AddPreq(v => !(v is BCVertexExprSet || v is BCVertexExprVarSet || v is BCVertexExprOutput || v is BCVertexStringOutput) && !v.IsCodePathSplit() && v.IsNotGridAccess() && v.IsNotVariableAccess()); // <-- Stack Access
+			rule5.AddPreq(v => (v is BCVertexExprSet || v is BCVertexExprVarSet || v is BCVertexExprOutput || v is BCVertexStringOutput) && v.IsNotStackAccess()); // <-- No Stack Access
 			rule5.AddRep((l, p) => l[1].Duplicate());
 			rule5.AddRep((l, p) => l[0].Duplicate());
 
@@ -618,6 +627,21 @@ namespace BefunCompile.Graph
 			rule7.AddPreq(v => v is BCVertexOutput);
 			rule7.AddRep((l, p) => new BCVertexExprOutput(BCDirection.UNKNOWN, p, ((BCVertexOutput)l[1]).ModeInteger, ((BCVertexExpression)l[0]).Expression));
 
+			var rule8 = new BCModRule();
+			rule8.AddPreq(v => v is BCVertexExprOutput && ((BCVertexExprOutput)v).Value is ExpressionConstant && ((ExpressionConstant)((BCVertexExprOutput)v).Value).IsSimpleASCIIChar());
+			rule8.AddPreq(v => v is BCVertexExprOutput && ((BCVertexExprOutput)v).Value is ExpressionConstant && ((ExpressionConstant)((BCVertexExprOutput)v).Value).IsSimpleASCIIChar());
+			rule8.AddRep((l, p) => new BCVertexStringOutput(BCDirection.UNKNOWN, p, ((ExpressionConstant)((BCVertexExprOutput)l[0]).Value).AsSimpleASCIIChar() + "" + ((ExpressionConstant)((BCVertexExprOutput)l[1]).Value).AsSimpleASCIIChar()));
+
+			var rule9 = new BCModRule();
+			rule9.AddPreq(v => v is BCVertexExprOutput && ((BCVertexExprOutput)v).Value is ExpressionConstant && ((ExpressionConstant)((BCVertexExprOutput)v).Value).IsSimpleASCIIChar());
+			rule9.AddPreq(v => v is BCVertexStringOutput);
+			rule9.AddRep((l, p) => new BCVertexStringOutput(BCDirection.UNKNOWN, p, ((ExpressionConstant)((BCVertexExprOutput)l[0]).Value).AsSimpleASCIIChar() + ((BCVertexStringOutput)l[1]).Value));
+
+			var rule10 = new BCModRule();
+			rule10.AddPreq(v => v is BCVertexStringOutput);
+			rule10.AddPreq(v => v is BCVertexExprOutput && ((BCVertexExprOutput)v).Value is ExpressionConstant && ((ExpressionConstant)((BCVertexExprOutput)v).Value).IsSimpleASCIIChar());
+			rule10.AddRep((l, p) => new BCVertexStringOutput(BCDirection.UNKNOWN, p, ((BCVertexStringOutput)l[0]).Value + ((ExpressionConstant)((BCVertexExprOutput)l[1]).Value).AsSimpleASCIIChar()));
+
 			bool[] cb = new[]
 			{
 				Substitute(),
@@ -629,6 +653,9 @@ namespace BefunCompile.Graph
 				rule5.Execute(this),
 				rule6.Execute(this),
 				rule7.Execute(this),
+				rule8.Execute(this),
+				rule9.Execute(this),
+				rule10.Execute(this),
 
 				IntegrateDecisions(),
 			};
@@ -1032,7 +1059,7 @@ namespace BefunCompile.Graph
 				return false;
 
 			BCVertexBlock BRoot = Root as BCVertexBlock;
-			foreach (var variable in Variables)
+			foreach (var variable in Variables.Where(p => p.isUserDefinied))
 			{
 				for (int i = 0; i < BRoot.nodes.Length; i++)
 				{

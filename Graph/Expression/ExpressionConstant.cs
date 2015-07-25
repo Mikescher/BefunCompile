@@ -97,5 +97,15 @@ namespace BefunCompile.Graph.Expression
 		{
 			return this;
 		}
+
+		public bool IsSimpleASCIIChar()
+		{
+			return (Value >= ' ' && Value <= '~' && Value != '\"' && Value != '\\');
+		}
+
+		public char AsSimpleASCIIChar()
+		{
+			return (char)(Value % 128);
+		}
 	}
 }
