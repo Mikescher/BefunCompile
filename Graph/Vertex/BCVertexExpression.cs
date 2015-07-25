@@ -122,17 +122,17 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("sa({0});", Expression.GenerateCodeCSharp(g));
+			return string.Format("sa({0});", Expression.GenerateCodeCSharp(g, false));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("sa({0});", Expression.GenerateCodeC(g));
+			return string.Format("sa({0});", Expression.GenerateCodeC(g, false));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("sa({0})", Expression.GenerateCodePython(g));
+			return string.Format("sa({0})", Expression.GenerateCodePython(g, false));
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

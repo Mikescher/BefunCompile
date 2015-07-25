@@ -1351,7 +1351,7 @@ namespace BefunCompile.Graph
 				codebuilder.AppendLine(indent1 + "int64 " + string.Join(",", Variables.Where(p => !p.isUserDefinied)) + ";");
 			}
 
-			foreach (var variable in Variables)
+			foreach (var variable in Variables.Where(p => p.isUserDefinied))
 			{
 				codebuilder.AppendLine(indent1 + "int64 " + variable.Identifier + "=" + variable.initial + ";");
 			}

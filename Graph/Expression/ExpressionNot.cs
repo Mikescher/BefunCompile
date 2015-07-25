@@ -111,34 +111,45 @@ namespace BefunCompile.Graph.Expression
 			return true;
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override bool IsAlwaysLongReturn()
 		{
-			return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
+			return false;
 		}
 
-		public override string GenerateCodeC(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeC(g), NeedsParen()));
+			if (forceLongReturn)
+				return string.Format("({0}!=0)?0L:1L", Paren(Value.GenerateCodeCSharp(g, false), NeedsParen()));
+			else
+				return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeCSharp(g, false), NeedsParen()));
 		}
 
-		public override string GenerateCodePython(BCGraph g)
+		public override string GenerateCodeC(BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("(0)if({0}!=0)else(1)", Paren(Value.GenerateCodePython(g), NeedsParen()));
+			if (forceLongReturn)
+				return string.Format("({0}!=0)?0LL:1LL", Paren(Value.GenerateCodeC(g, false), NeedsParen()));
+			else
+				return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeC(g, false), NeedsParen()));
 		}
 
-		public string GenerateDecisionCodeCSharp(BCGraph g)
+		public override string GenerateCodePython(BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodeCSharp(g), NeedsParen()));
+			return string.Format("(0)if({0}!=0)else(1)", Paren(Value.GenerateCodePython(g, false), NeedsParen()));
 		}
 
-		public string GenerateDecisionCodeC(BCGraph g)
+		public string GenerateDecisionCodeCSharp(BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodeC(g), NeedsParen()));
+			return string.Format("{0}==0", Paren(Value.GenerateCodeCSharp(g, false), NeedsParen()));
 		}
 
-		public string GenerateDecisionCodePython(BCGraph g)
+		public string GenerateDecisionCodeC(BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodePython(g), NeedsParen()));
+			return string.Format("{0}==0", Paren(Value.GenerateCodeC(g, false), NeedsParen()));
+		}
+
+		public string GenerateDecisionCodePython(BCGraph g, bool forceLongReturn)
+		{
+			return string.Format("{0}==0", Paren(Value.GenerateCodePython(g, false), NeedsParen()));
 		}
 
 		public override bool IsNotGridAccess()

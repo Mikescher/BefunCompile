@@ -21,9 +21,11 @@ namespace BefunCompile.Graph.Expression
 
 		public abstract IEnumerable<ExpressionVariable> GetVariables();
 
-		public abstract string GenerateCodeCSharp(BCGraph g);
-		public abstract string GenerateCodeC(BCGraph g);
-		public abstract string GenerateCodePython(BCGraph g);
+		public abstract bool IsAlwaysLongReturn();
+
+		public abstract string GenerateCodeCSharp(BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeC(BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodePython(BCGraph g, bool forceLongReturn);
 
 		public abstract BCExpression ReplaceUnstackify(UnstackifyValueAccess access);
 

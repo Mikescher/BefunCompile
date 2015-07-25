@@ -27,6 +27,11 @@ namespace BefunCompile.Graph.Expression
 			return ci.GetGridValue(X.Calculate(ci), Y.Calculate(ci));
 		}
 
+		public override bool IsAlwaysLongReturn()
+		{
+			return true;
+		}
+
 		public override string GetRepresentation()
 		{
 			return "GET(" + X.GetRepresentation() + ", " + Y.GetRepresentation() + ")";
@@ -101,19 +106,19 @@ namespace BefunCompile.Graph.Expression
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override string GenerateCodeCSharp(BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("gr({0},{1})", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g));
+			return string.Format("gr({0},{1})", X.GenerateCodeCSharp(g, false), Y.GenerateCodeCSharp(g, false));
 		}
 
-		public override string GenerateCodeC(BCGraph g)
+		public override string GenerateCodeC(BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("gr({0},{1})", X.GenerateCodeC(g), Y.GenerateCodeC(g));
+			return string.Format("gr({0},{1})", X.GenerateCodeC(g, false), Y.GenerateCodeC(g, false));
 		}
 
-		public override string GenerateCodePython(BCGraph g)
+		public override string GenerateCodePython(BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("gr({0},{1})", X.GenerateCodePython(g), Y.GenerateCodePython(g));
+			return string.Format("gr({0},{1})", X.GenerateCodePython(g, false), Y.GenerateCodePython(g, false));
 		}
 
 		public override bool IsNotGridAccess()

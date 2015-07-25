@@ -177,17 +177,17 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
-			return string.Format("gw({0},{1},{2});", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g), Value.GenerateCodeCSharp(g));
+			return string.Format("gw({0},{1},{2});", X.GenerateCodeCSharp(g, false), Y.GenerateCodeCSharp(g, false), Value.GenerateCodeCSharp(g, false));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
-			return string.Format("gw({0},{1},{2});", X.GenerateCodeCSharp(g), Y.GenerateCodeCSharp(g), Value.GenerateCodeCSharp(g));
+			return string.Format("gw({0},{1},{2});", X.GenerateCodeCSharp(g, false), Y.GenerateCodeCSharp(g, false), Value.GenerateCodeCSharp(g, false));
 		}
 
 		public override string GenerateCodePython(BCGraph g)
 		{
-			return string.Format("gw({0},{1},{2})", X.GenerateCodePython(g), Y.GenerateCodePython(g), Value.GenerateCodePython(g));
+			return string.Format("gw({0},{1},{2})", X.GenerateCodePython(g, false), Y.GenerateCodePython(g, false), Value.GenerateCodePython(g, false));
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

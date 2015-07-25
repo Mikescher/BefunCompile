@@ -118,11 +118,11 @@ namespace BefunCompile.Graph.Vertex
 			var ExprNotValue = Value as ExpressionNot;
 
 			if (ExprBinMathValue != null)
-				return string.Format("if({0})goto _{1};else goto _{2};", ExprBinMathValue.GenerateDecisionCodeCSharp(g), vtrue, vfalse);
+				return string.Format("if({0})goto _{1};else goto _{2};", ExprBinMathValue.GenerateDecisionCodeCSharp(g, false), vtrue, vfalse);
 			else if (ExprNotValue != null)
-				return string.Format("if({0})goto _{1};else goto _{2};", ExprNotValue.GenerateDecisionCodeCSharp(g), vtrue, vfalse);
+				return string.Format("if({0})goto _{1};else goto _{2};", ExprNotValue.GenerateDecisionCodeCSharp(g, false), vtrue, vfalse);
 			else
-				return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeCSharp(g), vtrue, vfalse);
+				return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeCSharp(g, false), vtrue, vfalse);
 		}
 
 		public override string GenerateCodeC(BCGraph g)
@@ -134,11 +134,11 @@ namespace BefunCompile.Graph.Vertex
 			var ExprNotValue = Value as ExpressionNot;
 
 			if (ExprBinMathValue != null)
-				return string.Format("if({0})goto _{1};else goto _{2};", ExprBinMathValue.GenerateDecisionCodeC(g), vtrue, vfalse);
+				return string.Format("if({0})goto _{1};else goto _{2};", ExprBinMathValue.GenerateDecisionCodeC(g, false), vtrue, vfalse);
 			else if (ExprNotValue != null)
-				return string.Format("if({0})goto _{1};else goto _{2};", ExprNotValue.GenerateDecisionCodeC(g), vtrue, vfalse);
+				return string.Format("if({0})goto _{1};else goto _{2};", ExprNotValue.GenerateDecisionCodeC(g, false), vtrue, vfalse);
 			else
-				return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeC(g), vtrue, vfalse);
+				return string.Format("if(({0})!=0)goto _{1};else goto _{2};", Value.GenerateCodeC(g, false), vtrue, vfalse);
 		}
 
 		public override string GenerateCodePython(BCGraph g)
@@ -150,11 +150,11 @@ namespace BefunCompile.Graph.Vertex
 			var ExprNotValue = Value as ExpressionNot;
 
 			if (ExprBinMathValue != null)
-				return string.Format("return ({1})if({0})else({2})", ExprBinMathValue.GenerateDecisionCodePython(g), vtrue, vfalse);
+				return string.Format("return ({1})if({0})else({2})", ExprBinMathValue.GenerateDecisionCodePython(g, false), vtrue, vfalse);
 			else if (ExprNotValue != null)
-				return string.Format("return ({1})if({0})else({2})", ExprNotValue.GenerateDecisionCodePython(g), vtrue, vfalse);
+				return string.Format("return ({1})if({0})else({2})", ExprNotValue.GenerateDecisionCodePython(g, false), vtrue, vfalse);
 			else
-				return string.Format("return ({1})if(({0})!=0)else({2})", Value.GenerateCodePython(g), vtrue, vfalse);
+				return string.Format("return ({1})if(({0})!=0)else({2})", Value.GenerateCodePython(g, false), vtrue, vfalse);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

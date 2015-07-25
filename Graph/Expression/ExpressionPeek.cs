@@ -69,17 +69,22 @@ namespace BefunCompile.Graph.Expression
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override bool IsAlwaysLongReturn()
+		{
+			return true;
+		}
+
+		public override string GenerateCodeCSharp(BCGraph g, bool forceLongReturn)
 		{
 			return "sr()";
 		}
 
-		public override string GenerateCodeC(BCGraph g)
+		public override string GenerateCodeC(BCGraph g, bool forceLongReturn)
 		{
 			return "sr()";
 		}
 
-		public override string GenerateCodePython(BCGraph g)
+		public override string GenerateCodePython(BCGraph g, bool forceLongReturn)
 		{
 			return "sr()";
 		}

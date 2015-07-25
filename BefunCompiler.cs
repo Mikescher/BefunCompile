@@ -338,5 +338,11 @@ namespace BefunCompile
 //TODO BCVertexBinaryMath Replacements IN-BLOCK (+ possible others)
 //TODO evtl other optimizations (analyse code)
 //TODO Combine same blocks (see P059 :: [_29]==[_32]==[_33]=[_34])
-//TODO repeat until block (O:7 - Structures)
+//TODO blocks (O:7 - Structures)
+//      - repeat { BLOCK } until (??)
+//      - while (??) { BLOCK }
+//      - if (??) { BLOCK }
+//      - if (??) { BLOCK } else (??) { BLOCK }
 //TODO stack unwindig (p-068 : output)
+//TODO ONly use L if needed
+//TODO Output: JAVA, JS
