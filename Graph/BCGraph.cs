@@ -113,6 +113,9 @@ namespace BefunCompile.Graph
 			if (Variables.Where(p => p.isUserDefinied).Any(p => p.Scope != null))
 				return false;
 
+			if (Variables.GroupBy(p => p.Identifier).Any(p => p.Count() > 1))
+				return false;
+
 			HashSet<BCVertex> travelled = new HashSet<BCVertex>();
 			Stack<BCVertex> untravelled = new Stack<BCVertex>();
 			untravelled.Push(Root);
@@ -297,6 +300,32 @@ namespace BefunCompile.Graph
 					(newLast as IDecisionVertex).EdgeFalse = child;
 
 				newLast.Children.Add(child);
+			}
+		}
+
+		public void MergeVertex(BCVertex master, BCVertex slave)
+		{
+			Vertices.Remove(slave);
+
+			foreach (var parent in slave.Parents)
+			{
+				parent.Children.Remove(slave);
+				parent.Children.Add(master);
+				master.Parents.Add(parent);
+
+				if (parent is IDecisionVertex)
+				{
+					if ((parent as IDecisionVertex).EdgeTrue == slave)
+						(parent as IDecisionVertex).EdgeTrue = master;
+
+					if ((parent as IDecisionVertex).EdgeFalse == slave)
+						(parent as IDecisionVertex).EdgeFalse = master;
+				}
+            }
+
+			foreach (var child in slave.Children)
+			{
+				child.Parents.Remove(slave);
 			}
 		}
 
@@ -1041,7 +1070,10 @@ namespace BefunCompile.Graph
 			{
 				ruleRepl1.Execute(this),
 				ruleRepl2.Execute(this),
+
 				ReplaceVariableIntializer(),
+
+				CombineIdenticalBlocks(),
 			};
 
 			return cb.Any(p => p);
@@ -1083,6 +1115,24 @@ namespace BefunCompile.Graph
 
 					if (node.GetVariables().Contains(variable))
 						break;
+				}
+			}
+
+			return false;
+		}
+
+		private bool CombineIdenticalBlocks()
+		{
+			foreach (var vx1 in Vertices)
+			{
+				foreach (var vx2 in Vertices)
+				{
+					if (vx1 != vx2 && vx1.IsIdentical(vx2) && vx1.IsIdenticalChildren(vx2))
+					{
+						MergeVertex(vx1, vx2);
+
+						return true;
+					}
 				}
 			}
 

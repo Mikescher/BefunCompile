@@ -209,5 +209,22 @@ namespace BefunCompile.Graph
 
 		public abstract UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state);
 		public abstract BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access);
+
+		public abstract bool IsIdentical(BCVertex other);
+
+		public bool IsIdenticalChildren(BCVertex other)
+		{
+			if (!new HashSet<BCVertex>(this.Children).SetEquals(other.Children)) return false;
+
+			if (this is IDecisionVertex != other is IDecisionVertex) return false;
+
+			if (this is IDecisionVertex && other is IDecisionVertex)
+			{
+				if (((IDecisionVertex)this).EdgeFalse != ((IDecisionVertex)other).EdgeFalse) return false;
+				if (((IDecisionVertex)this).EdgeTrue != ((IDecisionVertex)other).EdgeTrue) return false;
+			}
+
+			return true;
+        }
 	}
 }

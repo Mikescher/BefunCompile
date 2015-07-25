@@ -132,5 +132,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			throw new CodeGenException("O:5 is not valid on node type " + GetType().Name);
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexDecisionBlock;
+
+			if (arg == null) return false;
+
+			return this.Block.IsIdentical(arg.Block) && this.Decision.IsIdentical(arg.Decision);
+		}
 	}
 }

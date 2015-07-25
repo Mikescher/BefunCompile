@@ -596,5 +596,14 @@ namespace BefunCompile.Graph.Expression
 		{
 			return ExpressionBinMath.Create(ValueA.ReplaceUnstackify(access), ValueB.ReplaceUnstackify(access), Type);
 		}
+
+		public override bool IsIdentical(BCExpression other)
+		{
+			var arg = other as ExpressionBinMath;
+
+			if (arg == null) return false;
+
+			return ValueA.IsIdentical(arg.ValueA) && ValueB.IsIdentical(arg.ValueB);
+		}
 	}
 }

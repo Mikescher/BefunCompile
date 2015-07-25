@@ -38,5 +38,7 @@ namespace BefunCompile.Graph.Expression
 		{
 			return doParenthesis ? ('(' + input + ')') : input;
 		}
+
+		public abstract bool IsIdentical(BCExpression other);
 	}
 }

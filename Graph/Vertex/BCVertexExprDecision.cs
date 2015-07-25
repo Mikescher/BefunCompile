@@ -177,5 +177,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return new BCVertexExprDecision(Direction, Positions, EdgeTrue, EdgeFalse, Value.ReplaceUnstackify(access.Single()));
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexExprDecision;
+
+			if (arg == null) return false;
+
+			return Value.IsIdentical(arg.Value);
+		}
 	}
 }

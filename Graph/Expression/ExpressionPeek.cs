@@ -108,5 +108,14 @@ namespace BefunCompile.Graph.Expression
 		{
 			return access.Value.Replacement;
 		}
+
+		public override bool IsIdentical(BCExpression other)
+		{
+			var arg = other as ExpressionPeek;
+
+			if (arg == null) return false;
+
+			return true;
+		}
 	}
 }

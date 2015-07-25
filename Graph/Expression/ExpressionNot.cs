@@ -171,5 +171,14 @@ namespace BefunCompile.Graph.Expression
 		{
 			return ExpressionNot.Create(Value.ReplaceUnstackify(access));
 		}
+
+		public override bool IsIdentical(BCExpression other)
+		{
+			var arg = other as ExpressionNot;
+
+			if (arg == null) return false;
+
+			return Value.IsIdentical(arg.Value);
+		}
 	}
 }

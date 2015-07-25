@@ -124,5 +124,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return this;
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexStringOutput;
+
+			if (arg == null) return false;
+
+			return this.Value == arg.Value;
+		}
 	}
 }

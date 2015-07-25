@@ -139,5 +139,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return new BCVertexExprDecision(Direction, Positions, EdgeTrue, EdgeFalse, access.Single().Value.Replacement);
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexDecision;
+
+			if (arg == null) return false;
+
+			return this.EdgeTrue == arg.EdgeTrue && this.EdgeFalse == arg.EdgeFalse;
+		}
 	}
 }

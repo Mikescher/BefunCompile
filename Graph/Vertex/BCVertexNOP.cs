@@ -118,5 +118,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return this;
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexNOP;
+
+			if (arg == null) return false;
+
+			return true;
+		}
 	}
 }

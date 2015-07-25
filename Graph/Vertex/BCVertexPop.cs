@@ -124,5 +124,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return new BCVertexNOP(Direction, Positions);
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexPop;
+
+			if (arg == null) return false;
+
+			return true;
+		}
 	}
 }

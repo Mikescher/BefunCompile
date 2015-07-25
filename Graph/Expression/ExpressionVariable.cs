@@ -130,5 +130,14 @@ namespace BefunCompile.Graph.Expression
 		{
 			return this;
 		}
+
+		public override bool IsIdentical(BCExpression other)
+		{
+			var arg = other as ExpressionVariable;
+
+			if (arg == null) return false;
+
+			return Identifier == arg.Identifier;
+		}
 	}
 }

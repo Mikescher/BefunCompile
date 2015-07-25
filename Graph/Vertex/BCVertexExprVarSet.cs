@@ -179,5 +179,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return new BCVertexExprVarSet(Direction, Positions, Variable, Value.ReplaceUnstackify(access.Single()));
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexVarSet;
+
+			if (arg == null) return false;
+
+			return this.Variable.IsIdentical(arg.Variable) && this.Value.IsIdentical(arg.Variable);
+		}
 	}
 }

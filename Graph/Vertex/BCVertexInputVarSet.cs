@@ -164,5 +164,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return this;
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexInputVarSet;
+
+			if (arg == null) return false;
+
+			return this.Variable.IsIdentical(arg.Variable) && this.modeInteger == arg.modeInteger;
+		}
 	}
 }

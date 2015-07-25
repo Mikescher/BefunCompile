@@ -364,5 +364,14 @@ namespace BefunCompile.Graph.Vertex
 
 			throw new Exception();
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexBinaryMath;
+
+			if (arg == null) return false;
+
+			return this.MathType == arg.MathType;
+		}
 	}
 }

@@ -138,5 +138,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return new BCVertexInputVarSet(Direction, Positions, access.Single().Value.Replacement, modeInteger);
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexInput;
+
+			if (arg == null) return false;
+
+			return this.modeInteger == arg.modeInteger;
+		}
 	}
 }

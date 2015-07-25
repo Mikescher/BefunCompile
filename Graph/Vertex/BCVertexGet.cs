@@ -175,5 +175,14 @@ namespace BefunCompile.Graph.Vertex
 
 			throw new Exception();
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexGet;
+
+			if (arg == null) return false;
+
+			return true;
+		}
 	}
 }

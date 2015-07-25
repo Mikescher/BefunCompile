@@ -163,5 +163,14 @@ namespace BefunCompile.Graph.Vertex
 
 			return new BCVertexExprSet(Direction, Positions, var_readx.Value.Replacement, var_ready.Value.Replacement, var_readv.Value.Replacement);
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexSet;
+
+			if (arg == null) return false;
+
+			return true;
+		}
 	}
 }

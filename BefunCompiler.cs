@@ -337,7 +337,6 @@ namespace BefunCompile
 //TODO [swap]+[BinMath] -> [BinMath, swapped=true]
 //TODO BCVertexBinaryMath Replacements IN-BLOCK (+ possible others)
 //TODO evtl other optimizations (analyse code)
-//TODO Combine same blocks (see P059 :: [_29]==[_32]==[_33]=[_34])
 //TODO blocks (O:7 - Structures)
 //      - repeat { BLOCK } until (??)
 //      - while (??) { BLOCK }

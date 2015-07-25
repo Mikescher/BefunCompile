@@ -124,5 +124,14 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return new BCVertexExprVarSet(Direction, Positions, access.Single().Value.Replacement, ExpressionNot.Create(access.Single().Value.Replacement));
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexNot;
+
+			if (arg == null) return false;
+
+			return true;
+		}
 	}
 }

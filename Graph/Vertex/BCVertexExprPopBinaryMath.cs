@@ -299,5 +299,14 @@ namespace BefunCompile.Graph.Vertex
 
 			return new BCVertexExprVarSet(Direction, Positions, avar.Value.Replacement, ExpressionBinMath.Create(avar.Value.Replacement, SecondExpression, MathType));
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexExprPopBinaryMath;
+
+			if (arg == null) return false;
+
+			return this.MathType == arg.MathType && this.SecondExpression.IsIdentical(arg.SecondExpression);
+		}
 	}
 }

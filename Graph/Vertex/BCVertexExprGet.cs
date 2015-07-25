@@ -196,5 +196,14 @@ namespace BefunCompile.Graph.Vertex
 
 			return new BCVertexExprVarSet(Direction, Positions, var_write.Value.Replacement, ExpressionGet.Create(expr_x, expr_y));
 		}
+
+		public override bool IsIdentical(BCVertex other)
+		{
+			var arg = other as BCVertexExprGet;
+
+			if (arg == null) return false;
+
+			return this.X.IsIdentical(arg.X) && this.Y.IsIdentical(arg.Y);
+		}
 	}
 }

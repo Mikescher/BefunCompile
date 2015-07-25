@@ -140,5 +140,14 @@ namespace BefunCompile.Graph.Expression
 		{
 			return ExpressionGet.Create(X.ReplaceUnstackify(access), Y.ReplaceUnstackify(access));
 		}
+
+		public override bool IsIdentical(BCExpression other)
+		{
+			var arg = other as ExpressionGet;
+
+			if (arg == null) return false;
+
+			return X.IsIdentical(arg.X) && Y.IsIdentical(arg.Y);
+		}
 	}
 }
