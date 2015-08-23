@@ -73,7 +73,7 @@ namespace BefunCompile.Graph.Vertex
 			return base.TestVertex() && SecondExpression.IsNotStackAccess();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			var b = stackbuilder.Pop();
 			var a = SecondExpression.Calculate(ci);

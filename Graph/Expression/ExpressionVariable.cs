@@ -40,7 +40,7 @@ namespace BefunCompile.Graph.Expression
 			return ExpressionVariable.Create("t" + ident_idx, 0, null, false, scope);
 		}
 
-		public override long Calculate(CalculateInterface ci)
+		public override long Calculate(ICalculateInterface ci)
 		{
 			return ci.GetVariableValue(this);
 		}

@@ -13,7 +13,7 @@ namespace BefunCompile.Graph.Vertex
 		public ExpressionVariable Variable;
 
 		public BCVertexVarSet(BCDirection d, Vec2i pos, ExpressionVariable var)
-			: base(d, new Vec2i[] { pos })
+			: base(d, new [] { pos })
 		{
 			this.Variable = var;
 		}
@@ -44,7 +44,7 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			ci.SetVariableValue(Variable, stackbuilder.Pop());
 

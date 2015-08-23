@@ -38,12 +38,12 @@ namespace BefunCompile.Graph.Expression
 				return ExpressionBCast.Create((v as ExpressionNot).Value);
 
 			if (v is ExpressionBCast)
-				return ExpressionNot.Create((v as ExpressionNot).Value);
+				return ExpressionNot.Create((v as ExpressionBCast).Value);
 
 			return r;
 		}
 
-		public override long Calculate(CalculateInterface ci)
+		public override long Calculate(ICalculateInterface ci)
 		{
 			return (Value.Calculate(ci) != 0) ? (0) : (1);
 		}

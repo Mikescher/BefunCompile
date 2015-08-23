@@ -44,7 +44,7 @@ namespace BefunCompile.Graph.Expression
 			return r;
 		}
 
-		public override long Calculate(CalculateInterface ci)
+		public override long Calculate(ICalculateInterface ci)
 		{
 			return (Value.Calculate(ci) != 0) ? (1) : (0);
 		}
@@ -155,7 +155,7 @@ namespace BefunCompile.Graph.Expression
 
 		public override BCExpression ReplaceUnstackify(UnstackifyValueAccess access)
 		{
-			return ExpressionBCast.Create(Value.ReplaceUnstackify(access));
+			return Create(Value.ReplaceUnstackify(access));
 		}
 
 		public override bool IsIdentical(BCExpression other)

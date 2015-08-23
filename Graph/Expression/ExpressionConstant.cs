@@ -19,7 +19,7 @@ namespace BefunCompile.Graph.Expression
 			return new ExpressionConstant(v);
 		}
 
-		public override long Calculate(CalculateInterface ci)
+		public override long Calculate(ICalculateInterface ci)
 		{
 			return Value;
 		}
@@ -112,9 +112,7 @@ namespace BefunCompile.Graph.Expression
 		{
 			var arg = other as ExpressionConstant;
 
-			if (arg == null) return false;
-
-			return Value == arg.Value;
+			return Value == arg?.Value;
 		}
 	}
 }

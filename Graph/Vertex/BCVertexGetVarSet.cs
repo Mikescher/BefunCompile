@@ -44,7 +44,7 @@ namespace BefunCompile.Graph.Vertex
 			return new MemoryAccess[] { this };
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			var yy = stackbuilder.Pop();
 			var xx = stackbuilder.Pop();

@@ -18,7 +18,7 @@ namespace BefunCompile.Graph.Expression
 			return new ExpressionPeek();
 		}
 
-		public override long Calculate(CalculateInterface ci)
+		public override long Calculate(ICalculateInterface ci)
 		{
 			return ci.PeekStack();
 		}

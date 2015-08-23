@@ -22,7 +22,7 @@ namespace BefunCompile.Graph.Expression
 			return new ExpressionGet(xx, yy);
 		}
 
-		public override long Calculate(CalculateInterface ci)
+		public override long Calculate(ICalculateInterface ci)
 		{
 			return ci.GetGridValue(X.Calculate(ci), Y.Calculate(ci));
 		}

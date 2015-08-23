@@ -52,7 +52,7 @@ namespace BefunCompile.Graph.Vertex
 			return Block.ListDynamicVariableAccess().Concat(Decision.ListDynamicVariableAccess());
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			Block.Execute(outbuilder, stackbuilder, ci);
 

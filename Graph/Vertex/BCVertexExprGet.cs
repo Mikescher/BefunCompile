@@ -14,7 +14,7 @@ namespace BefunCompile.Graph.Vertex
 		public BCExpression Y;
 
 		public BCVertexExprGet(BCDirection d, Vec2i pos, BCExpression xx, BCExpression yy)
-			: base(d, new Vec2i[] { pos })
+			: base(d, new [] { pos })
 		{
 			this.X = xx;
 			this.Y = yy;
@@ -37,7 +37,7 @@ namespace BefunCompile.Graph.Vertex
 			return new BCVertexExprGet(Direction, Positions, X, Y);
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			stackbuilder.Push(ci.GetGridValue(X.Calculate(ci), Y.Calculate(ci)));
 

@@ -54,7 +54,7 @@ namespace BefunCompile.Graph.Vertex
 				return new MemoryAccess[] { this }.Concat(X.ListDynamicVariableAccess()).Concat(Y.ListDynamicVariableAccess());
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			ci.SetGridValue(X.Calculate(ci), Y.Calculate(ci), stackbuilder.Pop());
 

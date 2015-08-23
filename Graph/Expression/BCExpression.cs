@@ -8,7 +8,7 @@ namespace BefunCompile.Graph.Expression
 	{
 		public abstract String GetRepresentation();
 
-		public abstract long Calculate(CalculateInterface ci);
+		public abstract long Calculate(ICalculateInterface ci);
 
 		public abstract IEnumerable<MemoryAccess> ListConstantVariableAccess();
 		public abstract IEnumerable<MemoryAccess> ListDynamicVariableAccess();

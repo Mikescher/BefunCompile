@@ -13,7 +13,7 @@ namespace BefunCompile.Graph.Vertex
 		public readonly bool ModeInteger; // true = int | false = char
 
 		public BCVertexOutput(BCDirection d, Vec2i pos, long mode)
-			: base(d, new Vec2i[] { pos })
+			: base(d, new [] { pos })
 		{
 			ModeInteger = (mode == '.');
 		}
@@ -50,7 +50,7 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			var c = stackbuilder.Pop();
 

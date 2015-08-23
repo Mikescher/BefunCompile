@@ -5,11 +5,11 @@ using System.Text;
 
 namespace BefunCompile.Graph
 {
-	public class GraphRunner : CalculateInterface
+	public class GraphRunner : ICalculateInterface
 	{
-		public string Output { get { return outbuilder.ToString(); } }
-		public long[] Stack { get { return stackbuilder.stack.ToArray(); } }
-		public long Steps { get { return stepbuilder; } }
+		public string Output => outbuilder.ToString();
+		public long[] Stack => stackbuilder.stack.ToArray();
+		public long Steps => stepbuilder;
 
 		private StringBuilder outbuilder = new StringBuilder();
 		private GraphRunnerStack stackbuilder = new GraphRunnerStack();

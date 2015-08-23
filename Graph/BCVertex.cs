@@ -185,7 +185,7 @@ namespace BefunCompile.Graph
 		}
 
 		public abstract BCVertex Duplicate();
-		public abstract BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci);
+		public abstract BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci);
 
 		public abstract IEnumerable<MemoryAccess> ListConstantVariableAccess();
 		public abstract IEnumerable<MemoryAccess> ListDynamicVariableAccess();

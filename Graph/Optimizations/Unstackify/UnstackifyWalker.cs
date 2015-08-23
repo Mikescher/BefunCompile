@@ -1,5 +1,4 @@
 ﻿using BefunCompile.Exceptions;
-using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
 using System;
 using System.Collections.Generic;
@@ -46,7 +45,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			catch (UnstackifyWalkException)
 			{
 				PoisonState(state);
-				foreach (var child in vertex.Children.Where(p => history.Contains(p)))
+				foreach (var child in vertex.Children.Where(history.Contains))
 				{
 					PoisonState(history.StateDict[child]);
 				}
@@ -89,7 +88,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		private int ReplaceSystemVariables(UnstackifyStateHistory history)
 		{
-			ProtectedVertices.ToList().ForEach(p => history.PoisonVertex(p));
+			ProtectedVertices.ToList().ForEach(history.PoisonVertex);
 
 			history.RemovePoison();
 			history.CreateVariables(Graph, ref varIdentity);

@@ -75,7 +75,7 @@ namespace BefunCompile.Math
 				.Range(0, data.Length / 128 + 2)
 				.Select(i => (i * 128 > data.Length) ? "" : data.Substring(i * 128, System.Math.Min(i * 128 + 128, data.Length) - i * 128))
 				.Where(p => p != "")
-				.Select(p => AnsiCEscaped(p))
+				.Select(AnsiCEscaped)
 				.ToList();
 		}
 	}

@@ -15,7 +15,7 @@ namespace BefunCompile.Graph.Vertex
 		public readonly bool modeInteger; // true = int | false = char
 
 		public BCVertexInputVarSet(BCDirection d, Vec2i pos, ExpressionVariable var, bool modeInt)
-			: base(d, new Vec2i[] { pos })
+			: base(d, new [] { pos })
 		{
 			this.Variable = var;
 			this.modeInteger = modeInt;
@@ -48,7 +48,7 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			throw new GraphExecuteException();
 		}
@@ -134,7 +134,7 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
 			if (modeInteger)
-				return string.Format("{long v0;while(long.TryParse(System.Console.ReadLine(),out v0));{0}=v0;}", Variable.Identifier);
+				return string.Format("{{long v0;while(long.TryParse(System.Console.ReadLine(),out v0));{0}=v0;}}", Variable.Identifier);
 			else
 				return string.Format("{0}=System.Console.ReadLine();", Variable.Identifier);
 		}
@@ -142,7 +142,7 @@ namespace BefunCompile.Graph.Vertex
 		public override string GenerateCodeC(BCGraph g)
 		{
 			if (modeInteger)
-				return string.Format("{char v0[128];int64 v1;fgets(v0,sizeof(v0),stdin);sscanf(v0,\"%lld\",&v1);{0}=v1;}", Variable.Identifier);
+				return string.Format("{{char v0[128];int64 v1;fgets(v0,sizeof(v0),stdin);sscanf(v0,\"%lld\",&v1);{0}=v1;}}", Variable.Identifier);
 			else
 				return string.Format("{0}=getchar();", Variable.Identifier);
 		}

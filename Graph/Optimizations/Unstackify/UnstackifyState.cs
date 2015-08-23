@@ -1,7 +1,6 @@
 ﻿using BefunCompile.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 
 namespace BefunCompile.Graph.Optimizations.Unstackify
 {
@@ -16,8 +15,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		public UnstackifyState Clone()
 		{
-			var result = new UnstackifyState();
-			result.Stack = this.Stack.ToList();
+			var result = new UnstackifyState {Stack = this.Stack.ToList()};
 
 			return result;
 		}
@@ -55,13 +53,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			if (a.Stack.Count != b.Stack.Count)
 				return false;
 
-			for (int i = 0; i < a.Stack.Count; i++)
-			{
-				if (a.Stack[i] != b.Stack[i])
-					return false;
-			}
-
-			return true;
+			return !a.Stack.Where((t, i) => t != b.Stack[i]).Any();
 		}
 
 		public void Swap()

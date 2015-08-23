@@ -14,15 +14,15 @@ namespace BefunCompile.Graph.Vertex
 		public readonly BCVertex[] nodes;
 
 		public BCVertexBlock(BCDirection d, Vec2i pos, BCVertex inner)
-			: base(d, new Vec2i[] { pos })
+			: base(d, new [] { pos })
 		{
-			nodes = new BCVertex[] { inner };
+			nodes = new [] { inner };
 		}
 
 		public BCVertexBlock(BCDirection d, Vec2i[] pos, BCVertex inner)
 			: base(d, pos)
 		{
-			nodes = new BCVertex[] { inner };
+			nodes = new [] { inner };
 		}
 
 		public BCVertexBlock(BCDirection d, Vec2i[] pos, params BCVertex[] nodearr)
@@ -57,11 +57,11 @@ namespace BefunCompile.Graph.Vertex
 			return nodes.SelectMany(p => p.ListDynamicVariableAccess());
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
-			for (int i = 0; i < nodes.Length; i++)
+			foreach (BCVertex t in nodes)
 			{
-				nodes[i].Execute(outbuilder, stackbuilder, ci);
+				t.Execute(outbuilder, stackbuilder, ci);
 			}
 
 			if (nodes.Last().Children.Count > 1)
@@ -73,9 +73,9 @@ namespace BefunCompile.Graph.Vertex
 		{
 			bool found = false;
 
-			for (int i = 0; i < nodes.Length; i++)
+			foreach (BCVertex t in nodes)
 			{
-				if (nodes[i].SubsituteExpression(prerequisite, replacement))
+				if (t.SubsituteExpression(prerequisite, replacement))
 					found = true;
 			}
 
@@ -160,12 +160,7 @@ namespace BefunCompile.Graph.Vertex
 
 			if (arg.nodes.Length != this.nodes.Length) return false;
 
-			for (int i = 0; i < nodes.Length; i++)
-			{
-				if (!this.nodes[i].IsIdentical(arg.nodes[i])) return false;
-			}
-
-			return true;
+			return !nodes.Where((t, i) => !this.nodes[i].IsIdentical(arg.nodes[i])).Any();
 		}
 	}
 }

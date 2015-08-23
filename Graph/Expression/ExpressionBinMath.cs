@@ -198,7 +198,7 @@ namespace BefunCompile.Graph.Expression
 			return r;
 		}
 
-		public override long Calculate(CalculateInterface ci)
+		public override long Calculate(ICalculateInterface ci)
 		{
 			long cA = ValueA.Calculate(ci);
 			long cB = ValueB.Calculate(ci);

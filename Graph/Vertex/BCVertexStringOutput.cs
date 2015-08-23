@@ -13,7 +13,7 @@ namespace BefunCompile.Graph.Vertex
 		public readonly string Value;
 
 		public BCVertexStringOutput(BCDirection d, Vec2i pos, string val)
-			: base(d, new Vec2i[] { pos })
+			: base(d, new [] { pos })
 		{
 			this.Value = val;
 		}
@@ -26,7 +26,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return string.Format("OUT_(\"{1}\")", Value);
+			return string.Format("OUT_(\"{0}\")", Value);
 		}
 
 		public override BCVertex Duplicate()
@@ -44,7 +44,7 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			outbuilder.Append(Value);
 

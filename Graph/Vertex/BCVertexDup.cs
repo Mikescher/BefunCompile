@@ -11,7 +11,7 @@ namespace BefunCompile.Graph.Vertex
 	public class BCVertexDup : BCVertex
 	{
 		public BCVertexDup(BCDirection d, Vec2i pos)
-			: base(d, new Vec2i[] { pos })
+			: base(d, new [] { pos })
 		{
 
 		}
@@ -42,7 +42,7 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<MemoryAccess>();
 		}
 
-		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, CalculateInterface ci)
+		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			stackbuilder.Dup();
 

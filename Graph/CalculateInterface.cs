@@ -2,7 +2,7 @@
 
 namespace BefunCompile.Graph
 {
-	public interface CalculateInterface
+	public interface ICalculateInterface
 	{
 		long GetVariableValue(ExpressionVariable v);
 		long GetGridValue(long xx, long yy);

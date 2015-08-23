@@ -49,11 +49,11 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			foreach (var variable in StackValues)
 			{
 				var found = false;
-				for (int i = 0; i < timetable.Count; i++)
+				foreach (var tab in timetable)
 				{
-					if (timetable[i].All(p => variable.IsDistinctScope(p)))
+					if (tab.All(p => variable.IsDistinctScope(p)))
 					{
-						timetable[i].Add(variable);
+						tab.Add(variable);
 						found = true;
 
 						break;
