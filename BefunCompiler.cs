@@ -347,3 +347,5 @@ namespace BefunCompile
 //TODO "t1 = t1" -> NOP  (problem-71.cs)
 //TODO x = x + 1 --> x += 1  (dont represent in graph, only in output method)
 //TODO x = x + 1 --> x++	 (dont represent in graph, only in output method)
+
+//TODO [[FATAL]] !!!  problem_075 compile error (wrong output)
