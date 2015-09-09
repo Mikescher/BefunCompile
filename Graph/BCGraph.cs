@@ -1014,12 +1014,43 @@ namespace BefunCompile.Graph
 
 		public bool Unstackify()
 		{
-			return UnstackifyWalker.Run();
+			var urun = UnstackifyWalker.Run();
+
+			return urun;
 		}
 
 		#endregion
 
-		#region O:6 Combine
+		#region O:6 Nopify
+
+		public bool Nopify()
+		{
+			var rule1 = new BCModRule(false);
+			rule1.AddPreq(v => (v is BCVertexExprVarSet) && ((BCVertexExprVarSet) v).Variable == ((BCVertexExprVarSet) v).Value as ExpressionVariable);
+			rule1.AddRep((l, p) => new BCVertexNOP(BCDirection.UNKNOWN, p));
+
+			var rule2 = new BCModRule(false);
+			rule2.AddPreq(v => v is BCVertexExpression);
+			rule2.AddPreq(v => v is BCVertexPop);
+			rule2.AddRep((l, p) => new BCVertexNOP(BCDirection.UNKNOWN, p));
+
+			var ruleMinimize = new BCModRule(false);
+			ruleMinimize.AddPreq(v => v is BCVertexNOP);
+
+			bool[] cb = new[]
+			{
+				rule1.Execute(this),
+				rule2.Execute(this),
+
+				RemovePredeterminedDecisions(),
+			};
+
+			return cb.Any(p => p);
+		}
+
+		#endregion
+
+		#region O:7 Combine
 
 		public bool CombineBlocks()
 		{
@@ -1049,7 +1080,7 @@ namespace BefunCompile.Graph
 
 		#endregion
 
-		#region O:7 Reduce
+		#region O:8 Reduce
 
 		public bool ReduceBlocks()
 		{

@@ -58,8 +58,9 @@ namespace BefunCompile
 				new GenerationLevel(){Level = 3, Name = "Flatten",    Function = GenerateFlattenedGraph},
 				new GenerationLevel(){Level = 4, Name = "Variablize", Function = GenerateVariablizedGraph},
 				new GenerationLevel(){Level = 5, Name = "Unstackify", Function = GenerateUnstackifiedGraph},
-				new GenerationLevel(){Level = 6, Name = "Combine",    Function = GenerateBlockCombinedGraph},
-				new GenerationLevel(){Level = 7, Name = "Reduce",     Function = GenerateBlockReducedGraph},
+				new GenerationLevel(){Level = 6, Name = "Nopify",     Function = GenerateNopifiedGraph},
+				new GenerationLevel(){Level = 7, Name = "Combine",    Function = GenerateBlockCombinedGraph},
+				new GenerationLevel(){Level = 8, Name = "Reduce",     Function = GenerateBlockReducedGraph},
 			};
 			log_Cycles = new int[GENERATION_LEVELS.Length];
 		}
@@ -288,7 +289,30 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph GenerateBlockCombinedGraph(GenerationLevel lvl, int level = -1) // O:6 
+		public BCGraph GenerateNopifiedGraph(GenerationLevel lvl, int level = -1) // O:6
+		{
+			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
+
+
+			for (int i = level; i != 0; i--)
+			{
+				bool op = graph.Nopify();
+
+				if (!graph.TestGraph())
+					throw new Exception("Internal Parent Exception :( ");
+
+				if (!op)
+				{
+					log_Cycles[lvl.Level] = level - i;
+
+					break;
+				}
+			}
+
+			return graph;
+		}
+
+		public BCGraph GenerateBlockCombinedGraph(GenerationLevel lvl, int level = -1) // O:7
 		{
 			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
@@ -310,7 +334,7 @@ namespace BefunCompile
 			return graph;
 		}
 
-		public BCGraph GenerateBlockReducedGraph(GenerationLevel lvl, int level = -1) // O:7 
+		public BCGraph GenerateBlockReducedGraph(GenerationLevel lvl, int level = -1) // O:8
 		{
 			BCGraph graph = GENERATION_LEVELS[lvl.Level - 1].Run();
 
@@ -344,7 +368,6 @@ namespace BefunCompile
 //      - if (??) { BLOCK }
 //      - if (??) { BLOCK } else (??) { BLOCK }
 //TODO Output: JAVA, JS, VB.Net
-//TODO "t1 = t1" -> NOP  (problem-71.cs)
 //TODO x = x + 1 --> x += 1  (dont represent in graph, only in output method)
 //TODO x = x + 1 --> x++	 (dont represent in graph, only in output method)
 
