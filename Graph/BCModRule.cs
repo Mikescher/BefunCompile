@@ -11,6 +11,7 @@ namespace BefunCompile.Graph
 	{
 		private readonly List<Func<BCVertex, bool>> prerequisites = new List<Func<BCVertex, bool>>();
 		private readonly List<Func<BCVertex[], Vec2i[], BCVertex>> replacements = new List<Func<BCVertex[], Vec2i[], BCVertex>>();
+		private readonly List<Func<BCVertex[], bool>> conditions = new List<Func<BCVertex[], bool>>();
 
 		private readonly bool allowPathExtraction;
 		private readonly bool allowSplitCodePathReplacement;
@@ -34,6 +35,14 @@ namespace BefunCompile.Graph
 			foreach (var rep in r)
 			{
 				replacements.Add(rep);
+			}
+		}
+
+		public void AddCond(params Func<BCVertex[], bool>[] c)
+		{
+			foreach (var cond in c)
+			{
+				conditions.Add(cond);
 			}
 		}
 
@@ -275,12 +284,18 @@ namespace BefunCompile.Graph
 
 		private List<BCVertex> GetMatchingChain(BCVertex v)
 		{
-			return GetMatchingChain(0, v);
+			List<BCVertex> chain = GetMatchingChain(0, v);
+
+			if (chain == null || !conditions.All(c => c(chain.ToArray()))) return null;
+
+			return chain;
 		}
 
 		private List<BCVertex> GetMatchingExtractedChain(BCGraph g, BCVertex v)
 		{
 			List<BCVertex> chain = GetMatchingChain(0, v);
+
+			if (chain == null || !conditions.All(c => c(chain.ToArray()))) return null;
 
 			chain = ExtractChain(g, chain);
 

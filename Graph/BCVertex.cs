@@ -192,6 +192,8 @@ namespace BefunCompile.Graph
 
 		public abstract bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
 
+		public abstract bool IsOutput();
+
 		public abstract bool IsNotGridAccess();
 		public abstract bool IsNotStackAccess();
 		public abstract bool IsNotVariableAccess();

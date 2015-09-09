@@ -642,10 +642,11 @@ namespace BefunCompile.Graph
 			rule4.AddRep((l, p) => { var v = l[0].Duplicate(); v.Positions = p; return v; });
 
 			var rule5 = new BCModRule();
-			rule5.AddPreq(v => !(v is BCVertexExprSet || v is BCVertexExprVarSet || v is BCVertexExprOutput || v is BCVertexStringOutput) && !v.IsCodePathSplit() && v.IsNotGridAccess() && v.IsNotVariableAccess()); // <-- Stack Access
-			rule5.AddPreq(v => (v is BCVertexExprSet || v is BCVertexExprVarSet || v is BCVertexExprOutput || v is BCVertexStringOutput) && v.IsNotStackAccess()); // <-- No Stack Access
+			rule5.AddPreq(v => !(v is BCVertexExprSet || v is BCVertexExprVarSet || v is BCVertexExprOutput || v is BCVertexStringOutput || v is BCVertexOutput) && !v.IsCodePathSplit() && v.IsNotGridAccess() && v.IsNotVariableAccess()); // <-- Stack Access
+			rule5.AddPreq(v => (v is BCVertexExprSet || v is BCVertexExprVarSet || v is BCVertexExprOutput || v is BCVertexStringOutput || v is BCVertexOutput) && v.IsNotStackAccess()); // <-- No Stack Access
 			rule5.AddRep((l, p) => l[1].Duplicate());
 			rule5.AddRep((l, p) => l[0].Duplicate());
+			rule5.AddCond(d => !(d[0].IsOutput() && d[1].IsOutput()));
 
 			var rule6 = new BCModRule();
 			rule6.AddPreq(v => v is BCVertexExprGet);

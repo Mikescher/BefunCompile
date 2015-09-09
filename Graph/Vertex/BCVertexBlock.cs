@@ -87,6 +87,11 @@ namespace BefunCompile.Graph.Vertex
 			return new BCVertexBlock(Direction, Positions, nodes.Where(p => p != node).ToArray());
 		}
 
+		public override bool IsOutput()
+		{
+			return false;
+		}
+
 		public override bool IsNotGridAccess()
 		{
 			return nodes.All(p => p.IsNotGridAccess());
