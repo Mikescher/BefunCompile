@@ -368,5 +368,3 @@ namespace BefunCompile
 //      - if (??) { BLOCK }
 //      - if (??) { BLOCK } else (??) { BLOCK }
 //TODO Output: JAVA, JS, VB.Net
-
-//TODO [[FATAL]] !!!  problem_075 compile error (wrong output)

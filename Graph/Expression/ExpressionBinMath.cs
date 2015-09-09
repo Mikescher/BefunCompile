@@ -358,7 +358,7 @@ namespace BefunCompile.Graph.Expression
 			if (ValueB is ExpressionVariable)
 				return false;
 
-			if (ValueA is ExpressionPeek)
+			if (ValueB is ExpressionPeek)
 				return false;
 
 			if (Type == BinaryMathType.MUL && ValueB is ExpressionBinMath && ((ExpressionBinMath)ValueB).Type == BinaryMathType.MUL)
