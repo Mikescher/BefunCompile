@@ -1661,7 +1661,7 @@ namespace BefunCompile.Graph
 			for (int i = 0; i < Vertices.Count; i++)
 			{
 				codebuilder.AppendLine("def _" + i + "():");
-				foreach (var variable in Vertices[i].GetVariables())
+				foreach (var variable in Vertices[i].GetVariables().Distinct())
 					codebuilder.AppendLine("    global " + variable.Identifier);
 
 				codebuilder.AppendLine(indent(Vertices[i].GenerateCodePython(this), "    "));
