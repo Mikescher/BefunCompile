@@ -9,7 +9,7 @@ namespace BefunCompile
 {
 	public class BefunCompiler
 	{
-		public const string VERSION = "1.0.7";
+		public const string VERSION = "1.0.8";
 
 		public class GenerationLevel
 		{
@@ -368,3 +368,5 @@ namespace BefunCompile
 //      - if (??) { BLOCK }
 //      - if (??) { BLOCK } else (??) { BLOCK }
 //TODO Output: JAVA, JS, VB.Net
+
+//GCC -> something ... something ... unsigned decimal constant (p-060)
