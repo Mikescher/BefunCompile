@@ -368,7 +368,5 @@ namespace BefunCompile
 //      - if (??) { BLOCK }
 //      - if (??) { BLOCK } else (??) { BLOCK }
 //TODO Output: JAVA, JS, VB.Net
-//TODO x = x + 1 --> x += 1  (dont represent in graph, only in output method)
-//TODO x = x + 1 --> x++	 (dont represent in graph, only in output method)
 
 //TODO [[FATAL]] !!!  problem_075 compile error (wrong output)

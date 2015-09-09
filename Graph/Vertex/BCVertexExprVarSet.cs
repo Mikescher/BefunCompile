@@ -146,11 +146,63 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCodeCSharp(BCGraph g)
 		{
+			var exprMathValue = Value as ExpressionBinMath;
+			if (exprMathValue != null && exprMathValue.ValueA == Variable)
+			{
+				var exprSecondConst = exprMathValue.ValueB as ExpressionConstant;
+
+				if (exprSecondConst != null && exprSecondConst.Value == 1 && exprMathValue.Type == BinaryMathType.ADD)
+					return string.Format("{0}++;", Variable.Identifier);
+
+				if (exprSecondConst != null && exprSecondConst.Value == 1 && exprMathValue.Type == BinaryMathType.SUB)
+					return string.Format("{0}--;", Variable.Identifier);
+
+				switch (exprMathValue.Type)
+				{
+					case BinaryMathType.ADD:
+						return string.Format("{0}+={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeCSharp(g, false));
+					case BinaryMathType.SUB:
+						return string.Format("{0}-={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeCSharp(g, false));
+					case BinaryMathType.MUL:
+						return string.Format("{0}*={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeCSharp(g, false));
+					case BinaryMathType.DIV:
+						return string.Format("{0}/={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeCSharp(g, false));
+					case BinaryMathType.MOD:
+						return string.Format("{0}%={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeCSharp(g, false));
+				}
+			}
+
 			return string.Format("{0}={1};", Variable.Identifier, Value.GenerateCodeCSharp(g, false));
 		}
 
 		public override string GenerateCodeC(BCGraph g)
 		{
+			var exprMathValue = Value as ExpressionBinMath;
+			if (exprMathValue != null && exprMathValue.ValueA == Variable)
+			{
+				var exprSecondConst = exprMathValue.ValueB as ExpressionConstant;
+
+				if (exprSecondConst != null && exprSecondConst.Value == 1 && exprMathValue.Type == BinaryMathType.ADD)
+					return string.Format("{0}++;", Variable.Identifier);
+
+				if (exprSecondConst != null && exprSecondConst.Value == 1 && exprMathValue.Type == BinaryMathType.SUB)
+					return string.Format("{0}--;", Variable.Identifier);
+
+				switch (exprMathValue.Type)
+				{
+					case BinaryMathType.ADD:
+						return string.Format("{0}+={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeC(g, false));
+					case BinaryMathType.SUB:
+						return string.Format("{0}-={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeC(g, false));
+					case BinaryMathType.MUL:
+						return string.Format("{0}*={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeC(g, false));
+					case BinaryMathType.DIV:
+						return string.Format("{0}/={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeC(g, false));
+					case BinaryMathType.MOD:
+						return string.Format("{0}%={1};", Variable.Identifier, exprMathValue.ValueB.GenerateCodeC(g, false));
+				}
+			}
+
 			return string.Format("{0}={1};", Variable.Identifier, Value.GenerateCodeC(g, false));
 		}
 

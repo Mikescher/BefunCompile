@@ -195,6 +195,13 @@ namespace BefunCompile.Graph.Expression
 			if (t == BinaryMathType.MUL && a is ExpressionBinMath && (a as ExpressionBinMath).Type == BinaryMathType.MUL && b is ExpressionConstant && (a as ExpressionBinMath).ValueB is ExpressionConstant)
 				return ExpressionBinMath.Create(ExpressionConstant.Create(b.Calculate(null) * (a as ExpressionBinMath).ValueB.Calculate(null)), (a as ExpressionBinMath).ValueA, t);
 
+			//########  Variables if possible as first operand  ########
+
+			if ((t == BinaryMathType.ADD || t == BinaryMathType.MUL) && b is ExpressionVariable && !(a is ExpressionVariable))
+			{
+				ExpressionBinMath.Create(b, a, t);
+			}
+
 			return r;
 		}
 
