@@ -96,7 +96,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override IEnumerable<int> GetAllJumps(BCGraph g)
 		{
-			return Enumerable.Empty<int>();
+			return Children.Select(child => g.Vertices.IndexOf(child));
 		}
 
 		public override string GenerateCodeCSharp(BCGraph g)
