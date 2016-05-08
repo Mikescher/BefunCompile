@@ -70,7 +70,12 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool IsOutput()
 		{
-			return false;
+			return Block.IsOutput();
+		}
+
+		public override bool IsInput()
+		{
+			return Block.IsInput();
 		}
 
 		public override bool IsNotGridAccess()

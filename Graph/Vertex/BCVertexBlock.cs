@@ -90,7 +90,12 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool IsOutput()
 		{
-			return false;
+			return nodes.Any(p => p.IsOutput());
+		}
+
+		public override bool IsInput()
+		{
+			return nodes.Any(p => p.IsInput());
 		}
 
 		public override bool IsNotGridAccess()

@@ -358,6 +358,6 @@ namespace BefunCompile
 //      - while (??) { BLOCK }
 //      - if (??) { BLOCK }
 //      - if (??) { BLOCK } else (??) { BLOCK }
-//TODO Output: JAVA, JS, VB.Net
-
-//GCC -> something ... something ... unsigned decimal constant (p-060)
+//TODO Output: JAVA, JS, VB.Net, Befunge, PHP, Pascal, Perl
+//TODO Move Compiling and Executing into extra classes (for BefunDebug testing..)
+//     --> and perhaps make assemble callable per commandline (for ProjectEuler script)

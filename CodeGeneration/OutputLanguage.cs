@@ -5,6 +5,7 @@ namespace BefunCompile.CodeGeneration
 	{
 		CSharp,
 		C,
-		Python
+		Python,
+		Java,
 	}
 }

@@ -75,6 +75,11 @@ namespace BefunCompile.Graph.Vertex
 			return true;
 		}
 
+		public override bool IsInput()
+		{
+			return false;
+		}
+
 		public override bool IsNotGridAccess()
 		{
 			return true;
