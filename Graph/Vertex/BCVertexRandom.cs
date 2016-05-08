@@ -1,4 +1,5 @@
-﻿using BefunCompile.Graph.Expression;
+﻿using BefunCompile.CodeGeneration;
+using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
@@ -99,31 +100,9 @@ namespace BefunCompile.Graph.Vertex
 			return Children.Select(child => g.Vertices.IndexOf(child));
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override string GenerateCode(OutputLanguage l, BCGraph g)
 		{
-			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"
-				.Replace("g0", "_" + g.Vertices.IndexOf(Children[0]))
-				.Replace("g1", "_" + g.Vertices.IndexOf(Children[1]))
-				.Replace("g2", "_" + g.Vertices.IndexOf(Children[2]))
-				.Replace("g3", "_" + g.Vertices.IndexOf(Children[3]));
-		}
-
-		public override string GenerateCodeC(BCGraph g)
-		{
-			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"
-				.Replace("g0", "_" + g.Vertices.IndexOf(Children[0]))
-				.Replace("g1", "_" + g.Vertices.IndexOf(Children[1]))
-				.Replace("g2", "_" + g.Vertices.IndexOf(Children[2]))
-				.Replace("g3", "_" + g.Vertices.IndexOf(Children[3]));
-		}
-
-		public override string GenerateCodePython(BCGraph g)
-		{
-			return "return (((g0)if(rd())else(g1))if(rd())else((g2)if(rd())else(g3)))"
-				.Replace("g0", "" + g.Vertices.IndexOf(Children[0]))
-				.Replace("g1", "" + g.Vertices.IndexOf(Children[1]))
-				.Replace("g2", "" + g.Vertices.IndexOf(Children[2]))
-				.Replace("g3", "" + g.Vertices.IndexOf(Children[3]));
+			return CodeGenerator.GenerateCodeBCVertexRandom(l, this, g);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

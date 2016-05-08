@@ -1,8 +1,10 @@
 ﻿
+using BefunCompile.CodeGeneration;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 namespace BefunCompile.Graph.Expression
 {
 	public class ExpressionConstant : BCExpression
@@ -54,28 +56,9 @@ namespace BefunCompile.Graph.Expression
 			return false;
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g, bool forceLongReturn)
+		public override string GenerateCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
 		{
-			if (Value >= Int32.MaxValue)
-				forceLongReturn = true;
-
-			return Value.ToString() + (forceLongReturn ? "L" : "");
-		}
-
-		public override string GenerateCodeC(BCGraph g, bool forceLongReturn)
-		{
-			if (Value >= Int32.MaxValue)
-				forceLongReturn = true;
-
-			return Value.ToString() + (forceLongReturn ? "LL" : "");
-		}
-
-		public override string GenerateCodePython(BCGraph g, bool forceLongReturn)
-		{
-			if (Value >= Int32.MaxValue)
-				forceLongReturn = true;
-
-			return Value.ToString();
+			return CodeGenerator.GenerateCodeExpressionConstant(l, this, g, forceLongReturn);
 		}
 
 		public override bool IsNotGridAccess()

@@ -1,4 +1,5 @@
-﻿using BefunCompile.Exceptions;
+﻿using BefunCompile.CodeGeneration;
+using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
@@ -28,7 +29,7 @@ namespace BefunCompile.Graph
 		protected BCVertex(BCDirection d, Vec2i pos)
 		{
 			Direction = d;
-			Positions = new Vec2i[] { pos };
+			Positions = new[] { pos };
 		}
 
 		public virtual void AfterGen()
@@ -47,34 +48,6 @@ namespace BefunCompile.Graph
 		public virtual bool TestVertex()
 		{
 			return Children.All(child => child.Parents.Contains(this)) && Parents.All(parent => parent.Children.Contains(this));
-		}
-
-		protected string Paren(string input, bool doParenthesis = true)
-		{
-			return doParenthesis ? ('(' + input + ')') : input;
-		}
-
-		protected bool IsASCIIChar(long chr)
-		{
-			return
-				(chr >= ' ' && chr <= '~' && chr != '\'' && chr != '\\') ||
-				(chr == '\r') ||
-				(chr == '\n') ||
-				(chr == '\t');
-		}
-
-		protected string GetASCIICharRep(long chr, string marks)
-		{
-			if (chr >= ' ' && chr <= '~' && chr != '\'' && chr != '\\')
-				return marks + (char)chr + marks;
-			if (chr == '\r')
-				return marks + @"\r" + marks;
-			if (chr == '\n')
-				return marks + @"\n" + marks;
-			if (chr == '\t')
-				return marks + @"\t" + marks;
-
-			return null;
 		}
 
 		public static BCVertex FromChar(BCDirection d, long c, Vec2i pos, out BCDirection[] outgoingEdges)
@@ -205,9 +178,7 @@ namespace BefunCompile.Graph
 		public abstract IEnumerable<ExpressionVariable> GetVariables();
 		public abstract IEnumerable<int> GetAllJumps(BCGraph g);
 
-		public abstract string GenerateCodeCSharp(BCGraph g);
-		public abstract string GenerateCodeC(BCGraph g);
-		public abstract string GenerateCodePython(BCGraph g);
+		public abstract string GenerateCode(OutputLanguage l, BCGraph g);
 
 		public abstract UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state);
 		public abstract BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access);
@@ -227,6 +198,6 @@ namespace BefunCompile.Graph
 			}
 
 			return true;
-        }
+		}
 	}
 }

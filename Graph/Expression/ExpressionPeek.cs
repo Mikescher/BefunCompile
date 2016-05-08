@@ -1,9 +1,11 @@
 ﻿
+using BefunCompile.CodeGeneration;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 namespace BefunCompile.Graph.Expression
 {
 	public class ExpressionPeek : BCExpression
@@ -74,19 +76,9 @@ namespace BefunCompile.Graph.Expression
 			return true;
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g, bool forceLongReturn)
+		public override string GenerateCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
 		{
-			return "sr()";
-		}
-
-		public override string GenerateCodeC(BCGraph g, bool forceLongReturn)
-		{
-			return "sr()";
-		}
-
-		public override string GenerateCodePython(BCGraph g, bool forceLongReturn)
-		{
-			return "sr()";
+			return CodeGenerator.GenerateCodeExpressionPeek(l, this, g, forceLongReturn);
 		}
 
 		public override bool IsNotGridAccess()

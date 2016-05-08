@@ -1,11 +1,12 @@
-﻿using BefunCompile.Graph.Expression;
+﻿using BefunCompile.CodeGeneration;
+using BefunCompile.Exceptions;
+using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BefunCompile.Exceptions;
 
 namespace BefunCompile.Graph.Vertex
 {
@@ -132,19 +133,9 @@ namespace BefunCompile.Graph.Vertex
 			return nodes.SelectMany(p => p.GetAllJumps(g));
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override string GenerateCode(OutputLanguage l, BCGraph g)
 		{
-			return string.Join("", nodes.Select(p => p.GenerateCodeCSharp(g) + Environment.NewLine));
-		}
-
-		public override string GenerateCodeC(BCGraph g)
-		{
-			return string.Join("", nodes.Select(p => p.GenerateCodeC(g) + Environment.NewLine));
-		}
-
-		public override string GenerateCodePython(BCGraph g)
-		{
-			return string.Join("", nodes.Select(p => p.GenerateCodePython(g) + Environment.NewLine));
+			return CodeGenerator.GenerateCodeBCVertexBlock(l, this, g);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

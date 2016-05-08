@@ -1,4 +1,5 @@
-﻿using BefunCompile.Exceptions;
+﻿using BefunCompile.CodeGeneration;
+using BefunCompile.Exceptions;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
 using System;
@@ -321,7 +322,7 @@ namespace BefunCompile.Graph.Expression
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
-		private bool NeedsLSParen()
+		public bool NeedsLSParen()
 		{
 			if (ValueA is ExpressionConstant)
 				return false;
@@ -347,7 +348,7 @@ namespace BefunCompile.Graph.Expression
 			return true;
 		}
 
-		private bool NeedsRSParen()
+		public bool NeedsRSParen()
 		{
 			if (ValueB is ExpressionConstant)
 				return false;
@@ -390,198 +391,26 @@ namespace BefunCompile.Graph.Expression
 			throw new CodeGenException();
 		}
 
-		private bool forceLongReturnLeft()
+		public bool ForceLongReturnLeft()
 		{
 			return false;
 		}
 
-		private bool forceLongReturnRight()
+		public bool ForceLongReturnRight()
 		{
 			if (ValueA.IsAlwaysLongReturn()) return false;
 
 			return true;
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g, bool forceLongReturn)
+		public override string GenerateCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
 		{
-			bool forceL = forceLongReturnLeft();
-			bool forceR = forceLongReturnRight();
-
-			string conditional_suffix = "?1:0";
-			if (forceLongReturn)
-				conditional_suffix = "?1L:0L";
-
-			switch (Type)
-			{
-				case BinaryMathType.ADD:
-					return Paren(ValueA.GenerateCodeCSharp(g, forceL), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodeCSharp(g, forceR), NeedsRSParen());
-				case BinaryMathType.SUB:
-					return Paren(ValueA.GenerateCodeCSharp(g, forceL), NeedsLSParen()) + '-' + Paren(ValueB.GenerateCodeCSharp(g, forceR), NeedsRSParen());
-				case BinaryMathType.MUL:
-					return Paren(ValueA.GenerateCodeCSharp(g, forceL), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodeCSharp(g, forceR), NeedsRSParen());
-				case BinaryMathType.DIV:
-					return "td(" + ValueA.GenerateCodeCSharp(g, false) + "," + ValueB.GenerateCodeCSharp(g, false) + ")";
-				case BinaryMathType.GT:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen()) + conditional_suffix;
-				case BinaryMathType.LT:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + "<" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen()) + conditional_suffix;
-				case BinaryMathType.GET:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + ">=" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen()) + conditional_suffix;
-				case BinaryMathType.LET:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + "<=" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen()) + conditional_suffix;
-				case BinaryMathType.MOD:
-					return "tm(" + ValueA.GenerateCodeCSharp(g, false) + "," + ValueB.GenerateCodeCSharp(g, false) + ")";
-				default:
-					throw new ArgumentException();
-			}
+			return CodeGenerator.GenerateCodeExpressionBinMath(l, this, g, forceLongReturn);
 		}
 
-		public override string GenerateCodeC(BCGraph g, bool forceLongReturn)
+		public string GenerateDecisionCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
 		{
-			bool forceL = forceLongReturnLeft();
-			bool forceR = forceLongReturnRight();
-
-			string conditional_suffix = "?1:0";
-			if (forceLongReturn)
-				conditional_suffix = "?1LL:0LL";
-
-			switch (Type)
-			{
-				case BinaryMathType.ADD:
-					return Paren(ValueA.GenerateCodeC(g, forceL), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodeC(g, forceR), NeedsRSParen());
-				case BinaryMathType.SUB:
-					return Paren(ValueA.GenerateCodeC(g, forceL), NeedsLSParen()) + '-' + Paren(ValueB.GenerateCodeC(g, forceR), NeedsRSParen());
-				case BinaryMathType.MUL:
-					return Paren(ValueA.GenerateCodeC(g, forceL), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodeC(g, forceR), NeedsRSParen());
-				case BinaryMathType.DIV:
-					return "td(" + ValueA.GenerateCodeC(g, false) + "," + ValueB.GenerateCodeC(g, false) + ")";
-				case BinaryMathType.GT:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen()) + conditional_suffix;
-				case BinaryMathType.LT:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + "<" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen()) + conditional_suffix;
-				case BinaryMathType.GET:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + ">=" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen()) + conditional_suffix;
-				case BinaryMathType.LET:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + "<=" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen()) + conditional_suffix;
-				case BinaryMathType.MOD:
-					return "tm(" + ValueA.GenerateCodeC(g, false) + "," + ValueB.GenerateCodeC(g, false) + ")";
-				default:
-					throw new ArgumentException();
-			}
-		}
-
-		public override string GenerateCodePython(BCGraph g, bool forceLongReturn)
-		{
-			switch (Type)
-			{
-				case BinaryMathType.ADD:
-					return Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen());
-				case BinaryMathType.SUB:
-					return Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + '-' + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen());
-				case BinaryMathType.MUL:
-					return Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen());
-				case BinaryMathType.DIV:
-					return "td(" + ValueA.GenerateCodePython(g, false) + "," + ValueB.GenerateCodePython(g, false) + ")";
-				case BinaryMathType.GT:
-					return "(1)if(" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen()) + ")else(0)";
-				case BinaryMathType.LT:
-					return "(1)if(" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + "<" + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen()) + ")else(0)";
-				case BinaryMathType.GET:
-					return "(1)if(" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + ">=" + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen()) + ")else(0)";
-				case BinaryMathType.LET:
-					return "(1)if(" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + "<=" + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen()) + ")else(0)";
-				case BinaryMathType.MOD:
-					return "tm(" + ValueA.GenerateCodePython(g, false) + "," + ValueB.GenerateCodePython(g, false) + ")";
-				default:
-					throw new ArgumentException();
-			}
-		}
-
-		public string GenerateDecisionCodeCSharp(BCGraph g, bool forceLongReturn)
-		{
-			bool forceL = forceLongReturnLeft();
-			bool forceR = forceLongReturnRight();
-			
-			switch (Type)
-			{
-				case BinaryMathType.ADD:
-					return "(" + Paren(ValueA.GenerateCodeCSharp(g, forceL), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodeCSharp(g, forceR), NeedsRSParen()) + ")!=0";
-				case BinaryMathType.SUB:
-					return Paren(ValueA.GenerateCodeCSharp(g, forceL), NeedsLSParen()) + "!=" + Paren(ValueB.GenerateCodeCSharp(g, forceR), NeedsRSParen());
-				case BinaryMathType.MUL:
-					return "(" + Paren(ValueA.GenerateCodeCSharp(g, forceL), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodeCSharp(g, forceR), NeedsRSParen()) + ")!=0";
-				case BinaryMathType.DIV:
-					return "td(" + ValueA.GenerateCodeCSharp(g, false) + "," + ValueB.GenerateCodeCSharp(g, false) + ")!=0";
-				case BinaryMathType.GT:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen());
-				case BinaryMathType.LT:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + "<" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen());
-				case BinaryMathType.GET:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + ">=" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen());
-				case BinaryMathType.LET:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + "<=" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen());
-				case BinaryMathType.MOD:
-					return "tm(" + ValueA.GenerateCodeCSharp(g, false) + "," + ValueB.GenerateCodeCSharp(g, false) + ")!=0";
-				default:
-					throw new ArgumentException();
-			}
-		}
-
-		public string GenerateDecisionCodeC(BCGraph g, bool forceLongReturn)
-		{
-			bool forceL = forceLongReturnLeft();
-			bool forceR = forceLongReturnRight();
-
-			switch (Type)
-			{
-				case BinaryMathType.ADD:
-					return "(" + Paren(ValueA.GenerateCodeC(g, forceL), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodeC(g, forceR), NeedsRSParen()) + ")!=0";
-				case BinaryMathType.SUB:
-					return Paren(ValueA.GenerateCodeC(g, forceL), NeedsLSParen()) + "!=" + Paren(ValueB.GenerateCodeC(g, forceR), NeedsRSParen());
-				case BinaryMathType.MUL:
-					return "(" + Paren(ValueA.GenerateCodeC(g, forceL), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodeC(g, forceR), NeedsRSParen()) + ")!=0";
-				case BinaryMathType.DIV:
-					return "td(" + ValueA.GenerateCodeC(g, false) + "," + ValueB.GenerateCodeC(g, false) + ")!=0";
-				case BinaryMathType.GT:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen());
-				case BinaryMathType.LT:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + "<" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen());
-				case BinaryMathType.GET:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + ">=" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen());
-				case BinaryMathType.LET:
-					return "" + Paren(ValueA.GenerateCodeCSharp(g, false), NeedsLSParen()) + "<=" + Paren(ValueB.GenerateCodeCSharp(g, false), NeedsRSParen());
-				case BinaryMathType.MOD:
-					return "tm(" + ValueA.GenerateCodeC(g, false) + "," + ValueB.GenerateCodeC(g, false) + ")!=0";
-				default:
-					throw new ArgumentException();
-			}
-		}
-
-		public string GenerateDecisionCodePython(BCGraph g, bool forceLongReturn)
-		{
-			switch (Type)
-			{
-				case BinaryMathType.ADD:
-					return "(" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + '+' + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen()) + ")!=0";
-				case BinaryMathType.SUB:
-					return Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + "!=" + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen());
-				case BinaryMathType.MUL:
-					return "(" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + '*' + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen()) + ")!=0";
-				case BinaryMathType.DIV:
-					return "td(" + ValueA.GenerateCodePython(g, false) + "," + ValueB.GenerateCodePython(g, false) + ")!=0";
-				case BinaryMathType.GT:
-					return "" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + ">" + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen());
-				case BinaryMathType.LT:
-					return "" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + "<" + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen());
-				case BinaryMathType.GET:
-					return "" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + ">=" + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen());
-				case BinaryMathType.LET:
-					return "" + Paren(ValueA.GenerateCodePython(g, false), NeedsLSParen()) + "<=" + Paren(ValueB.GenerateCodePython(g, false), NeedsRSParen());
-				case BinaryMathType.MOD:
-					return "tm(" + ValueA.GenerateCodePython(g, false) + "," + ValueB.GenerateCodePython(g, false) + ")!=0";
-				default:
-					throw new ArgumentException();
-			}
+			return CodeGenerator.GenerateCodeExpressionBinMathDecision(l, this, g, forceLongReturn);
 		}
 
 		public override bool IsNotGridAccess()

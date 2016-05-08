@@ -1,4 +1,5 @@
-﻿using BefunCompile.Graph.Expression;
+﻿using BefunCompile.CodeGeneration;
+using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
@@ -116,19 +117,9 @@ namespace BefunCompile.Graph.Vertex
 			yield return g.Vertices.IndexOf(EdgeFalse);
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override string GenerateCode(OutputLanguage l, BCGraph g)
 		{
-			return string.Format("if(sp()!=0)goto _{0};else goto _{1};", g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));
-		}
-
-		public override string GenerateCodeC(BCGraph g)
-		{
-			return string.Format("if(sp()!=0)goto _{0};else goto _{1};", g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));
-		}
-
-		public override string GenerateCodePython(BCGraph g)
-		{
-			return string.Format("return ({0})if(sp()!=0)else({1})", g.Vertices.IndexOf(EdgeTrue), g.Vertices.IndexOf(EdgeFalse));
+			return CodeGenerator.GenerateCodeBCVertexDecision(l, this, g);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

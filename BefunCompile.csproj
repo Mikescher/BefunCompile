@@ -46,6 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BefunCompiler.cs" />
+    <Compile Include="CodeGeneration\CodeGenerator.cs" />
+    <Compile Include="CodeGeneration\CodeGeneratorC.cs" />
+    <Compile Include="CodeGeneration\CodeGeneratorCSharp.cs" />
+    <Compile Include="CodeGeneration\CodeGeneratorPython.cs" />
     <Compile Include="Consoleprogram\CommandLineArguments.cs" />
     <Compile Include="Consoleprogram\Program.cs" />
     <Compile Include="Exceptions\GraphExecuteException.cs" />
@@ -115,7 +119,7 @@
     <Compile Include="Math\Vec2l.cs" />
     <Compile Include="Math\CustomLinq.cs" />
     <Compile Include="Math\Vec2i.cs" />
-    <Compile Include="OutputLanguage.cs" />
+    <Compile Include="CodeGeneration\OutputLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

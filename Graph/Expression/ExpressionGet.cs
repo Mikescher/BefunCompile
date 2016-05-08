@@ -1,9 +1,11 @@
 ﻿
+using BefunCompile.CodeGeneration;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 namespace BefunCompile.Graph.Expression
 {
 	public class ExpressionGet : BCExpression, MemoryAccess
@@ -106,19 +108,9 @@ namespace BefunCompile.Graph.Expression
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g, bool forceLongReturn)
+		public override string GenerateCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("gr({0},{1})", X.GenerateCodeCSharp(g, false), Y.GenerateCodeCSharp(g, false));
-		}
-
-		public override string GenerateCodeC(BCGraph g, bool forceLongReturn)
-		{
-			return string.Format("gr({0},{1})", X.GenerateCodeC(g, false), Y.GenerateCodeC(g, false));
-		}
-
-		public override string GenerateCodePython(BCGraph g, bool forceLongReturn)
-		{
-			return string.Format("gr({0},{1})", X.GenerateCodePython(g, false), Y.GenerateCodePython(g, false));
+			return CodeGenerator.GenerateCodeExpressionGet(l, this, g, forceLongReturn);
 		}
 
 		public override bool IsNotGridAccess()

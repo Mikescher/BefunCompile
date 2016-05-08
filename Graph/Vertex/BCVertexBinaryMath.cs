@@ -1,4 +1,5 @@
-﻿using BefunCompile.Graph.Expression;
+﻿using BefunCompile.CodeGeneration;
+using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
@@ -168,131 +169,9 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<int>();
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override string GenerateCode(OutputLanguage l, BCGraph g)
 		{
-			StringBuilder codebuilder = new StringBuilder();
-
-			switch (MathType)
-			{
-				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+sp());");
-					break;
-				case BinaryMathType.SUB:
-					codebuilder.AppendLine("{long v0=sp();sa(sp()-v0);}");
-					break;
-				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*sp());");
-					break;
-				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{long v0=sp();sa(td(sp(),v0));}");
-					break;
-				case BinaryMathType.GT:
-					codebuilder.AppendLine("{long v0=sp();sa((sp()>v0)?1:0);}");
-					break;
-				case BinaryMathType.LT:
-					codebuilder.AppendLine("{long v0=sp();sa((sp()<v0)?1:0);}");
-					break;
-				case BinaryMathType.GET:
-					codebuilder.AppendLine("{long v0=sp();sa((sp()>=v0)?1:0);}");
-					break;
-				case BinaryMathType.LET:
-					codebuilder.AppendLine("{long v0=sp();sa((sp()<=v0)?1:0);}");
-					break;
-				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{long v0=sp();sa(tm(sp(),v0));}");
-					break;
-				default:
-					throw new Exception("uwotm8");
-			}
-
-			return codebuilder.ToString();
-		}
-
-		public override string GenerateCodeC(BCGraph g)
-		{
-			StringBuilder codebuilder = new StringBuilder();
-
-			switch (MathType)
-			{
-				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+sp());");
-					break;
-				case BinaryMathType.SUB:
-					codebuilder.AppendLine("{int64 v0=sp();sa(sp()-v0);}");
-					break;
-				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*sp());");
-					break;
-				case BinaryMathType.DIV:
-					codebuilder.AppendLine("{int64 v0=sp();sa(td(sp(),v0));}");
-					break;
-				case BinaryMathType.GT:
-					codebuilder.AppendLine("{int64 v0=sp();sa((sp()>v0)?1:0);}");
-					break;
-				case BinaryMathType.LT:
-					codebuilder.AppendLine("{int64 v0=sp();sa((sp()<v0)?1:0);}");
-					break;
-				case BinaryMathType.GET:
-					codebuilder.AppendLine("{int64 v0=sp();sa((sp()>=v0)?1:0);}");
-					break;
-				case BinaryMathType.LET:
-					codebuilder.AppendLine("{int64 v0=sp();sa((sp()<=v0)?1:0);}");
-					break;
-				case BinaryMathType.MOD:
-					codebuilder.AppendLine("{int64 v0=sp();sa(tm(sp(),v0));}");
-					break;
-				default:
-					throw new Exception("uwotm8");
-			}
-
-			return codebuilder.ToString();
-		}
-
-		public override string GenerateCodePython(BCGraph g)
-		{
-			StringBuilder codebuilder = new StringBuilder();
-
-			switch (MathType)
-			{
-				case BinaryMathType.ADD:
-					codebuilder.AppendLine("sa(sp()+sp());");
-					break;
-				case BinaryMathType.SUB:
-					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa(sp()-v0)");
-					break;
-				case BinaryMathType.MUL:
-					codebuilder.AppendLine("sa(sp()*sp());");
-					break;
-				case BinaryMathType.DIV:
-					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa(td(sp(),v0))");
-					break;
-				case BinaryMathType.GT:
-					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa((1)if(sp()>v0)else(0))");
-					break;
-				case BinaryMathType.LT:
-					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa((1)if(sp()<v0)else(0))");
-					break;
-				case BinaryMathType.GET:
-					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa((1)if(sp()>=v0)else(0))");
-					break;
-				case BinaryMathType.LET:
-					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa((1)if(sp()<=v0)else(0))");
-					break;
-				case BinaryMathType.MOD:
-					codebuilder.AppendLine("v0=sp()");
-					codebuilder.AppendLine("sa(tm(sp(),v0))");
-					break;
-				default:
-					throw new Exception("uwotm8");
-			}
-
-			return codebuilder.ToString();
+			return CodeGenerator.GenerateCodeBCVertexBinaryMath(l, this);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

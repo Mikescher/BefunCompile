@@ -1,4 +1,5 @@
-﻿using BefunCompile.Graph.Expression;
+﻿using BefunCompile.CodeGeneration;
+using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
@@ -129,42 +130,9 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<int>();
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override string GenerateCode(OutputLanguage l, BCGraph g)
 		{
-			if (!ModeInteger && Value is ExpressionConstant && IsASCIIChar((Value as ExpressionConstant).Value))
-				return string.Format("System.Console.Out.Write({0});", GetASCIICharRep((Value as ExpressionConstant).Value, "'"));
-
-			if (ModeInteger)
-				return string.Format("System.Console.Out.Write({0});",
-				Value.GenerateCodeCSharp(g, true));
-
-			return string.Format("System.Console.Out.Write(({0})({1}));",
-				ModeInteger ? "long" : "char",
-				Value.GenerateCodeCSharp(g, false));
-		}
-
-		public override string GenerateCodeC(BCGraph g)
-		{
-			if (!ModeInteger && Value is ExpressionConstant && IsASCIIChar((Value as ExpressionConstant).Value))
-				return string.Format("printf({0});", GetASCIICharRep((Value as ExpressionConstant).Value, "\""));
-
-			if (ModeInteger)
-				return string.Format("printf(\"{0}\", {1});",
-				"%lld",
-				Value.GenerateCodeC(g, true));
-
-			return string.Format("printf(\"{0}\", ({1})({2}));",
-				ModeInteger ? "%lld" : "%c",
-				ModeInteger ? "int64" : "char",
-				Value.GenerateCodeC(g, false));
-		}
-
-		public override string GenerateCodePython(BCGraph g)
-		{
-			if (ModeInteger)
-				return string.Format("print({0},end=\"\",flush=True)", Value.GenerateCodePython(g, false));
-			else
-				return string.Format("print(chr({0}),end=\"\",flush=True)", Value.GenerateCodePython(g, false));
+			return CodeGenerator.GenerateCodeBCVertexExprOutput(l, this, g);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

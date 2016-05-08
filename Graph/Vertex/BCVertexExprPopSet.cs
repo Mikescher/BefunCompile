@@ -1,11 +1,12 @@
-﻿using BefunCompile.Graph.Expression;
+﻿using BefunCompile.CodeGeneration;
+using BefunCompile.Exceptions;
+using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BefunCompile.Exceptions;
 
 namespace BefunCompile.Graph.Vertex
 {
@@ -156,19 +157,9 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<int>();
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override string GenerateCode(OutputLanguage l, BCGraph g)
 		{
-			return string.Format("gw({0},{1},sp());", X.GenerateCodeCSharp(g, false), Y.GenerateCodeCSharp(g, false));
-		}
-
-		public override string GenerateCodeC(BCGraph g)
-		{
-			return string.Format("gw({0},{1},sp());", X.GenerateCodeC(g, false), Y.GenerateCodeC(g, false));
-		}
-
-		public override string GenerateCodePython(BCGraph g)
-		{
-			return string.Format("gw({0},{1},sp())", X.GenerateCodePython(g, false), Y.GenerateCodePython(g, false));
+			return CodeGenerator.GenerateCodeBCVertexExprPopSet(l, this, g);
 		}
 
 		public override bool TestVertex()

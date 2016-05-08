@@ -1,4 +1,5 @@
 ﻿
+using BefunCompile.CodeGeneration;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
@@ -102,19 +103,9 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<int>();
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g)
+		public override string GenerateCode(OutputLanguage l, BCGraph g)
 		{
-			return "{long v0=sp();long v1=sp();sa(v0);sa(v1);}";
-		}
-
-		public override string GenerateCodeC(BCGraph g)
-		{
-			return "{int64 v0=sp();int64 v1=sp();sa(v0);sa(v1);}";
-		}
-
-		public override string GenerateCodePython(BCGraph g)
-		{
-			return "v0=sp()" + Environment.NewLine + "v1=sp()" + Environment.NewLine + "sa(v0)" + Environment.NewLine + "sa(v1)";
+			return CodeGenerator.GenerateCodeBCVertexSwap(l, this, g);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

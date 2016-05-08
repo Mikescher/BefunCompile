@@ -1,5 +1,5 @@
 ﻿
-namespace BefunCompile
+namespace BefunCompile.CodeGeneration
 {
 	public enum OutputLanguage
 	{

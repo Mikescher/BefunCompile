@@ -1,4 +1,5 @@
 ﻿
+using BefunCompile.CodeGeneration;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using System;
 using System.Collections.Generic;
@@ -85,7 +86,7 @@ namespace BefunCompile.Graph.Expression
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
-		private bool NeedsParen()
+		public bool NeedsParen()
 		{
 			if (Value is ExpressionConstant)
 				return false;
@@ -116,40 +117,14 @@ namespace BefunCompile.Graph.Expression
 			return false;
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g, bool forceLongReturn)
+		public override string GenerateCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
 		{
-			if (forceLongReturn)
-				return string.Format("({0}!=0)?0L:1L", Paren(Value.GenerateCodeCSharp(g, false), NeedsParen()));
-			else
-				return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeCSharp(g, false), NeedsParen()));
+			return CodeGenerator.GenerateCodeExpressionNot(l, this, g, forceLongReturn);
 		}
 
-		public override string GenerateCodeC(BCGraph g, bool forceLongReturn)
+		public string GenerateCodeDecision(OutputLanguage l, BCGraph g, bool forceLongReturn)
 		{
-			if (forceLongReturn)
-				return string.Format("({0}!=0)?0LL:1LL", Paren(Value.GenerateCodeC(g, false), NeedsParen()));
-			else
-				return string.Format("({0}!=0)?0:1", Paren(Value.GenerateCodeC(g, false), NeedsParen()));
-		}
-
-		public override string GenerateCodePython(BCGraph g, bool forceLongReturn)
-		{
-			return string.Format("(0)if({0}!=0)else(1)", Paren(Value.GenerateCodePython(g, false), NeedsParen()));
-		}
-
-		public string GenerateDecisionCodeCSharp(BCGraph g, bool forceLongReturn)
-		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodeCSharp(g, false), NeedsParen()));
-		}
-
-		public string GenerateDecisionCodeC(BCGraph g, bool forceLongReturn)
-		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodeC(g, false), NeedsParen()));
-		}
-
-		public string GenerateDecisionCodePython(BCGraph g, bool forceLongReturn)
-		{
-			return string.Format("{0}==0", Paren(Value.GenerateCodePython(g, false), NeedsParen()));
+			return CodeGenerator.GenerateCodeExpressionNotDecision(l, this, g, forceLongReturn);
 		}
 
 		public override bool IsNotGridAccess()

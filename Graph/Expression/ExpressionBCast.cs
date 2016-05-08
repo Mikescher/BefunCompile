@@ -1,4 +1,5 @@
 ﻿
+using BefunCompile.CodeGeneration;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,10 @@ namespace BefunCompile.Graph.Expression
 		private ExpressionBCast(BCExpression v)
 		{
 			this.Value = v;
+		}
+
+		public ExpressionBCast() : base()
+		{
 		}
 
 		public static BCExpression Create(BCExpression v)
@@ -86,7 +91,7 @@ namespace BefunCompile.Graph.Expression
 			return Enumerable.Empty<ExpressionVariable>();
 		}
 
-		private bool NeedsParen()
+		public bool NeedsParen()
 		{
 			if (Value is ExpressionConstant)
 				return false;
@@ -117,25 +122,9 @@ namespace BefunCompile.Graph.Expression
 			return false;
 		}
 
-		public override string GenerateCodeCSharp(BCGraph g, bool forceLongReturn)
+		public override string GenerateCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
 		{
-			if (forceLongReturn)
-				return string.Format("({0}!=0)?1L:0L", Paren(Value.GenerateCodeCSharp(g, false), NeedsParen()));
-			else
-				return string.Format("({0}!=0)?1:0", Paren(Value.GenerateCodeCSharp(g, false), NeedsParen()));
-		}
-
-		public override string GenerateCodeC(BCGraph g, bool forceLongReturn)
-		{
-			if (forceLongReturn)
-				return string.Format("({0}!=0)?1LL:0LL", Paren(Value.GenerateCodeC(g, false), NeedsParen()));
-			else
-				return string.Format("({0}!=0)?1:0", Paren(Value.GenerateCodeC(g, false), NeedsParen()));
-		}
-
-		public override string GenerateCodePython(BCGraph g, bool forceLongReturn)
-		{
-			return string.Format("(1)if({0}!=0)else(0)", Paren(Value.GenerateCodePython(g, false), NeedsParen()));
+			return CodeGenerator.GenerateCodeExpressionBCast(l, this, g, forceLongReturn);
 		}
 
 		public override bool IsNotGridAccess()
