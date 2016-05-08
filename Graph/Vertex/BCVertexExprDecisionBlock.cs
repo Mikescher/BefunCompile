@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BefunCompile.CodeGeneration.Generator;
 
 namespace BefunCompile.Graph.Vertex
 {

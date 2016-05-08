@@ -5,6 +5,7 @@ using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BefunCompile.CodeGeneration.Generator;
 
 namespace BefunCompile.Graph.Expression
 {

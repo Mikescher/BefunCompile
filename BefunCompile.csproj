@@ -46,11 +46,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BefunCompiler.cs" />
-    <Compile Include="CodeGeneration\CodeGenerator.cs" />
-    <Compile Include="CodeGeneration\CodeGeneratorC.cs" />
-    <Compile Include="CodeGeneration\CodeGeneratorJava.cs" />
-    <Compile Include="CodeGeneration\CodeGeneratorCSharp.cs" />
-    <Compile Include="CodeGeneration\CodeGeneratorPython.cs" />
+    <Compile Include="CodeGeneration\Compiler\CodeCompiler.cs" />
+    <Compile Include="CodeGeneration\Compiler\CodeCompilerC.cs" />
+    <Compile Include="CodeGeneration\Compiler\CodeCompilerCSharp.cs" />
+    <Compile Include="CodeGeneration\CodeCompilerError.cs" />
+    <Compile Include="CodeGeneration\Compiler\CodeCompilerJava.cs" />
+    <Compile Include="CodeGeneration\Compiler\CodeCompilerPython.cs" />
+    <Compile Include="CodeGeneration\Generator\CodeGenerator.cs" />
+    <Compile Include="CodeGeneration\Generator\CodeGeneratorC.cs" />
+    <Compile Include="CodeGeneration\Generator\CodeGeneratorJava.cs" />
+    <Compile Include="CodeGeneration\Generator\CodeGeneratorCSharp.cs" />
+    <Compile Include="CodeGeneration\Generator\CodeGeneratorPython.cs" />
     <Compile Include="Consoleprogram\CommandLineArguments.cs" />
     <Compile Include="Consoleprogram\Program.cs" />
     <Compile Include="Exceptions\GraphExecuteException.cs" />

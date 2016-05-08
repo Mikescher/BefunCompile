@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 // ReSharper disable UnusedParameter.Global
-namespace BefunCompile.CodeGeneration
+namespace BefunCompile.CodeGeneration.Generator
 {
 	public abstract class CodeGenerator
 	{

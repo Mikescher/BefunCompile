@@ -2,14 +2,15 @@
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BefunCompile.CodeGeneration
+namespace BefunCompile.CodeGeneration.Generator
 {
-	public class CodeGeneratorJava : CodeGenerator
+	public class CodeGeneratorCSharp : CodeGenerator
 	{
-		private const OutputLanguage LANG = OutputLanguage.Java;
+		private const OutputLanguage LANG = OutputLanguage.CSharp;
 
 		protected override string GenerateCode(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
@@ -17,52 +18,62 @@ namespace BefunCompile.CodeGeneration
 
 			comp.TestGraph();
 
-			StringBuilder codebuilder = new StringBuilder();
+			List<int> activeJumps = comp.GetAllJumps().Distinct().ToList();
 
+			string indent1 = "    ";
+			string indent2 = "    " + "    ";
+
+			if (!fmtOutput)
+			{
+				indent1 = "";
+				indent2 = "";
+			}
+
+			StringBuilder codebuilder = new StringBuilder();
 			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
-			codebuilder.AppendLine("class Program {");
+			codebuilder.AppendLine(@"public static class Program ");
+			codebuilder.AppendLine("{");
 
 			if (comp.ListDynamicVariableAccess().Any() || comp.ListConstantVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccess(comp, implementSafeGridAccess, useGZip));
-			codebuilder.Append(GenerateHelperMethods(comp));
 			codebuilder.Append(GenerateStackAccess(implementSafeStackAccess));
+			codebuilder.Append(GenerateHelperMethods(comp));
+
+			codebuilder.AppendLine("static void Main(string[] args)");
+			codebuilder.AppendLine("{");
 
 			if (comp.Variables.Any(p => !p.isUserDefinied))
 			{
-				codebuilder.AppendLine("long " + string.Join(",", comp.Variables.Where(p => !p.isUserDefinied)) + ";");
+				codebuilder.AppendLine(indent2 + "long " + string.Join(",", comp.Variables.Where(p => !p.isUserDefinied)) + ";");
 			}
 
 			foreach (var variable in comp.Variables.Where(p => p.isUserDefinied))
 			{
-				codebuilder.AppendLine("long " + variable.Identifier + "=" + variable.initial + ";");
+				codebuilder.AppendLine(indent2 + "long " + variable.Identifier + "=" + variable.initial + ";");
 			}
-			
+
+			if (comp.Vertices.IndexOf(comp.Root) != 0)
+				codebuilder.AppendLine(indent2 + "goto _" + comp.Vertices.IndexOf(comp.Root) + ";");
+
 			for (int i = 0; i < comp.Vertices.Count; i++)
 			{
-				codebuilder.AppendLine("private int _" + i + "() {");
+				if (activeJumps.Contains(i))
+					codebuilder.AppendLine(indent1 + "_" + i + ":");
 
-				codebuilder.AppendLine(Indent(comp.Vertices[i].GenerateCode(LANG, comp), "    "));
+				codebuilder.AppendLine(Indent(comp.Vertices[i].GenerateCode(LANG, comp), indent2));
 
 				if (comp.Vertices[i].Children.Count == 1)
-					codebuilder.AppendLine("    return " + comp.Vertices.IndexOf(comp.Vertices[i].Children[0]) + ";");
+				{
+					if (comp.Vertices.IndexOf(comp.Vertices[i].Children[0]) != i + 1) // Fall through
+						codebuilder.AppendLine(indent2 + "goto _" + comp.Vertices.IndexOf(comp.Vertices[i].Children[0]) + ";");
+				}
 				else if (comp.Vertices[i].Children.Count == 0)
-					codebuilder.AppendLine("    return " + comp.Vertices.Count + ";");
-
-				codebuilder.AppendLine("}");
+				{
+					codebuilder.AppendLine(indent2 + "return;");
+				}
 			}
 
-			codebuilder.AppendLine();
-
-			codebuilder.AppendLine("public void main(){");
-			codebuilder.AppendLine("    int c=" + comp.Vertices.IndexOf(comp.Root) + ";");
-			codebuilder.AppendLine("    while (c<" + comp.Vertices.Count + ") {");
-			codebuilder.AppendLine("    switch(c) {");
-			for (int i = 0; i < comp.Vertices.Count; i++)
-			{
-				codebuilder.AppendLine("    case " + i + ": c = _" + i + "(); break;");
-			}
-			codebuilder.AppendLine("}");
-			codebuilder.AppendLine("}}public static void main(String[]a){new Program().main();}}");
+			codebuilder.AppendLine("}}");
 
 			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
 		}
@@ -70,19 +81,15 @@ namespace BefunCompile.CodeGeneration
 		private string GenerateHelperMethods(BCGraph comp)
 		{
 			StringBuilder codebuilder = new StringBuilder();
-			
-			if (comp.Root.IsInput())
-			{
-				codebuilder.AppendLine("private java.io.BufferedReader ib=new java.io.BufferedReader(new java.io.InputStreamReader(System.in));");
-			}
 
 			if (comp.Vertices.Any(p => p.IsRandom()))
 			{
-				codebuilder.AppendLine(@"private boolean rd(){return Math.random()<0.5;}");
+				codebuilder.AppendLine(@"private static readonly System.Random r = new System.Random();");
+				codebuilder.AppendLine(@"private static bool rd(){ return r.Next(2)!=0; }");
 			}
 
-			codebuilder.AppendLine(@"private long td(long a,long b){ return (b==0)?0:(a/b); }");
-			codebuilder.AppendLine(@"private long tm(long a,long b){ return (b==0)?0:(a%b); }");
+			codebuilder.AppendLine(@"private static long td(long a,long b){ return (b==0)?0:(a/b); }");
+			codebuilder.AppendLine(@"private static long tm(long a,long b){ return (b==0)?0:(a%b); }");
 
 			return codebuilder.ToString();
 		}
@@ -91,19 +98,19 @@ namespace BefunCompile.CodeGeneration
 		{
 			var codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine("private final static java.util.Stack<Long> s=new java.util.Stack<Long>();");
+			codebuilder.AppendLine("private static System.Collections.Generic.Stack<long> s=new System.Collections.Generic.Stack<long>();");
 
 			if (implementSafeStackAccess)
 			{
-				codebuilder.AppendLine(@"private long sp(){ return (s.size()==0)?0:s.pop(); }");    //sp = pop
-				codebuilder.AppendLine(@"private void sa(long v){ s.push(v); }");                   //sa = push
-				codebuilder.AppendLine(@"private long sr(){ return (s.size()==0)?0:s.peek(); }");   //sr = peek
+				codebuilder.AppendLine(@"private static long sp(){ return (s.Count==0)?0:s.Pop(); }");    //sp = pop
+				codebuilder.AppendLine(@"private static void sa(long v){ s.Push(v); }");                  //sa = push
+				codebuilder.AppendLine(@"private static long sr(){ return (s.Count==0)?0:s.Peek(); }");   //sr = peek
 			}
 			else
 			{
-				codebuilder.AppendLine(@"private long sp(){ return s.pop(); }");    //sp = pop
-				codebuilder.AppendLine(@"private void sa(long v){ s.push(v); }");   //sa = push
-				codebuilder.AppendLine(@"private long sr(){ return s.peek(); }");   //sr = peek
+				codebuilder.AppendLine(@"private static long sp(){ return s.Pop(); }");    //sp = pop
+				codebuilder.AppendLine(@"private static void sa(long v){ s.Push(v); }");   //sa = push
+				codebuilder.AppendLine(@"private static long sr(){ return s.Peek(); }");   //sr = peek
 			}
 
 			return codebuilder.ToString();
@@ -120,20 +127,20 @@ namespace BefunCompile.CodeGeneration
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			codebuilder.AppendLine(@"private final static long[,] g = " + GenerateGridInitializer(comp) + ";");
+			codebuilder.AppendLine(@"private static readonly long[,] g = " + GenerateGridInitializer(comp) + ";");
 
 			if (implementSafeGridAccess)
 			{
 				string w = comp.Width.ToString();
 				string h = comp.Height.ToString();
 
-				codebuilder.AppendLine(@"private long gr(long x,long y){return(x>=0&&y>=0&&x<ggw&&y<ggh)?g[y, x]:0;}".Replace("ggw", w).Replace("ggh", h));
-				codebuilder.AppendLine(@"private void gw(long x,long y,long v){if(x>=0&&y>=0&&x<ggw&&y<ggh)g[y, x]=v;}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static long gr(long x,long y){return(x>=0&&y>=0&&x<ggw&&y<ggh)?g[y, x]:0;}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){if(x>=0&&y>=0&&x<ggw&&y<ggh)g[y, x]=v;}".Replace("ggw", w).Replace("ggh", h));
 			}
 			else
 			{
-				codebuilder.AppendLine(@"private long gr(long x,long y) {return g[y, x];}");
-				codebuilder.AppendLine(@"private void gw(long x,long y,long v){g[y, x]=v;}");
+				codebuilder.AppendLine(@"private static long gr(long x,long y) {return g[y, x];}");
+				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){g[y, x]=v;}");
 			}
 
 			return codebuilder.ToString();
@@ -143,7 +150,6 @@ namespace BefunCompile.CodeGeneration
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
-			long datasize = comp.Width * comp.Height;
 			string w = comp.Width.ToString();
 			string h = comp.Height.ToString();
 
@@ -151,35 +157,30 @@ namespace BefunCompile.CodeGeneration
 			for (int i = 0; i < b64.Count; i++)
 			{
 				if (i == 0 && (i + 1) == b64.Count)
-					codebuilder.AppendLine(@"private final static String _g = " + '"' + b64[i] + '"' + ";");
+					codebuilder.AppendLine(@"private static readonly string _g = " + '"' + b64[i] + '"' + ";");
 				else if (i == 0)
-					codebuilder.AppendLine(@"private final static String _g = " + '"' + b64[i] + '"' + "+");
+					codebuilder.AppendLine(@"private static readonly string _g = " + '"' + b64[i] + '"' + "+");
 				else if ((i + 1) == b64.Count)
-					codebuilder.AppendLine(@"                                 " + '"' + b64[i] + '"' + ";");
+					codebuilder.AppendLine(@"                                    " + '"' + b64[i] + '"' + ";");
 				else
-					codebuilder.AppendLine(@"                                 " + '"' + b64[i] + '"' + "+");
+					codebuilder.AppendLine(@"                                    " + '"' + b64[i] + '"' + "+");
 			}
-			codebuilder.AppendLine(@"private final long[] g=zc(zd(java.util.Base64.getDecoder().decode(_g)));");
+			codebuilder.AppendLine(@"private static readonly long[]  g = System.Array.ConvertAll(zd(System.Convert.FromBase64String(_g)),b=>(long)b);");
 
-			codebuilder.AppendLine(@"private long[]zc(byte[]b){long[]r=new long[" + datasize + @"];for(int i=0;i<" + datasize + @";i++)r[i]=b[i];return r;}");
-			codebuilder.AppendLine(@"private byte[]zd(byte[]o){byte[]d=java.util.Arrays.copyOfRange(o,1,o.length);for(int i=0;i<o[0];i++)d=zs(d);return d;}");
-			codebuilder.AppendLine(@"private byte[]zs(byte[]o){try{");
-			codebuilder.AppendLine(@"java.io.ByteArrayInputStream  y=new java.io.ByteArrayInputStream(o);");
-			codebuilder.AppendLine(@"java.util.zip.GZIPInputStream s=new java.util.zip.GZIPInputStream(y);");
-			codebuilder.AppendLine(@"java.io.ByteArrayOutputStream a=new java.io.ByteArrayOutputStream();");
-			codebuilder.AppendLine(@"int res=0;byte buf[]=new byte[1024];while(res>=0){res=s.read(buf,0,1024);if(res>0)a.write(buf,0,res);}return a.toByteArray();");
-			codebuilder.AppendLine(@"}catch(java.io.IOException e){return null;}}");
-
+			codebuilder.AppendLine(@"private static byte[]zd(byte[]o){byte[]d=System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Skip(o, 1));for(int i=0;i<o[0];i++)d=zs(d);return d;}");
+			codebuilder.AppendLine(@"private static byte[]zs(byte[]o){using(var c=new System.IO.MemoryStream(o))");
+			codebuilder.AppendLine(@"                                 using(var z=new System.IO.Compression.GZipStream(c,System.IO.Compression.CompressionMode.Decompress))");
+			codebuilder.AppendLine(@"                                 using(var r=new System.IO.MemoryStream()){z.CopyTo(r);return r.ToArray();}}");
 			if (implementSafeGridAccess)
 			{
 
-				codebuilder.AppendLine(@"private long gr(long x,long y){return(x>=0&&y>=0&&x<ggw&&y<ggh)?g[(int)(y*ggw+x)]:0;}".Replace("ggw", w).Replace("ggh", h));
-				codebuilder.AppendLine(@"private void gw(long x,long y,long v){if(x>=0&&y>=0&&x<ggw&&y<ggh)g[(int)(y*ggw+x)]=v;}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static long gr(long x,long y){return(x>=0&&y>=0&&x<ggw&&y<ggh)?g[y*ggw+x]:0;}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){if(x>=0&&y>=0&&x<ggw&&y<ggh)g[y*ggw+x]=v;}".Replace("ggw", w).Replace("ggh", h));
 			}
 			else
 			{
-				codebuilder.AppendLine(@"private long gr(long x,long y) {return g[(int)(y*ggw+x)];}".Replace("ggw", w).Replace("ggh", h));
-				codebuilder.AppendLine(@"private void gw(long x,long y,long v){g[(int)(y*ggw+x)]=v;}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static long gr(long x,long y) {return g[y*ggw+x];}".Replace("ggw", w).Replace("ggh", h));
+				codebuilder.AppendLine(@"private static void gw(long x,long y,long v){g[y*ggw+x]=v;}".Replace("ggw", w).Replace("ggh", h));
 			}
 
 			return codebuilder.ToString();
@@ -257,7 +258,7 @@ namespace BefunCompile.CodeGeneration
 
 		protected override string GenerateCodeBCVertexDecision(BCVertexDecision comp, BCGraph g)
 		{
-			return string.Format("if(sp()!=0)return {0};else return {1};", g.Vertices.IndexOf(comp.EdgeTrue), g.Vertices.IndexOf(comp.EdgeFalse));
+			return string.Format("if(sp()!=0)goto _{0};else goto _{1};", g.Vertices.IndexOf(comp.EdgeTrue), g.Vertices.IndexOf(comp.EdgeFalse));
 		}
 
 		protected override string GenerateCodeBCVertexDecisionBlock(BCVertexDecisionBlock comp, BCGraph g)
@@ -279,11 +280,11 @@ namespace BefunCompile.CodeGeneration
 			var exprNotValue = comp.Value as ExpressionNot;
 
 			if (exprBinMathValue != null)
-				return string.Format("if({0})return {1};else return {2};", exprBinMathValue.GenerateDecisionCode(LANG, g, false), vtrue, vfalse);
+				return string.Format("if({0})goto _{1};else goto _{2};", exprBinMathValue.GenerateDecisionCode(LANG, g, false), vtrue, vfalse);
 			else if (exprNotValue != null)
-				return string.Format("if({0})return {1};else return {2};", exprNotValue.GenerateCodeDecision(LANG, g, false), vtrue, vfalse);
+				return string.Format("if({0})goto _{1};else goto _{2};", exprNotValue.GenerateCodeDecision(LANG, g, false), vtrue, vfalse);
 			else
-				return string.Format("if(({0})!=0)return {1};else return {2};", comp.Value.GenerateCode(LANG, g, false), vtrue, vfalse);
+				return string.Format("if(({0})!=0)goto _{1};else goto _{2};", comp.Value.GenerateCode(LANG, g, false), vtrue, vfalse);
 		}
 
 		protected override string GenerateCodeBCVertexExprDecisionBlock(BCVertexExprDecisionBlock comp, BCGraph g)
@@ -304,12 +305,12 @@ namespace BefunCompile.CodeGeneration
 		protected override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp, BCGraph g)
 		{
 			if (!comp.ModeInteger && comp.Value is ExpressionConstant && IsASCIIChar(((ExpressionConstant) comp.Value).Value))
-				return string.Format("System.out.println({0});", GetASCIICharRep(((ExpressionConstant) comp.Value).Value, "'"));
+				return string.Format("System.Console.Out.Write({0});", GetASCIICharRep(((ExpressionConstant) comp.Value).Value, "'"));
 
 			if (comp.ModeInteger)
-				return string.Format("System.out.println(String.valueOf({0}));", comp.Value.GenerateCode(LANG, g, true));
+				return string.Format("System.Console.Out.Write({0});", comp.Value.GenerateCode(LANG, g, true));
 
-			return string.Format("System.out.println(String.valueOf(({0})({1})));", comp.ModeInteger ? "long" : "char", comp.Value.GenerateCode(LANG, g, false));
+			return string.Format("System.Console.Out.Write(({0})({1}));", comp.ModeInteger ? "long" : "char", comp.Value.GenerateCode(LANG, g, false));
 		}
 
 		protected override string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp, BCGraph g)
@@ -406,17 +407,17 @@ namespace BefunCompile.CodeGeneration
 		protected override string GenerateCodeBCVertexInput(BCVertexInput comp, BCGraph g)
 		{
 			if (comp.ModeInteger)
-				return "{long v0;while(long.TryParse(ib.readLine(),out v0));sa(v0);}";
+				return "{long v0;while(long.TryParse(System.Console.ReadLine(),out v0));sa(v0);}";
 			else
-				return "sa(ib.readLine());";
+				return "sa(System.Console.ReadLine());";
 		}
 
 		protected override string GenerateCodeBCVertexInputVarSet(BCVertexInputVarSet comp, BCGraph g)
 		{
 			if (comp.ModeInteger)
-				return string.Format("{{long v0;while(long.TryParse(ib.readLine(),out v0));{0}=v0;}}", comp.Variable.Identifier);
+				return string.Format("{{long v0;while(long.TryParse(System.Console.ReadLine(),out v0));{0}=v0;}}", comp.Variable.Identifier);
 			else
-				return string.Format("{0}=ib.read();", comp.Variable.Identifier);
+				return string.Format("{0}=System.Console.Read();", comp.Variable.Identifier);
 		}
 
 		protected override string GenerateCodeBCVertexNOP(BCVertexNOP comp, BCGraph g)
@@ -431,7 +432,7 @@ namespace BefunCompile.CodeGeneration
 
 		protected override string GenerateCodeBCVertexOutput(BCVertexOutput comp, BCGraph g)
 		{
-			return string.Format("System.out.println(String.valueOf(({0})(sp())));", comp.ModeInteger ? "long" : "char");
+			return string.Format("System.Console.Out.Write(({0})(sp()));", comp.ModeInteger ? "long" : "char");
 		}
 
 		protected override string GenerateCodeBCVertexPop(BCVertexPop comp, BCGraph g)
@@ -441,11 +442,11 @@ namespace BefunCompile.CodeGeneration
 
 		protected override string GenerateCodeBCVertexRandom(BCVertexRandom comp, BCGraph g)
 		{
-			return "if(rd()){if(rd()){return g0;}else{return g1;}}else{if(rd()){return g2;}else{return g3;}}"
-				.Replace("g0", "" + g.Vertices.IndexOf(comp.Children[0]))
-				.Replace("g1", "" + g.Vertices.IndexOf(comp.Children[1]))
-				.Replace("g2", "" + g.Vertices.IndexOf(comp.Children[2]))
-				.Replace("g3", "" + g.Vertices.IndexOf(comp.Children[3]));
+			return "if(rd()){if(rd()){goto g0;}else{goto g1;}}else{if(rd()){goto g2;}else{goto g3;}}"
+				.Replace("g0", "_" + g.Vertices.IndexOf(comp.Children[0]))
+				.Replace("g1", "_" + g.Vertices.IndexOf(comp.Children[1]))
+				.Replace("g2", "_" + g.Vertices.IndexOf(comp.Children[2]))
+				.Replace("g3", "_" + g.Vertices.IndexOf(comp.Children[3]));
 		}
 
 		protected override string GenerateCodeBCVertexSet(BCVertexSet comp, BCGraph g)
@@ -455,7 +456,7 @@ namespace BefunCompile.CodeGeneration
 
 		protected override string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp, BCGraph g)
 		{
-			return string.Format("System.out.println(\"{0}\");", comp.Value);
+			return string.Format("System.Console.Out.Write(\"{0}\");", comp.Value);
 		}
 
 		protected override string GenerateCodeBCVertexSwap(BCVertexSwap comp, BCGraph g)

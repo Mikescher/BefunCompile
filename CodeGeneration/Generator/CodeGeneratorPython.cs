@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace BefunCompile.CodeGeneration
+namespace BefunCompile.CodeGeneration.Generator
 {
 	public class CodeGeneratorPython : CodeGenerator
 	{
