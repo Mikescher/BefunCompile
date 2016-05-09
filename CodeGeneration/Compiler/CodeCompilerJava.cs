@@ -9,8 +9,14 @@ namespace BefunCompile.CodeGeneration.Compiler
 	{
 		protected override void Compile(string code, string path, StringBuilder dbgOutput)
 		{
-			var fn1 = Path.GetTempFileName() + ".java";
-			var fn3 = Path.GetTempPath() + Guid.NewGuid() + ".class";
+			var guid = Guid.NewGuid();
+
+			var fn0 = Path.Combine(Path.GetTempPath(), guid.ToString());
+			var fn1 = Path.Combine(Path.GetTempPath(), guid.ToString(), "Program.java");
+			var fn3 = Path.Combine(Path.GetTempPath(), guid.ToString(), "Program.class");
+
+			Directory.CreateDirectory(fn0);
+
 			File.WriteAllText(fn1, code);
 
 			#region JVC
@@ -39,9 +45,11 @@ namespace BefunCompile.CodeGeneration.Compiler
 			dbgOutput.AppendLine(jvcerror);
 			dbgOutput.AppendLine(jvcoutput);
 
+			File.Delete(fn1);
+				
 			if (jvc.ExitCode != 0)
 			{
-				File.Delete(fn1);
+				Directory.Delete(fn0, true);
 
 				throw new CodeCompilerError(jvcerror, jvc.ExitCode);
 			}
@@ -55,7 +63,8 @@ namespace BefunCompile.CodeGeneration.Compiler
 				StartInfo =
 				{
 					FileName = "jar",
-					Arguments = string.Format("-cfve \"{0}\" Program \"{1}\"", path, fn3),
+					Arguments = string.Format("-cfve \"{0}\" Program \"{1}\"", path, Path.GetFileName(fn3)),
+					WorkingDirectory = fn0,
 					UseShellExecute = false,
 					RedirectStandardOutput = true,
 					RedirectStandardError = true,
@@ -74,15 +83,18 @@ namespace BefunCompile.CodeGeneration.Compiler
 			dbgOutput.AppendLine(jarerror);
 			dbgOutput.AppendLine(jaroutput);
 
-			if (jvc.ExitCode != 0)
+			File.Delete(fn3);
+
+			if (jar.ExitCode != 0)
 			{
-				File.Delete(fn3);
+				Directory.Delete(fn0, true);
 
 				throw new CodeCompilerError(jarerror, jvc.ExitCode);
 			}
 
 			#endregion
 
+			Directory.Delete(fn0, true);
 		}
 
 		protected override string Execute(string path)

@@ -39,7 +39,10 @@ namespace BefunCompile.CodeGeneration.Generator
 			
 			for (int i = 0; i < comp.Vertices.Count; i++)
 			{
-				codebuilder.AppendLine("private int _" + i + "() {");
+				if (comp.Vertices[i].IsInput())
+					codebuilder.AppendLine("private int _" + i + "()throws java.io.IOException{");
+				else
+					codebuilder.AppendLine("private int _" + i + "() {");
 
 				codebuilder.AppendLine(Indent(comp.Vertices[i].GenerateCode(LANG, comp), "    "));
 
@@ -53,7 +56,10 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			codebuilder.AppendLine();
 
-			codebuilder.AppendLine("public void main(){");
+			if (comp.Root.IsInput())
+				codebuilder.AppendLine("public void main()throws java.io.IOException{");
+			else
+				codebuilder.AppendLine("public void main(){");
 			codebuilder.AppendLine("    int c=" + comp.Vertices.IndexOf(comp.Root) + ";");
 			codebuilder.AppendLine("    while (c<" + comp.Vertices.Count + ") {");
 			codebuilder.AppendLine("    switch(c) {");
@@ -62,7 +68,11 @@ namespace BefunCompile.CodeGeneration.Generator
 				codebuilder.AppendLine("    case " + i + ": c = _" + i + "(); break;");
 			}
 			codebuilder.AppendLine("}");
-			codebuilder.AppendLine("}}public static void main(String[]a){new Program().main();}}");
+
+			if (comp.Root.IsInput())
+				codebuilder.AppendLine("}}public static void main(String[]a){try{new Program().main();}catch(java.io.IOException e){}}}");
+			else
+				codebuilder.AppendLine("}}public static void main(String[]a){new Program().main();}}");
 
 			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
 		}
