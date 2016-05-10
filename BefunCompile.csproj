@@ -52,6 +52,7 @@
     <Compile Include="CodeGeneration\CodeCompilerError.cs" />
     <Compile Include="CodeGeneration\Compiler\CodeCompilerJava.cs" />
     <Compile Include="CodeGeneration\Compiler\CodeCompilerPython.cs" />
+    <Compile Include="CodeGeneration\Compiler\ProcessOutput.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGenerator.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGeneratorC.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGeneratorJava.cs" />

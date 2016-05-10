@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -21,67 +20,22 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 			#region JVC
 
-			Process jvc = new Process
-			{
-				StartInfo =
-				{
-					FileName = "javac",
-					Arguments = string.Format("\"{0}\"", fn1),
-					UseShellExecute = false,
-					RedirectStandardOutput = true,
-					RedirectStandardError = true,
-					CreateNoWindow = true,
-					ErrorDialog = false
-				}
-			};
-
-			jvc.Start();
-			dbgOutput.AppendLine();
-			dbgOutput.AppendLine("> " + jvc.StartInfo.FileName + " " + jvc.StartInfo.Arguments);
-
-			string jvcoutput = jvc.StandardOutput.ReadToEnd();
-			string jvcerror = jvc.StandardError.ReadToEnd();
-			jvc.WaitForExit();
-			dbgOutput.AppendLine(jvcerror);
-			dbgOutput.AppendLine(jvcoutput);
-
+			var jvc = ProcExecute("javac", string.Format("\"{0}\"", fn1), dbgOutput);
+			
 			File.Delete(fn1);
 				
 			if (jvc.ExitCode != 0)
 			{
 				Directory.Delete(fn0, true);
 
-				throw new CodeCompilerError(jvcerror, jvc.ExitCode);
+				throw new CodeCompilerError(jvc.StdErr, jvc.ExitCode);
 			}
 
 			#endregion
 
 			#region JAR
 
-			Process jar = new Process
-			{
-				StartInfo =
-				{
-					FileName = "jar",
-					Arguments = string.Format("-cfve \"{0}\" Program \"{1}\"", path, Path.GetFileName(fn3)),
-					WorkingDirectory = fn0,
-					UseShellExecute = false,
-					RedirectStandardOutput = true,
-					RedirectStandardError = true,
-					CreateNoWindow = true,
-					ErrorDialog = false
-				}
-			};
-
-			jar.Start();
-			dbgOutput.AppendLine();
-			dbgOutput.AppendLine("> " + jar.StartInfo.FileName + " " + jar.StartInfo.Arguments);
-
-			string jaroutput = jar.StandardOutput.ReadToEnd();
-			string jarerror = jar.StandardError.ReadToEnd();
-			jar.WaitForExit();
-			dbgOutput.AppendLine(jarerror);
-			dbgOutput.AppendLine(jaroutput);
+			var jar = ProcExecute("jar", string.Format("-cfve \"{0}\" Program \"{1}\"", path, Path.GetFileName(fn3)), fn0, dbgOutput);
 
 			File.Delete(fn3);
 
@@ -89,7 +43,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 			{
 				Directory.Delete(fn0, true);
 
-				throw new CodeCompilerError(jarerror, jvc.ExitCode);
+				throw new CodeCompilerError(jar.StdErr, jar.ExitCode);
 			}
 
 			#endregion
@@ -99,31 +53,14 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		protected override string Execute(string path)
 		{
-			Process p_prog = new Process
-			{
-				StartInfo =
-				{
-					FileName = "java",
-					Arguments = string.Format("-jar \"{0}\"", path),
-					UseShellExecute = false,
-					RedirectStandardOutput = true,
-					RedirectStandardError = true,
-					CreateNoWindow = true,
-					ErrorDialog = false
-				}
-			};
+			var prog = ProcExecute("java", string.Format("-jar \"{0}\"", path));
 
-			p_prog.Start();
-			string output = p_prog.StandardOutput.ReadToEnd();
-			string error = p_prog.StandardError.ReadToEnd();
-			p_prog.WaitForExit();
-
-			if (p_prog.ExitCode != 0)
+			if (prog.ExitCode != 0)
 			{
-				throw new CodeCompilerError(error, p_prog.ExitCode);
+				throw new CodeCompilerError(prog.StdErr, prog.ExitCode);
 			}
 
-			return output;
+			return prog.StdOut;
 		}
 
 		protected override string GetCodeExtension()

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -13,64 +12,26 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 			File.WriteAllText(fn1, code);
 
-			Process gcc = new Process
-			{
-				StartInfo =
-				{
-					FileName = "gcc.exe",
-					Arguments = string.Format(" -x c \"{0}\" -o \"{1}\"", fn1, path),
-					UseShellExecute = false,
-					RedirectStandardError = true,
-					RedirectStandardOutput = true,
-					CreateNoWindow = true,
-					ErrorDialog = false
-				}
-			};
-
-			gcc.Start();
-			dbgOutput.AppendLine();
-			dbgOutput.AppendLine("> " + gcc.StartInfo.FileName + " " + gcc.StartInfo.Arguments);
-
-			string gccoutput = gcc.StandardOutput.ReadToEnd();
-			string gccerror = gcc.StandardError.ReadToEnd();
-			gcc.WaitForExit();
-
-			dbgOutput.AppendLine(gccerror);
-			dbgOutput.AppendLine(gccoutput);
+			var gcc = ProcExecute("gcc", string.Format(" -x c \"{0}\" -o \"{1}\"", fn1, path), dbgOutput);
 
 			if (gcc.ExitCode != 0)
 			{
 				File.Delete(fn1);
 
-				throw new CodeCompilerError(gccerror, gcc.ExitCode);
+				throw new CodeCompilerError(gcc.StdErr, gcc.ExitCode);
 			}
 		}
 
 		protected override string Execute(string path)
 		{
-			Process prog = new Process
-			{
-				StartInfo =
-				{
-					FileName = path,
-					Arguments = string.Empty,
-					UseShellExecute = false,
-					RedirectStandardOutput = true,
-					CreateNoWindow = true,
-					ErrorDialog = false
-				}
-			};
-
-			prog.Start();
-			string output = prog.StandardOutput.ReadToEnd();
-			prog.WaitForExit();
+			var prog = ProcExecute(path, string.Empty);
 
 			if (prog.ExitCode != 0)
 			{
-				throw new CodeCompilerError(output, prog.ExitCode);
+				throw new CodeCompilerError(prog.StdOut, prog.ExitCode);
 			}
 			
-			return output;
+			return prog.StdOut;
 		}
 
 		protected override string GetCodeExtension()

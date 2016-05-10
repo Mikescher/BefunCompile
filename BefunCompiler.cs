@@ -1,11 +1,11 @@
 ﻿using BefunCompile.CodeGeneration;
+using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Exceptions;
 using BefunCompile.Graph;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BefunCompile.CodeGeneration.Generator;
 
 namespace BefunCompile
 {
@@ -362,3 +362,5 @@ namespace BefunCompile
 //TODO Output: JAVA, JS, VB.Net, Befunge, PHP, Pascal, Perl
 //TODO Move Compiling and Executing into extra classes (for BefunDebug testing..)
 //     --> and perhaps make assemble callable per commandline (for ProjectEuler script)
+
+//TODO Compiling     0"!dlroW olleH">:#,_$@      failed ( out chr(0) )

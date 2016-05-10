@@ -17,10 +17,15 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			comp.TestGraph();
 
+			string indent1 = "    ";
+
+			if (!fmtOutput)
+				indent1 = "";
+
 			StringBuilder codebuilder = new StringBuilder();
 
 			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
-			codebuilder.AppendLine("class Program {");
+			codebuilder.AppendLine("class Program{");
 
 			if (comp.ListDynamicVariableAccess().Any() || comp.ListConstantVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccess(comp, implementSafeGridAccess, useGZip));
@@ -42,14 +47,14 @@ namespace BefunCompile.CodeGeneration.Generator
 				if (comp.Vertices[i].IsInput())
 					codebuilder.AppendLine("private int _" + i + "()throws java.io.IOException{");
 				else
-					codebuilder.AppendLine("private int _" + i + "() {");
+					codebuilder.AppendLine("private int _" + i + "(){");
 
-				codebuilder.AppendLine(Indent(comp.Vertices[i].GenerateCode(LANG, comp), "    "));
+				codebuilder.AppendLine(Indent(comp.Vertices[i].GenerateCode(LANG, comp), indent1));
 
 				if (comp.Vertices[i].Children.Count == 1)
-					codebuilder.AppendLine("    return " + comp.Vertices.IndexOf(comp.Vertices[i].Children[0]) + ";");
+					codebuilder.AppendLine(indent1 + "return " + comp.Vertices.IndexOf(comp.Vertices[i].Children[0]) + ";");
 				else if (comp.Vertices[i].Children.Count == 0)
-					codebuilder.AppendLine("    return " + comp.Vertices.Count + ";");
+					codebuilder.AppendLine(indent1 + "return " + comp.Vertices.Count + ";");
 
 				codebuilder.AppendLine("}");
 			}
@@ -60,12 +65,12 @@ namespace BefunCompile.CodeGeneration.Generator
 				codebuilder.AppendLine("public void main()throws java.io.IOException{");
 			else
 				codebuilder.AppendLine("public void main(){");
-			codebuilder.AppendLine("    int c=" + comp.Vertices.IndexOf(comp.Root) + ";");
-			codebuilder.AppendLine("    while (c<" + comp.Vertices.Count + ") {");
-			codebuilder.AppendLine("    switch(c) {");
+			codebuilder.AppendLine(indent1 + "int c=" + comp.Vertices.IndexOf(comp.Root) + ";");
+			codebuilder.AppendLine(indent1 + "while (c<" + comp.Vertices.Count + "){");
+			codebuilder.AppendLine(indent1 + "switch(c){");
 			for (int i = 0; i < comp.Vertices.Count; i++)
 			{
-				codebuilder.AppendLine("    case " + i + ": c = _" + i + "(); break;");
+				codebuilder.AppendLine(indent1 + "case " + i + ":c=_" + i + "();break;");
 			}
 			codebuilder.AppendLine("}");
 
