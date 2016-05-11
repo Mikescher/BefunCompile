@@ -166,6 +166,10 @@ namespace BefunCompile.Graph
 			}
 		}
 
+		public bool IsInput() => Vertices.Any(p => p.IsInput());
+
+		public bool IsOutput() => Vertices.Any(p => p.IsOutput());
+
 		public void RemoveVertex(BCVertex oldVertex)
 		{
 			if (oldVertex.Children.Count != 1)

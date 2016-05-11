@@ -113,7 +113,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 				dbgOutput.AppendLine("1> " + args.Data);
 
-				if (builderErr.Length == 0)
+				if (builderOut.Length == 0)
 					builderOut.Append(args.Data);
 				else
 					builderOut.Append("\n" + args.Data);

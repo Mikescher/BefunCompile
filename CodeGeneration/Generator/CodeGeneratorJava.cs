@@ -3,7 +3,6 @@ using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
 using System;
 using System.Linq;
-using System.Text;
 
 namespace BefunCompile.CodeGeneration.Generator
 {
@@ -22,15 +21,19 @@ namespace BefunCompile.CodeGeneration.Generator
 			if (!fmtOutput)
 				indent1 = "";
 
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
 			codebuilder.AppendLine("class Program{");
+
+			if (fmtOutput) codebuilder.AppendLine("");
 
 			if (comp.ListDynamicVariableAccess().Any() || comp.ListConstantVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccess(comp, implementSafeGridAccess, useGZip));
 			codebuilder.Append(GenerateHelperMethods(comp));
 			codebuilder.Append(GenerateStackAccess(implementSafeStackAccess));
+
+			if (fmtOutput) codebuilder.AppendLine("");
 
 			if (comp.Variables.Any(p => !p.isUserDefinied))
 			{
@@ -39,9 +42,11 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			foreach (var variable in comp.Variables.Where(p => p.isUserDefinied))
 			{
-				codebuilder.AppendLine("long " + variable.Identifier + "=" + variable.initial + ";");
+				codebuilder.AppendLine("long " + variable.Identifier + "=" + CodeGenerator.GenerateCodeExpressionConstant(LANG, variable.GetInitialConstant(), comp, false) + ";");
 			}
-			
+
+			if (fmtOutput) codebuilder.AppendLine("");
+
 			for (int i = 0; i < comp.Vertices.Count; i++)
 			{
 				if (comp.Vertices[i].IsInput())
@@ -57,11 +62,13 @@ namespace BefunCompile.CodeGeneration.Generator
 					codebuilder.AppendLine(indent1 + "return " + comp.Vertices.Count + ";");
 
 				codebuilder.AppendLine("}");
+
+				if (fmtOutput) codebuilder.AppendLine("");
 			}
 
 			codebuilder.AppendLine();
 
-			if (comp.Root.IsInput())
+			if (comp.IsInput())
 				codebuilder.AppendLine("public void main()throws java.io.IOException{");
 			else
 				codebuilder.AppendLine("public void main(){");
@@ -74,19 +81,21 @@ namespace BefunCompile.CodeGeneration.Generator
 			}
 			codebuilder.AppendLine("}");
 
-			if (comp.Root.IsInput())
+			if (fmtOutput) codebuilder.AppendLine("");
+
+			if (comp.IsInput())
 				codebuilder.AppendLine("}}public static void main(String[]a){try{new Program().main();}catch(java.io.IOException e){}}}");
 			else
 				codebuilder.AppendLine("}}public static void main(String[]a){new Program().main();}}");
 
-			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
+			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None));
 		}
 
 		private string GenerateHelperMethods(BCGraph comp)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 			
-			if (comp.Root.IsInput())
+			if (comp.IsInput())
 			{
 				codebuilder.AppendLine("private java.io.BufferedReader ib=new java.io.BufferedReader(new java.io.InputStreamReader(System.in));");
 			}
@@ -96,29 +105,29 @@ namespace BefunCompile.CodeGeneration.Generator
 				codebuilder.AppendLine(@"private boolean rd(){return Math.random()<0.5;}");
 			}
 
-			codebuilder.AppendLine(@"private long td(long a,long b){ return (b==0)?0:(a/b); }");
-			codebuilder.AppendLine(@"private long tm(long a,long b){ return (b==0)?0:(a%b); }");
+			codebuilder.AppendLine(@"private long td(long a,long b){return (b==0)?0:(a/b);}");
+			codebuilder.AppendLine(@"private long tm(long a,long b){return (b==0)?0:(a%b);}");
 
 			return codebuilder.ToString();
 		}
 
 		private string GenerateStackAccess(bool implementSafeStackAccess)
 		{
-			var codebuilder = new StringBuilder();
+			var codebuilder = new SourceCodeBuilder();
 
 			codebuilder.AppendLine("private final static java.util.Stack<Long> s=new java.util.Stack<Long>();");
 
 			if (implementSafeStackAccess)
 			{
-				codebuilder.AppendLine(@"private long sp(){ return (s.size()==0)?0:s.pop(); }");    //sp = pop
+				codebuilder.AppendLine(@"private long sp(){return (s.size()==0)?0:s.pop();}");    //sp = pop
 				codebuilder.AppendLine(@"private void sa(long v){ s.push(v); }");                   //sa = push
-				codebuilder.AppendLine(@"private long sr(){ return (s.size()==0)?0:s.peek(); }");   //sr = peek
+				codebuilder.AppendLine(@"private long sr(){return (s.size()==0)?0:s.peek();}");   //sr = peek
 			}
 			else
 			{
-				codebuilder.AppendLine(@"private long sp(){ return s.pop(); }");    //sp = pop
-				codebuilder.AppendLine(@"private void sa(long v){ s.push(v); }");   //sa = push
-				codebuilder.AppendLine(@"private long sr(){ return s.peek(); }");   //sr = peek
+				codebuilder.AppendLine(@"private long sp(){return s.pop();}");    //sp = pop
+				codebuilder.AppendLine(@"private void sa(long v){s.push(v);}");   //sa = push
+				codebuilder.AppendLine(@"private long sr(){return s.peek();}");   //sr = peek
 			}
 
 			return codebuilder.ToString();
@@ -133,9 +142,9 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		private string GenerateGridAccess_NoGZip(BCGraph comp, bool implementSafeGridAccess)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
-			codebuilder.AppendLine(@"private final static long[,] g = " + GenerateGridInitializer(comp) + ";");
+			codebuilder.AppendLine(@"private final static long[,]g=" + GenerateGridInitializer(comp) + ";");
 
 			if (implementSafeGridAccess)
 			{
@@ -156,7 +165,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		private string GenerateGridAccess_GZip(BCGraph comp, bool implementSafeGridAccess)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			long datasize = comp.Width * comp.Height;
 			string w = comp.Width.ToString();
@@ -202,7 +211,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		private string GenerateGridInitializer(BCGraph comp)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			codebuilder.Append('{');
 			for (int y = 0; y < comp.Height; y++)
@@ -227,7 +236,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			switch (comp.MathType)
 			{
@@ -319,17 +328,17 @@ namespace BefunCompile.CodeGeneration.Generator
 		protected override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp, BCGraph g)
 		{
 			if (!comp.ModeInteger && comp.Value is ExpressionConstant && IsASCIIChar(((ExpressionConstant) comp.Value).Value))
-				return string.Format("System.out.println({0});", GetASCIICharRep(((ExpressionConstant) comp.Value).Value, "'"));
+				return string.Format("System.out.print({0});", GetASCIICharRep(((ExpressionConstant) comp.Value).Value, "'"));
 
 			if (comp.ModeInteger)
-				return string.Format("System.out.println(String.valueOf({0}));", comp.Value.GenerateCode(LANG, g, true));
+				return string.Format("System.out.print(String.valueOf({0}));", comp.Value.GenerateCode(LANG, g, true));
 
-			return string.Format("System.out.println(String.valueOf(({0})({1})));", comp.ModeInteger ? "long" : "char", comp.Value.GenerateCode(LANG, g, false));
+			return string.Format("System.out.print(String.valueOf(({0})({1})));", comp.ModeInteger ? "long" : "char", comp.Value.GenerateCode(LANG, g, false));
 		}
 
 		protected override string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp, BCGraph g)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			switch (comp.MathType)
 			{
@@ -446,7 +455,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected override string GenerateCodeBCVertexOutput(BCVertexOutput comp, BCGraph g)
 		{
-			return string.Format("System.out.println(String.valueOf(({0})(sp())));", comp.ModeInteger ? "long" : "char");
+			return string.Format("System.out.print(String.valueOf(({0})(sp())));", comp.ModeInteger ? "long" : "char");
 		}
 
 		protected override string GenerateCodeBCVertexPop(BCVertexPop comp, BCGraph g)
@@ -470,7 +479,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected override string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp, BCGraph g)
 		{
-			return string.Format("System.out.println(\"{0}\");", comp.Value);
+			return string.Format("System.out.print(\"{0}\");", comp.Value);
 		}
 
 		protected override string GenerateCodeBCVertexSwap(BCVertexSwap comp, BCGraph g)

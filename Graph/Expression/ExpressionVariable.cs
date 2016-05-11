@@ -1,11 +1,11 @@
 ﻿
 using BefunCompile.CodeGeneration;
+using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BefunCompile.CodeGeneration.Generator;
 
 namespace BefunCompile.Graph.Expression
 {
@@ -131,6 +131,11 @@ namespace BefunCompile.Graph.Expression
 			if (arg == null) return false;
 
 			return Identifier == arg.Identifier;
+		}
+
+		public ExpressionConstant GetInitialConstant()
+		{
+			return (ExpressionConstant) ExpressionConstant.Create(initial);
 		}
 	}
 }

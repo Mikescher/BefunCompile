@@ -17,7 +17,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			comp.TestGraph();
 
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 			codebuilder.AppendLine(@"#!/usr/bin/env python3");
 			codebuilder.AppendLine();
 			codebuilder.AppendLine(@"# compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015");
@@ -58,7 +58,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		private string GenerateStackAccess(bool implementSafeStackAccess)
 		{
-			var codebuilder = new StringBuilder();
+			var codebuilder = new SourceCodeBuilder();
 
 			codebuilder.AppendLine("s=[]");
 
@@ -96,7 +96,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		private string GenerateHelperMethods(BCGraph comp)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			if (comp.Vertices.Any(p => p.IsRandom()))
 			{
@@ -125,7 +125,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		private string GenerateGridAccess_NoGZip(BCGraph comp, bool implementSafeGridAccess)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			string w = comp.Width.ToString();
 			string h = comp.Height.ToString();
@@ -155,7 +155,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		private string GenerateGridAccess_GZip(BCGraph comp, bool implementSafeGridAccess)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			string w = comp.Width.ToString();
 			string h = comp.Height.ToString();
@@ -203,7 +203,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		private string GenerateGridInitializer(BCGraph comp)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			codebuilder.Append('[');
 			for (int y = 0; y < comp.Height; y++)
@@ -228,7 +228,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			switch (comp.MathType)
 			{
@@ -334,7 +334,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected override string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp, BCGraph g)
 		{
-			StringBuilder codebuilder = new StringBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 
 			switch (comp.MathType)
 			{
