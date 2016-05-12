@@ -3,7 +3,7 @@ using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
 {
-	class CodeCompilerPython : CodeCompiler
+	class CodeCompilerPython2 : CodeCompiler
 	{
 		protected override void Compile(string code, string path, StringBuilder dbgOutput)
 		{
@@ -12,7 +12,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		protected override string Execute(string path)
 		{
-			var prog = ProcExecute("python", string.Format("\"{0}\"", path));
+			var prog = ProcExecute("pypy", string.Format("\"{0}\"", path));
 
 			if (prog.ExitCode != 0)
 			{
@@ -34,7 +34,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		protected override string GetAcronym()
 		{
-			return "PYT";
+			return "PY2";
 		}
 	}
 }

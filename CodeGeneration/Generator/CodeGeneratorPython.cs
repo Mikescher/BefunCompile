@@ -2,14 +2,18 @@
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BefunCompile.CodeGeneration.Generator
 {
-	public class CodeGeneratorPython : CodeGenerator
+	public abstract class CodeGeneratorPython : CodeGenerator
 	{
-		private const OutputLanguage LANG = OutputLanguage.Python;
+		protected abstract OutputLanguage LANG { get; }
+
+		protected abstract string SHEBANG { get; }
+
+		protected abstract IEnumerable<string> AdditionalImports { get; }
 
 		protected override string GenerateCode(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
@@ -18,12 +22,14 @@ namespace BefunCompile.CodeGeneration.Generator
 			comp.TestGraph();
 
 			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
-			codebuilder.AppendLine(@"#!/usr/bin/env python3");
+			codebuilder.AppendLine(SHEBANG);
 			codebuilder.AppendLine();
 			codebuilder.AppendLine(@"# compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015");
 
 			if (comp.Vertices.Any(p => p.IsRandom()))
 				codebuilder.AppendLine(@"from random import randint");
+
+			AdditionalImports.ToList().ForEach(codebuilder.AppendLine);
 
 			if (comp.ListDynamicVariableAccess().Any() || comp.ListConstantVariableAccess().Any())
 				codebuilder.Append(GenerateGridAccess(comp, implementSafeGridAccess, useGZip));
@@ -160,7 +166,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			string w = comp.Width.ToString();
 			string h = comp.Height.ToString();
 
-			codebuilder.AppendLine(@"import gzip, base64");
+			codebuilder.AppendLine(GetBase64DecodeHeader());
 
 			var b64 = GZip.GenerateBase64StringList(comp.GenerateGridData());
 			for (int i = 0; i < b64.Count; i++)
@@ -176,8 +182,8 @@ namespace BefunCompile.CodeGeneration.Generator
 			}
 
 			codebuilder.AppendLine(@"g = base64.b64decode(_g)[1:]");
-			codebuilder.AppendLine(@"for i in range(base64.b64decode(_g)[0]):");
-			codebuilder.AppendLine(@"    g = gzip.decompress(g)");
+			codebuilder.AppendLine(string.Format(@"for i in {0}:", GetBase64DecodeRangeExpression()));
+			codebuilder.AppendLine(@"    " + GetGZipDecodeStatement());
 			codebuilder.AppendLine(@"g=list(g)");
 
 			if (implementSafeGridAccess)
@@ -200,6 +206,10 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			return codebuilder.ToString();
 		}
+
+		protected abstract string GetBase64DecodeRangeExpression();
+		protected abstract string GetBase64DecodeHeader();
+		protected abstract string GetGZipDecodeStatement();
 
 		private string GenerateGridInitializer(BCGraph comp)
 		{
@@ -324,14 +334,6 @@ namespace BefunCompile.CodeGeneration.Generator
 			return string.Format("sa(gr({0},{1}))", comp.X.GenerateCode(LANG, g, false), comp.Y.GenerateCode(LANG, g, false));
 		}
 
-		protected override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp, BCGraph g)
-		{
-			if (comp.ModeInteger)
-				return string.Format("print({0},end=\"\",flush=True)", comp.Value.GenerateCode(LANG, g, false));
-			else
-				return string.Format("print(chr({0}),end=\"\",flush=True)", comp.Value.GenerateCode(LANG, g, false));
-		}
-
 		protected override string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp, BCGraph g)
 		{
 			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
@@ -423,14 +425,6 @@ namespace BefunCompile.CodeGeneration.Generator
 			return "sa((0)if(sp()!=0)else(1))";
 		}
 
-		protected override string GenerateCodeBCVertexOutput(BCVertexOutput comp, BCGraph g)
-		{
-			if (comp.ModeInteger)
-				return string.Format("print({0},end=\"\",flush=True)", "sp()");
-			else
-				return string.Format("print(chr({0}),end=\"\",flush=True)", "sp()");
-		}
-
 		protected override string GenerateCodeBCVertexPop(BCVertexPop comp, BCGraph g)
 		{
 			return "sp();";
@@ -448,11 +442,6 @@ namespace BefunCompile.CodeGeneration.Generator
 		protected override string GenerateCodeBCVertexSet(BCVertexSet comp, BCGraph g)
 		{
 			return "v0=sp()" + Environment.NewLine + "v1=sp()" + Environment.NewLine + "gw(v1,v0,sp())";
-		}
-
-		protected override string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp, BCGraph g)
-		{
-			return string.Format("print(\"{0}\",end=\"\",flush=True)", comp.Value);
 		}
 
 		protected override string GenerateCodeBCVertexSwap(BCVertexSwap comp, BCGraph g)

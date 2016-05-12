@@ -22,19 +22,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			if (_instances.ContainsKey(lang)) return _instances[lang];
 
-			switch (lang)
-			{
-				case OutputLanguage.CSharp:
-					return _instances[lang] = new CodeGeneratorCSharp();
-				case OutputLanguage.C:
-					return _instances[lang] = new CodeGeneratorC();
-				case OutputLanguage.Python:
-					return _instances[lang] = new CodeGeneratorPython();
-				case OutputLanguage.Java:
-					return _instances[lang] = new CodeGeneratorJava();
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
+			return _instances[lang] = OutputLanguageHelper.CreateGenerator(lang);
 		}
 
 		#region Helper

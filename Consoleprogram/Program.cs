@@ -1,5 +1,7 @@
 ﻿using BefunCompile.CodeGeneration;
+using BefunCompile.CodeGeneration.Compiler;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -43,35 +45,35 @@ namespace BefunCompile.Consoleprogram
 			run();
 		}
 
+		private static IEnumerable<OutputLanguage> ParseLanguages(CommandLineArguments cmda)
+		{
+			var allLanguages = ((OutputLanguage[]) Enum.GetValues(typeof (OutputLanguage))).ToList();
+
+			foreach (var arg in new[] {"lang", "language", "languages"})
+			{
+				var data = cmda.GetStringDefault(arg, "").ToLower().Split(';');
+				foreach (var datum in data)
+				{
+					if (datum == "all")
+					{
+						foreach (var lang in allLanguages) yield return lang;
+					}
+					else
+					{
+						var lang = OutputLanguageHelper.ParseFromAbbrev(datum);
+						if (lang != null) yield return lang.Value;
+					}
+				}
+			}
+		}
+
 		private static void loadArguments(CommandLineArguments cmda)
 		{
 			inputfiles = GetWildcardFiles(cmda.GetStringDefault("file", null));
 
 			outputfileformat = cmda.GetStringDefault("out", null) ?? cmda.GetStringDefault("output", null);
 
-			languages = cmda.GetStringDefault("lang", "").Replace("all", "cs;c;py").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
-				.Concat(cmda.GetStringDefault("language", "").Replace("all", "cs;c;py").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-				.Concat(cmda.GetStringDefault("languages", "").Replace("all", "cs;c;py").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-				.Where(p => new string[] { "cs", "csharp", "c", "ansic", "python", "py" }.Contains(p.ToLower()))
-				.Select(p =>
-				{
-					switch (p.ToLower())
-					{
-						case "cs":
-						case "csharp":
-							return OutputLanguage.CSharp;
-						case "c":
-						case "ansic":
-							return OutputLanguage.C;
-						case "python":
-						case "py":
-							return OutputLanguage.Python;
-						default:
-							throw new Exception("Should never happen :(");
-					}
-				})
-				.Distinct()
-				.ToArray();
+			languages = ParseLanguages(cmda).Distinct().ToArray();
 
 			optionFormat = cmda.Contains("format") || cmda.Contains("fmt");
 
@@ -177,19 +179,9 @@ namespace BefunCompile.Consoleprogram
 
 		}
 
-		private static string getLangExt(OutputLanguage l)
+		private static string GetLangExt(OutputLanguage l)
 		{
-			switch (l)
-			{
-				case OutputLanguage.C:
-					return "c";
-				case OutputLanguage.CSharp:
-					return "cs";
-				case OutputLanguage.Python:
-					return "py";
-				default:
-					return "";
-			}
+			return CodeCompiler.GetCodeExtension(l);
 		}
 
 		private static void run()
@@ -206,7 +198,7 @@ namespace BefunCompile.Consoleprogram
 				return;
 			}
 
-			if (outputfileformat == null || outputfileformat == "")
+			if (string.IsNullOrEmpty(outputfileformat))
 			{
 				Console.WriteLine("Error: No output file specified.");
 				return;
@@ -226,7 +218,7 @@ namespace BefunCompile.Consoleprogram
 						.Replace("{fp}", Path.GetDirectoryName(input))
 						.Replace("{i}", counter.ToString())
 						.Replace("{l}", lang.ToString())
-						.Replace("{le}", getLangExt(lang));
+						.Replace("{le}", GetLangExt(lang));
 
 					string source = File.ReadAllText(input);
 

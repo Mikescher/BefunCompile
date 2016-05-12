@@ -16,19 +16,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 			if (_instances.ContainsKey(lang)) return _instances[lang];
 
-			switch (lang)
-			{
-				case OutputLanguage.CSharp:
-					return _instances[lang] = new CodeCompilerCSharp();
-				case OutputLanguage.C:
-					return _instances[lang] = new CodeCompilerC();
-				case OutputLanguage.Python:
-					return _instances[lang] = new CodeCompilerPython();
-				case OutputLanguage.Java:
-					return _instances[lang] = new CodeCompilerJava();
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
+			return _instances[lang] = OutputLanguageHelper.CreateCompiler(lang);
 		}
 
 		public static void Compile(OutputLanguage l, string code, string path)

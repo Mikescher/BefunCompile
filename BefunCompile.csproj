@@ -51,13 +51,16 @@
     <Compile Include="CodeGeneration\Compiler\CodeCompilerCSharp.cs" />
     <Compile Include="CodeGeneration\CodeCompilerError.cs" />
     <Compile Include="CodeGeneration\Compiler\CodeCompilerJava.cs" />
-    <Compile Include="CodeGeneration\Compiler\CodeCompilerPython.cs" />
+    <Compile Include="CodeGeneration\Compiler\CodeCompilerPython2.cs" />
+    <Compile Include="CodeGeneration\Compiler\CodeCompilerPython3.cs" />
     <Compile Include="CodeGeneration\Compiler\ProcessOutput.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGenerator.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGeneratorC.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGeneratorJava.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGeneratorCSharp.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGeneratorPython.cs" />
+    <Compile Include="CodeGeneration\Generator\CodeGeneratorPython3.cs" />
+    <Compile Include="CodeGeneration\Generator\CodeGeneratorPython2.cs" />
     <Compile Include="CodeGeneration\Generator\SourceCodeBuilder.cs" />
     <Compile Include="Consoleprogram\CommandLineArguments.cs" />
     <Compile Include="Consoleprogram\Program.cs" />
