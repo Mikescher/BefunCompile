@@ -12,6 +12,8 @@ namespace BefunCompile.CodeGeneration
 		Python2,
 		Python3,
 		Java,
+		TextFunge,
+		Befunge93
 	}
 
 	public static class OutputLanguageHelper
@@ -36,6 +38,14 @@ namespace BefunCompile.CodeGeneration
 					return OutputLanguage.Python2;
 				case "java":
 					return OutputLanguage.Java;
+				case "tf":
+				case "textfunge":
+					return OutputLanguage.TextFunge;
+				case "befunge":
+				case "befunge93":
+				case "bef":
+				case "bef93":
+					return OutputLanguage.Befunge93;
 				default:
 					return null;
 			}
@@ -55,6 +65,10 @@ namespace BefunCompile.CodeGeneration
 					return new CodeCompilerPython3();
 				case OutputLanguage.Java:
 					return new CodeCompilerJava();
+				case OutputLanguage.TextFunge:
+					return new CodeCompilerTextFunge();
+				case OutputLanguage.Befunge93:
+					return new CodeCompilerBefunge93();
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
@@ -73,6 +87,10 @@ namespace BefunCompile.CodeGeneration
 				case OutputLanguage.Python3:
 					return new CodeGeneratorPython3();
 				case OutputLanguage.Java:
+					return new CodeGeneratorJava();
+				case OutputLanguage.TextFunge:
+					return new CodeGeneratorJava();
+				case OutputLanguage.Befunge93:
 					return new CodeGeneratorJava();
 				default:
 					throw new ArgumentOutOfRangeException();
