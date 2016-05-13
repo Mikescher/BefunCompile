@@ -13,11 +13,19 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected override IEnumerable<string> AdditionalImports => Enumerable.Empty<string>();
 
-		protected override string GetBase64DecodeRangeExpression() => @"range(base64.b64decode(_g)[0])";
-
 		protected override string GetBase64DecodeHeader() => @"import gzip, base64";
 
-		protected override string GetGZipDecodeStatement() => @"g = gzip.decompress(g)";
+		protected override string GetGZipDecodeStatement()
+		{
+			var codebuilder = new SourceCodeBuilder();
+
+			codebuilder.AppendLine(@"g = base64.b64decode(_g)[1:]");
+			codebuilder.AppendLine(@"for i in range(base64.b64decode(_g)[0]):");
+			codebuilder.AppendLine(@"    g = gzip.decompress(g)");
+			codebuilder.AppendLine(@"g=list(g)");
+
+			return codebuilder.ToString();
+		}
 
 		protected override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp, BCGraph g)
 		{

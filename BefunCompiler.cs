@@ -359,10 +359,9 @@ namespace BefunCompile
 //      - while (??) { BLOCK }
 //      - if (??) { BLOCK }
 //      - if (??) { BLOCK } else (??) { BLOCK }
-//TODO Output: JAVA, JS, VB.Net, Befunge, PHP, Pascal, Perl
+//TODO Output: JS, VB.Net, Befunge, PHP, Pascal, Perl
 //TODO Move Compiling and Executing into extra classes (for BefunDebug testing..)
 //     --> and perhaps make assemble callable per commandline (for ProjectEuler script)
 
 //TODO Compiling     0"!dlroW olleH">:#,_$@      failed ( out chr(0) )
 //TODO data_06 only works with safe stack acc
-//TODO error data_007-PY2 and more (Pyth 2 errors)

@@ -111,9 +111,6 @@ namespace BefunCompile.CodeGeneration.Generator
 			}
 
 			codebuilder.AppendLine(@"def td(a,b):");
-			codebuilder.AppendLine(@"    return bool(random.getrandbits(1))");
-
-			codebuilder.AppendLine(@"def td(a,b):");
 			codebuilder.AppendLine(@"    return ((0)if(b==0)else(a//b))");
 
 			codebuilder.AppendLine(@"def tm(a,b):");
@@ -181,10 +178,7 @@ namespace BefunCompile.CodeGeneration.Generator
 					codebuilder.AppendLine(@"  + " + '"' + b64[i] + '"');
 			}
 
-			codebuilder.AppendLine(@"g = base64.b64decode(_g)[1:]");
-			codebuilder.AppendLine(string.Format(@"for i in {0}:", GetBase64DecodeRangeExpression()));
-			codebuilder.AppendLine(@"    " + GetGZipDecodeStatement());
-			codebuilder.AppendLine(@"g=list(g)");
+			codebuilder.AppendLine(GetGZipDecodeStatement());
 
 			if (implementSafeGridAccess)
 			{
@@ -207,7 +201,6 @@ namespace BefunCompile.CodeGeneration.Generator
 			return codebuilder.ToString();
 		}
 
-		protected abstract string GetBase64DecodeRangeExpression();
 		protected abstract string GetBase64DecodeHeader();
 		protected abstract string GetGZipDecodeStatement();
 
