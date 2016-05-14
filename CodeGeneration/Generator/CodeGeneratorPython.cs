@@ -21,7 +21,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			comp.TestGraph();
 
-			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder(!fmtOutput);
 			codebuilder.AppendLine(SHEBANG);
 			codebuilder.AppendLine();
 			codebuilder.AppendLine(@"# compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015");
@@ -59,7 +59,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			codebuilder.AppendLine("while c<" + comp.Vertices.Count + ":");
 			codebuilder.AppendLine("    c=m[c]()");
 
-			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
+			return codebuilder.ToString();
 		}
 
 		private string GenerateStackAccess(bool implementSafeStackAccess)

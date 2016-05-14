@@ -89,9 +89,9 @@ namespace BefunCompile.CodeGeneration
 				case OutputLanguage.Java:
 					return new CodeGeneratorJava();
 				case OutputLanguage.TextFunge:
-					return new CodeGeneratorJava();
+					return new CodeGeneratorTextFunge();
 				case OutputLanguage.Befunge93:
-					return new CodeGeneratorJava();
+					return new CodeGeneratorBefunge93();
 				default:
 					throw new ArgumentOutOfRangeException();
 			}

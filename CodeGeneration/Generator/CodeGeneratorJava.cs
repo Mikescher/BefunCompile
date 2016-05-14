@@ -21,7 +21,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			if (!fmtOutput)
 				indent1 = "";
 
-			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder(!fmtOutput);
 
 			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
 			codebuilder.AppendLine("class Program{");
@@ -88,7 +88,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			else
 				codebuilder.AppendLine("}}public static void main(String[]a){new Program().main();}}");
 
-			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None));
+			return codebuilder.ToString();
 		}
 
 		private string GenerateHelperMethods(BCGraph comp)

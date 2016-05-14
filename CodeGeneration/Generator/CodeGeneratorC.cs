@@ -26,7 +26,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			if (!fmtOutput)
 				indent1 = "";
 
-			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder(!fmtOutput);
 			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
 
 			if (comp.Vertices.Any(p => p.IsRandom()))
@@ -85,7 +85,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			codebuilder.AppendLine("}");
 
-			return string.Join(Environment.NewLine, codebuilder.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(p => p.Trim() != ""));
+			return codebuilder.ToString();
 		}
 
 		private string GenerateStackAccess(bool implementSafeStackAccess)

@@ -6,6 +6,8 @@ namespace BefunCompile.CodeGeneration.Generator
 {
 	class CodeGeneratorBefunge93 : CodeGenerator
 	{
+		private const OutputLanguage LANG = OutputLanguage.Befunge93;
+
 		protected override string GenerateCode(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
 			throw new System.NotImplementedException();

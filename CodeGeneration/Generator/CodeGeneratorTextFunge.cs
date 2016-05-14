@@ -1,14 +1,85 @@
 ﻿using BefunCompile.Graph;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BefunCompile.CodeGeneration.Generator
 {
 	class CodeGeneratorTextFunge : CodeGenerator
 	{
+		private const OutputLanguage LANG = OutputLanguage.TextFunge;
+
 		protected override string GenerateCode(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
-			throw new System.NotImplementedException();
+			comp.OrderVerticesForFallThrough();
+
+			comp.TestGraph();
+
+			List<int> activeJumps = comp.GetAllJumps().Distinct().ToList();
+
+			string indent1 = "    ";
+			string indent2 = "    " + "    ";
+
+			if (!fmtOutput)
+			{
+				indent1 = "";
+				indent2 = "";
+			}
+
+			SourceCodeBuilder codebuilder = new SourceCodeBuilder(!fmtOutput);
+			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
+			if (fmtOutput) codebuilder.AppendLine();
+
+			codebuilder.AppendLine(@"///<DISPLAY>");
+			foreach (var line in Regex.Split(comp.GenerateGridData(), @"\r?\n"))
+			{
+				codebuilder.AppendLine(@"///" + line);
+			}
+			codebuilder.AppendLine(@"///</DISPLAY>");
+
+			codebuilder.AppendLine(string.Format("program Program : display[{0}, {1}]", comp.Width, comp.Height));
+
+			if (comp.Variables.Any())
+			{
+				codebuilder.AppendLine(indent1 + @"global");
+				foreach (var variable in comp.Variables)
+				{
+					codebuilder.AppendLine(indent2 + "int " + variable.Identifier + ";");
+				}
+			}
+			codebuilder.AppendLine(indent1 + "begin");
+			foreach (var variable in comp.Variables.Where(p => p.isUserDefinied))
+			{
+				codebuilder.AppendLine(indent2 + variable.Identifier + "=" + variable.initial + ";");
+			}
+
+			if (comp.Vertices.IndexOf(comp.Root) != 0)
+				codebuilder.AppendLine(indent2 + "goto _" + comp.Vertices.IndexOf(comp.Root) + ";");
+
+			for (int i = 0; i < comp.Vertices.Count; i++)
+			{
+				if (activeJumps.Contains(i))
+					codebuilder.AppendLine(indent1 + "_" + i + ":");
+
+				codebuilder.AppendLine(Indent(comp.Vertices[i].GenerateCode(LANG, comp), indent2));
+
+				if (comp.Vertices[i].Children.Count == 1)
+				{
+					if (comp.Vertices.IndexOf(comp.Vertices[i].Children[0]) != i + 1) // Fall through
+						codebuilder.AppendLine(indent2 + "goto _" + comp.Vertices.IndexOf(comp.Vertices[i].Children[0]) + ";");
+				}
+				else if (comp.Vertices[i].Children.Count == 0)
+				{
+					codebuilder.AppendLine(indent2 + "stop;");
+				}
+			}
+
+			codebuilder.AppendLine(indent1 + "end");
+			codebuilder.AppendLine("end");
+
+			return codebuilder.ToString();
 		}
 
 		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp)

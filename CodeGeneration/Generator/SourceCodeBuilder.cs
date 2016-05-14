@@ -1,10 +1,19 @@
-﻿using System.Text;
+﻿using System;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BefunCompile.CodeGeneration.Generator
 {
 	public class SourceCodeBuilder
 	{
 		private readonly StringBuilder builder = new StringBuilder();
+		private readonly bool skipEmptyLines;
+
+		public SourceCodeBuilder(bool removeEmptyLines = false)
+		{
+			skipEmptyLines = removeEmptyLines;
+		}
 
 		public void AppendLine()
 		{
@@ -34,7 +43,10 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		public override string ToString()
 		{
-			return builder.ToString();
+			if (skipEmptyLines)
+				return string.Join(Environment.NewLine, Regex.Split(builder.ToString(), @"\r?\n").Where(l => !string.IsNullOrWhiteSpace(l)));
+			else
+				return builder.ToString();
 		}
 	}
 }
