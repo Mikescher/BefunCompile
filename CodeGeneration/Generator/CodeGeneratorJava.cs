@@ -73,7 +73,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			else
 				codebuilder.AppendLine("public void main(){");
 			codebuilder.AppendLine(indent1 + "int c=" + comp.Vertices.IndexOf(comp.Root) + ";");
-			codebuilder.AppendLine(indent1 + "while (c<" + comp.Vertices.Count + "){");
+			codebuilder.AppendLine(indent1 + "while(c<" + comp.Vertices.Count + "){");
 			codebuilder.AppendLine(indent1 + "switch(c){");
 			for (int i = 0; i < comp.Vertices.Count; i++)
 			{
@@ -84,9 +84,21 @@ namespace BefunCompile.CodeGeneration.Generator
 			if (fmtOutput) codebuilder.AppendLine("");
 
 			if (comp.IsInput())
-				codebuilder.AppendLine("}}public static void main(String[]a){try{new Program().main();}catch(java.io.IOException e){}}}");
+			{
+				codebuilder.AppendLine("}");
+				codebuilder.AppendLine("}");
+				codebuilder.AppendLine("public static void main(String[]a){try{new Program().main();}catch(java.io.IOException e){}}");
+				codebuilder.AppendLine("}");
+
+			}
 			else
-				codebuilder.AppendLine("}}public static void main(String[]a){new Program().main();}}");
+			{
+				codebuilder.AppendLine("}");
+				codebuilder.AppendLine("}");
+				codebuilder.AppendLine("public static void main(String[]a){new Program().main();}");
+				codebuilder.AppendLine("}");
+
+			}
 
 			return codebuilder.ToString();
 		}
@@ -105,8 +117,8 @@ namespace BefunCompile.CodeGeneration.Generator
 				codebuilder.AppendLine(@"private boolean rd(){return Math.random()<0.5;}");
 			}
 
-			codebuilder.AppendLine(@"private long td(long a,long b){return (b==0)?0:(a/b);}");
-			codebuilder.AppendLine(@"private long tm(long a,long b){return (b==0)?0:(a%b);}");
+			codebuilder.AppendLine(@"private long td(long a,long b){return(b==0)?0:(a/b);}");
+			codebuilder.AppendLine(@"private long tm(long a,long b){return(b==0)?0:(a%b);}");
 
 			return codebuilder.ToString();
 		}
@@ -119,9 +131,9 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			if (implementSafeStackAccess)
 			{
-				codebuilder.AppendLine(@"private long sp(){return (s.size()==0)?0:s.pop();}");    //sp = pop
-				codebuilder.AppendLine(@"private void sa(long v){ s.push(v); }");                   //sa = push
-				codebuilder.AppendLine(@"private long sr(){return (s.size()==0)?0:s.peek();}");   //sr = peek
+				codebuilder.AppendLine(@"private long sp(){return(s.size()==0)?0:s.pop();}");    //sp = pop
+				codebuilder.AppendLine(@"private void sa(long v){s.push(v);}");                  //sa = push
+				codebuilder.AppendLine(@"private long sr(){return(s.size()==0)?0:s.peek();}");   //sr = peek
 			}
 			else
 			{
@@ -303,7 +315,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			var exprNotValue = comp.Value as ExpressionNot;
 
 			if (exprBinMathValue != null)
-				return string.Format("if({0})return {1};else return {2};", exprBinMathValue.GenerateDecisionCode(LANG, g, false), vtrue, vfalse);
+				return string.Format("if({0})return {1};else return {2};", exprBinMathValue.GenerateCodeDecision(LANG, g, false), vtrue, vfalse);
 			else if (exprNotValue != null)
 				return string.Format("if({0})return {1};else return {2};", exprNotValue.GenerateCodeDecision(LANG, g, false), vtrue, vfalse);
 			else

@@ -292,7 +292,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			var exprNotValue = comp.Value as ExpressionNot;
 
 			if (exprBinMathValue != null)
-				return string.Format("if({0})goto _{1};else goto _{2};", exprBinMathValue.GenerateDecisionCode(LANG, g, false), vtrue, vfalse);
+				return string.Format("if({0})goto _{1};else goto _{2};", exprBinMathValue.GenerateCodeDecision(LANG, g, false), vtrue, vfalse);
 			else if (exprNotValue != null)
 				return string.Format("if({0})goto _{1};else goto _{2};", exprNotValue.GenerateCodeDecision(LANG, g, false), vtrue, vfalse);
 			else

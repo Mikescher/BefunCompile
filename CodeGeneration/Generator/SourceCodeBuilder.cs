@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -22,6 +23,15 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		public void AppendLine(string line)
 		{
+			if (!string.IsNullOrWhiteSpace(line))
+				builder.AppendLine(line.TrimEnd());
+		}
+
+		[StringFormatMethod("fmt")]
+		public void AppendLine(string fmt, params object[] args)
+		{
+			var line = string.Format(fmt, args);
+
 			if (!string.IsNullOrWhiteSpace(line))
 				builder.AppendLine(line.TrimEnd());
 		}

@@ -1,11 +1,11 @@
 ﻿using BefunCompile.CodeGeneration;
+using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Exceptions;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BefunCompile.CodeGeneration.Generator;
 
 namespace BefunCompile.Graph.Expression
 {
@@ -409,7 +409,7 @@ namespace BefunCompile.Graph.Expression
 			return CodeGenerator.GenerateCodeExpressionBinMath(l, this, g, forceLongReturn);
 		}
 
-		public string GenerateDecisionCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
+		public string GenerateCodeDecision(OutputLanguage l, BCGraph g, bool forceLongReturn)
 		{
 			return CodeGenerator.GenerateCodeExpressionBinMathDecision(l, this, g, forceLongReturn);
 		}

@@ -1180,7 +1180,7 @@ namespace BefunCompile.Graph
 
 		#region CodeGeneration
 
-		public string GenerateGridData()
+		public string GenerateGridData(string delim = "")
 		{
 			StringBuilder codebuilder = new StringBuilder();
 
@@ -1190,6 +1190,8 @@ namespace BefunCompile.Graph
 				{
 					codebuilder.Append((char)SourceGrid[x, y]);
 				}
+
+				if (y+1 < Height) codebuilder.Append(delim);
 			}
 
 			return codebuilder.ToString();
