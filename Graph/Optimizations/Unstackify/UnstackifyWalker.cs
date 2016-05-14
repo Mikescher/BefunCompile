@@ -8,22 +8,22 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 {
 	public class UnstackifyWalker
 	{
-		private readonly BCGraph Graph;
+		private readonly BCGraph graph;
 
 		private int varIdentity = 0;
 
-		private HashSet<BCVertex> ProtectedVertices = new HashSet<BCVertex>();
+		private readonly HashSet<BCVertex> protectedVertices = new HashSet<BCVertex>();
 
 		public UnstackifyWalker(BCGraph graph)
 		{
-			this.Graph = graph;
+			this.graph = graph;
 		}
 
 		public bool Run()
 		{
 			UnstackifyStateHistory history = new UnstackifyStateHistory();
 
-			Walk(Graph.Root, history, new UnstackifyState());
+			Walk(graph.Root, history, new UnstackifyState());
 
 			history.UpdatePoison();
 
@@ -37,10 +37,10 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			history.AddState(vertex, state);
 			state.AddScope(vertex);
 
-			UnstackifyState out_state;
+			UnstackifyState outState;
 			try
 			{
-				out_state = vertex.WalkUnstackify(history, state);
+				outState = vertex.WalkUnstackify(history, state);
 			}
 			catch (UnstackifyWalkException)
 			{
@@ -53,18 +53,18 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 				return;
 			}
 
-			out_state.AddScope(vertex);
+			outState.AddScope(vertex);
 
 			foreach (var child in vertex.Children)
 			{
 				if (history.Contains(child))
 				{
-					var prev_state = history.StateDict[child];
+					var prevState = history.StateDict[child];
 
-					if (!UnstackifyState.StatesEqual(prev_state, out_state))
+					if (!UnstackifyState.StatesEqual(prevState, outState))
 					{
-						PoisonState(prev_state);
-						PoisonState(out_state);
+						PoisonState(prevState);
+						PoisonState(outState);
 					}
 					else
 					{
@@ -73,14 +73,14 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 				}
 				else
 				{
-					Walk(child, history, out_state);
+					Walk(child, history, outState);
 				}
 			}
 		}
 
-		private void PoisonState(UnstackifyState out_state)
+		private void PoisonState(UnstackifyState outState)
 		{
-			foreach (var value in out_state.Stack)
+			foreach (var value in outState.Stack)
 			{
 				value.Poison();
 			}
@@ -88,12 +88,12 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		private int ReplaceSystemVariables(UnstackifyStateHistory history)
 		{
-			ProtectedVertices.ToList().ForEach(history.PoisonVertex);
+			protectedVertices.ToList().ForEach(history.PoisonVertex);
 
 			history.RemovePoison();
-			history.CreateVariables(Graph, ref varIdentity);
+			history.CreateVariables(graph, ref varIdentity);
 			
-			foreach (var vertex in Graph.Vertices.ToList())
+			foreach (var vertex in graph.Vertices.ToList())
 			{
 				ReplaceVariablesInVertex(history, vertex);
 			}
@@ -110,7 +110,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 			if (replacements.Count > 0)
 			{
-				bool duplicate_err = replacements.Any(p =>
+				bool duplicateErr = replacements.Any(p =>
 					replacements
 						.Where(q => q != p)
 						.Where(q => p.Type == q.Type)
@@ -118,7 +118,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 						.Any()
 					);
 
-				if (duplicate_err)
+				if (duplicateErr)
 					throw new Exception();
 
 				var newVertex = vertex.ReplaceUnstackify(replacements);
@@ -129,17 +129,17 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 				}
 				else if (newVertex is BCVertexNOP)
 				{
-					Graph.RemoveVertex(vertex);
+					graph.RemoveVertex(vertex);
 				}
 				else if (newVertex is BCVertexBlock)
 				{
-					(newVertex as BCVertexBlock).nodes.ToList().ForEach(p => ProtectedVertices.Add(p));
+					(newVertex as BCVertexBlock).nodes.ToList().ForEach(p => protectedVertices.Add(p));
 
-					Graph.ReplaceVertex(vertex, (newVertex as BCVertexBlock).nodes.ToList());
+					graph.ReplaceVertex(vertex, (newVertex as BCVertexBlock).nodes.ToList());
 				}
 				else
 				{
-					Graph.ReplaceVertex(vertex, newVertex);
+					graph.ReplaceVertex(vertex, newVertex);
 				}
 			}
 		}

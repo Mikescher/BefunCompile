@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.StacksizePredictor;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
@@ -321,12 +322,19 @@ namespace BefunCompile.Graph
 					if ((parent as IDecisionVertex).EdgeFalse == slave)
 						(parent as IDecisionVertex).EdgeFalse = master;
 				}
-            }
+			}
 
 			foreach (var child in slave.Children)
 			{
 				child.Parents.Remove(slave);
 			}
+		}
+
+		// null means possible unlimited stacksize
+		// or simply that the undecidable
+		public int? PredictStackSize()
+		{
+			return new StacksizePredictor(this).Predict();
 		}
 
 		#region O:1 Minimize

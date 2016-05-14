@@ -183,6 +183,7 @@ namespace BefunCompile.Graph
 
 		public abstract UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state);
 		public abstract BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access);
+		public abstract int? GetStacksizePredictorDelta(); // null == unbounded growth
 
 		public abstract bool IsIdentical(BCVertex other);
 

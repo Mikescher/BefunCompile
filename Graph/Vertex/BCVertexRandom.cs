@@ -51,6 +51,11 @@ namespace BefunCompile.Graph.Vertex
 			return Children[new Random().Next(4)];
 		}
 
+		public override int? GetStacksizePredictorDelta()
+		{
+			return 0;
+		}
+
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
 		{
 			return false;

@@ -95,6 +95,10 @@
     <Compile Include="Graph\Expression\ExpressionGet.cs" />
     <Compile Include="Graph\Expression\BCExpression.cs" />
     <Compile Include="Graph\MemoryAccess.cs" />
+    <Compile Include="Graph\Optimizations\StacksizePredictor\StacksizePredictor.cs" />
+    <Compile Include="Exceptions\StackSizePredictorException.cs" />
+    <Compile Include="Graph\Optimizations\StacksizePredictor\StackSizePredictorIntermediateResult.cs" />
+    <Compile Include="Graph\Optimizations\StacksizePredictor\StackSizeProgramState.cs" />
     <Compile Include="Graph\Optimizations\Unstackify\UnstackifyValueAccess.cs" />
     <Compile Include="Graph\Optimizations\Unstackify\UnstackifyState.cs" />
     <Compile Include="Graph\Optimizations\Unstackify\UnstackifyStateHistory.cs" />

@@ -1,4 +1,5 @@
 ﻿using BefunCompile.CodeGeneration;
+using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
@@ -7,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BefunCompile.CodeGeneration.Generator;
 
 namespace BefunCompile.Graph.Vertex
 {
@@ -56,6 +56,11 @@ namespace BefunCompile.Graph.Vertex
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
 		{
 			throw new GraphExecuteException();
+		}
+
+		public override int? GetStacksizePredictorDelta()
+		{
+			return 1;
 		}
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)

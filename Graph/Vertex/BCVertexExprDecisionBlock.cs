@@ -1,12 +1,13 @@
 ﻿using BefunCompile.CodeGeneration;
+using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations.StacksizePredictor;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BefunCompile.CodeGeneration.Generator;
 
 namespace BefunCompile.Graph.Vertex
 {
@@ -59,6 +60,11 @@ namespace BefunCompile.Graph.Vertex
 			Block.Execute(outbuilder, stackbuilder, ci);
 
 			return Decision.Execute(outbuilder, stackbuilder, ci);
+		}
+
+		public override int? GetStacksizePredictorDelta()
+		{
+			return StacksizePredictor.StacksizeAdd(Decision.GetStacksizePredictorDelta(), Block.GetStacksizePredictorDelta());
 		}
 
 		public override bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement)
