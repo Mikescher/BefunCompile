@@ -11,7 +11,7 @@ namespace BefunCompile
 {
 	public class BefunCompiler
 	{
-		public const string VERSION = "1.0.8";
+		public const string VERSION = "1.1.0";
 
 		public class GenerationLevel
 		{

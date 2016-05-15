@@ -13,10 +13,12 @@ namespace BefunCompile.CodeGeneration.Generator
 		private const OutputLanguage LANG = OutputLanguage.TextFunge;
 
 		private bool implSafeGridAccess;
+		private bool debugOutput;
 
 		protected override string GenerateCode(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
 			implSafeGridAccess = implementSafeGridAccess;
+			debugOutput = fmtOutput;
 
 			bool useRealGrid = comp.ListDynamicVariableAccess().Any() || comp.ListConstantVariableAccess().Any();
 			bool useStack    = comp.Vertices.Any(p => !p.IsNotStackAccess());
@@ -59,6 +61,11 @@ namespace BefunCompile.CodeGeneration.Generator
 					{
 						codebuilder.AppendLine(@"///" + line);
 					}
+				}
+				else
+				{
+					dispWidth = 0;
+					dispHeight = 0;
 				}
 
 				if (useStack)
@@ -111,7 +118,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			
 			if (useStack)
 			{
-				codebuilder.AppendLine(indent2 + "si = 0;");
+				codebuilder.AppendLine(indent2 + "si = -1;");
 			}
 
 			foreach (var variable in comp.Variables.Where(p => p.isUserDefinied))
@@ -163,22 +170,39 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			if (implementSafeStackAccess)
 			{
-				codebuilder.AppendLine(@"int sp()");
-				codebuilder.AppendLine(@"begin");
-				codebuilder.AppendLine(@"if(si<0)then");
-				codebuilder.AppendLine(@"begin");
-				codebuilder.AppendLine(@"return 0;");
-				codebuilder.AppendLine(@"end");
-				codebuilder.AppendLine(@"si--;");
-				codebuilder.AppendLine(@"return (int)display[(si+1+{0})%{1},(si+1+{0})/{1}];", stackOffset, displayWidth);
-				codebuilder.AppendLine(@"end");
+				if (debugOutput)
+				{
+					codebuilder.AppendLine(@"int sp()");
+					codebuilder.AppendLine(@"begin");
+					codebuilder.AppendLine(@"if(si<0)then");
+					codebuilder.AppendLine(@"begin");
+					codebuilder.AppendLine(@"return 0;");
+					codebuilder.AppendLine(@"end");
+					codebuilder.AppendLine(@"si--;");
+					codebuilder.AppendLine(@"return (int)display[(si+1+{0})%{1},(si+1+{0})/{1}];", stackOffset, displayWidth);
+					codebuilder.AppendLine(@"end");
+				}
+				else
+				{
+					codebuilder.AppendLine(@"int sp()");
+					codebuilder.AppendLine(@"begin");
+					codebuilder.AppendLine(@"if(si<0)then");
+					codebuilder.AppendLine(@"begin");
+					codebuilder.AppendLine(@"return 0;");
+					codebuilder.AppendLine(@"end");
+					codebuilder.AppendLine(@"si--;");
+					codebuilder.AppendLine(@"tmp = (int)display[(si+1+{0})%{1},(si+1+{0})/{1}];", stackOffset, displayWidth);
+					codebuilder.AppendLine(@"display[(si+1+{0})%{1},(si+1+{0})/{1}] = ' ';", stackOffset, displayWidth);
+					codebuilder.AppendLine(@"return tmp;");
+					codebuilder.AppendLine(@"end");
+				}
 
 				codebuilder.AppendLine();
 
 				codebuilder.AppendLine(@"void sa(int v)");
 				codebuilder.AppendLine(@"begin");
 				codebuilder.AppendLine(@"si++;");
-				codebuilder.AppendLine(@"display[(si+1+{0})%{1},(si+1+{0})/{1}] = (char)v;", stackOffset, displayWidth);
+				codebuilder.AppendLine(@"display[(si+{0})%{1},(si+{0})/{1}] = (char)v;", stackOffset, displayWidth);
 				codebuilder.AppendLine(@"end");
 			
 				codebuilder.AppendLine();
@@ -194,18 +218,31 @@ namespace BefunCompile.CodeGeneration.Generator
 			}
 			else
 			{
-				codebuilder.AppendLine(@"int sp()");
-				codebuilder.AppendLine(@"begin");
-				codebuilder.AppendLine(@"si--;");
-				codebuilder.AppendLine(@"return (int)display[(si+1+{0})%{1},(si+1+{0})/{1}];", stackOffset, displayWidth);
-				codebuilder.AppendLine(@"end");
+				if (debugOutput)
+				{
+					codebuilder.AppendLine(@"int sp()");
+					codebuilder.AppendLine(@"begin");
+					codebuilder.AppendLine(@"si--;");
+					codebuilder.AppendLine(@"tmp = (int)display[(si+1+{0})%{1},(si+1+{0})/{1}];", stackOffset, displayWidth);
+					codebuilder.AppendLine(@"display[(si+1+{0})%{1},(si+1+{0})/{1}] = ' ';", stackOffset, displayWidth);
+					codebuilder.AppendLine(@"return tmp;");
+					codebuilder.AppendLine(@"end");
+				}
+				else
+				{
+					codebuilder.AppendLine(@"int sp()");
+					codebuilder.AppendLine(@"begin");
+					codebuilder.AppendLine(@"si--;");
+					codebuilder.AppendLine(@"return (int)display[(si+1+{0})%{1},(si+1+{0})/{1}];", stackOffset, displayWidth);
+					codebuilder.AppendLine(@"end");
+				}
 
 				codebuilder.AppendLine();
 
 				codebuilder.AppendLine(@"void sa(int v)");
 				codebuilder.AppendLine(@"begin");
 				codebuilder.AppendLine(@"si++;");
-				codebuilder.AppendLine(@"display[(si+1+{0})%{1},(si+1+{0})/{1}] = (char)v;", stackOffset, displayWidth);
+				codebuilder.AppendLine(@"display[(si+{0})%{1},(si+{0})/{1}] = (char)v;", stackOffset, displayWidth);
 				codebuilder.AppendLine(@"end");
 
 				codebuilder.AppendLine();
