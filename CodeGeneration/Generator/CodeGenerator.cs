@@ -69,9 +69,9 @@ namespace BefunCompile.CodeGeneration.Generator
 			return Instance(l).GenerateCode(comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
 		}
 
-		public static string GenerateCodeBCVertexBinaryMath(OutputLanguage l, BCVertexBinaryMath comp)
+		public static string GenerateCodeBCVertexBinaryMath(OutputLanguage l, BCVertexBinaryMath comp, BCGraph g)
 		{
-			return Instance(l).GenerateCodeBCVertexBinaryMath(comp);
+			return Instance(l).GenerateCodeBCVertexBinaryMath(comp, g);
 		}
 
 		public static string GenerateCodeBCVertexBlock(OutputLanguage l, BCVertexBlock comp, BCGraph g)
@@ -260,7 +260,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected abstract string GenerateCode(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip);
 
-		protected abstract string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp);
+		protected abstract string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp, BCGraph g);
 
 		protected abstract string GenerateCodeBCVertexBlock(BCVertexBlock comp, BCGraph g);
 

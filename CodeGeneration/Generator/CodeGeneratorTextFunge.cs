@@ -33,14 +33,22 @@ namespace BefunCompile.CodeGeneration.Generator
 			codebuilder.AppendLine(@"/* compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
 			if (fmtOutput) codebuilder.AppendLine();
 
-			codebuilder.AppendLine(@"///<DISPLAY>");
-			foreach (var line in Regex.Split(comp.GenerateGridData("\n"), @"\n"))
+			if (comp.Vertices.Any(p => !p.IsNotGridAccess()))
 			{
-				codebuilder.AppendLine(@"///" + line);
-			}
-			codebuilder.AppendLine(@"///</DISPLAY>");
+				codebuilder.AppendLine(@"///<DISPLAY>");
+				foreach (var line in Regex.Split(comp.GenerateGridData("\n"), @"\n"))
+				{
+					codebuilder.AppendLine(@"///" + line);
+				}
+				codebuilder.AppendLine(@"///</DISPLAY>");
 
-			codebuilder.AppendLine("program Befunge : display[{0}, {1}]", comp.Width, comp.Height);
+				codebuilder.AppendLine("program Befunge : display[{0}, {1}]", comp.Width, comp.Height);
+			}
+			else
+			{
+				codebuilder.AppendLine("program Befunge");
+			}
+
 
 			if (comp.Variables.Any())
 			{
@@ -83,7 +91,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			return codebuilder.ToString();
 		}
 
-		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp)
+		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp, BCGraph g)
 		{
 			throw new System.NotImplementedException();
 		}
@@ -123,7 +131,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			else if (exprNotValue != null)
 				builder.AppendLine("if({0})then", exprNotValue.GenerateCodeDecision(LANG, g, false));
 			else
-				builder.AppendLine("if({0})then", comp.Value.GenerateCode(LANG, g, false));
+				builder.AppendLine("if(({0})!=0)then", comp.Value.GenerateCode(LANG, g, false));
 
 			builder.AppendLine("goto _{0};", vtrue);
 			builder.AppendLine("else");
@@ -312,17 +320,17 @@ namespace BefunCompile.CodeGeneration.Generator
 				case BinaryMathType.MUL:
 					return Paren(comp.ValueA.GenerateCode(LANG, g, forceL), comp.NeedsLSParen()) + '*' + Paren(comp.ValueB.GenerateCode(LANG, g, forceR), comp.NeedsRSParen());
 				case BinaryMathType.DIV:
-					return "(bool)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + "/" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
+					return "(int)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + "/" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
 				case BinaryMathType.GT:
-					return "(bool)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + ">" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
+					return "(int)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + ">" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
 				case BinaryMathType.LT:
-					return "(bool)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + "<" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
+					return "(int)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + "<" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
 				case BinaryMathType.GET:
-					return "(bool)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + ">=" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
+					return "(int)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + ">=" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
 				case BinaryMathType.LET:
-					return "(bool)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + "<=" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
+					return "(int)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + "<=" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
 				case BinaryMathType.MOD:
-					return "(bool)(" + Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + "%" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen()) + ")";
+					return Paren(comp.ValueA.GenerateCode(LANG, g, false), comp.NeedsLSParen()) + "%" + Paren(comp.ValueB.GenerateCode(LANG, g, false), comp.NeedsRSParen());
 				default:
 					throw new ArgumentException();
 			}
@@ -360,7 +368,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected override string GenerateCodeExpressionNotDecision(ExpressionNot comp, BCGraph g, bool forceLongReturn)
 		{
-			return string.Format("!({0})", Paren(comp.Value.GenerateCode(LANG, g, false), comp.NeedsParen()));
+			return string.Format("{0}==0", Paren(comp.Value.GenerateCode(LANG, g, false), comp.NeedsParen()));
 		}
 
 		protected override string GenerateCodeExpressionNot(ExpressionNot comp, BCGraph g, bool forceLongReturn)

@@ -246,7 +246,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			return codebuilder.ToString();
 		}
 
-		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp)
+		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp, BCGraph g)
 		{
 			SourceCodeBuilder codebuilder = new SourceCodeBuilder();
 

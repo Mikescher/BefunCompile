@@ -1,19 +1,55 @@
 ﻿using BefunCompile.Graph;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
+using BefunGen.AST;
+using BefunGen.AST.CodeGen;
+using System;
 
 namespace BefunCompile.CodeGeneration.Generator
 {
 	class CodeGeneratorBefunge93 : CodeGenerator
 	{
-		private const OutputLanguage LANG = OutputLanguage.Befunge93;
-
 		protected override string GenerateCode(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
-			throw new System.NotImplementedException();
+			string codeFunge = CodeGenerator.GenerateCode(OutputLanguage.TextFunge, comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
+
+			var parser = new TextFungeParser();
+			
+			ASTObject.CGO = new CodeGenOptions
+			{
+				NumberLiteralRepresentation = NumberRep.Best,
+				SetNOPCellsToCustom = false,
+
+				DefaultNumeralValue = 0,
+				DefaultCharacterValue = ' ',
+				DefaultBooleanValue = false,
+
+				StripDoubleStringmodeToogle = true,
+				CompressHorizontalCombining = true,
+				CompressVerticalCombining = true,
+				CompileTimeEvaluateExpressions = true,
+				RemUnreferencedMethods = true,
+
+				ExtendedBooleanCast = false,
+				DisplayModuloAccess = false,
+
+				DefaultVarDeclarationWidth = 16,
+
+				DefaultDisplayValue = ' ',
+				DisplayBorder = '#',
+				DisplayBorderThickness = 16,
+
+				DefaultVarDeclarationSymbol = ' ',
+				DefaultTempSymbol = ' ',
+				DefaultResultTempSymbol = ' ',
+				CustomNOPSymbol = '@',
+			};
+
+			var header = "v" + "        // compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015";
+			return header + Environment.NewLine + parser.generateCode(codeFunge, TextFungeParser.ExtractDisplayFromTFFormat(codeFunge), false);
 		}
 
-		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp)
+		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp, BCGraph g)
 		{
 			throw new System.NotImplementedException();
 		}

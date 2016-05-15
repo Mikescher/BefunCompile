@@ -182,7 +182,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string GenerateCode(OutputLanguage l, BCGraph g)
 		{
-			return CodeGenerator.GenerateCodeBCVertexBinaryMath(l, this);
+			return CodeGenerator.GenerateCodeBCVertexBinaryMath(l, this, g);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
