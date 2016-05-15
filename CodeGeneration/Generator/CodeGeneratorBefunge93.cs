@@ -4,6 +4,7 @@ using BefunCompile.Graph.Vertex;
 using BefunGen.AST;
 using BefunGen.AST.CodeGen;
 using System;
+using System.Text.RegularExpressions;
 
 namespace BefunCompile.CodeGeneration.Generator
 {
@@ -14,7 +15,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			string codeFunge = CodeGenerator.GenerateCode(OutputLanguage.TextFunge, comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
 
 			var parser = new TextFungeParser();
-			
+
 			ASTObject.CGO = new CodeGenOptions
 			{
 				NumberLiteralRepresentation = NumberRep.Best,
@@ -37,7 +38,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 				DefaultDisplayValue = ' ',
 				DisplayBorder = '#',
-				DisplayBorderThickness = 16,
+				DisplayBorderThickness = 1,
 
 				DefaultVarDeclarationSymbol = ' ',
 				DefaultTempSymbol = ' ',
@@ -45,8 +46,11 @@ namespace BefunCompile.CodeGeneration.Generator
 				CustomNOPSymbol = '@',
 			};
 
-			var header = "v" + "        // compiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015";
-			return header + Environment.NewLine + parser.generateCode(codeFunge, TextFungeParser.ExtractDisplayFromTFFormat(codeFunge), false);
+			var code = parser.generateCode(codeFunge, TextFungeParser.ExtractDisplayFromTFFormat(codeFunge), false);
+			var codeLines = Regex.Split(code, @"\r?\n");
+			codeLines[0] = codeLines[0].TrimEnd() + "  |  compiled with BefunCompile v" + BefunCompiler.VERSION + "(c) 2015";
+
+			return string.Join(Environment.NewLine, codeLines);
 		}
 
 		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp, BCGraph g)

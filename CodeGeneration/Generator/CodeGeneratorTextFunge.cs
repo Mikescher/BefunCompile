@@ -23,7 +23,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			bool useRealGrid = comp.ListDynamicVariableAccess().Any() || comp.ListConstantVariableAccess().Any();
 			bool useStack    = comp.Vertices.Any(p => !p.IsNotStackAccess());
 
-			int stackSize = comp.PredictStackSize() ?? 1024; //TODO Better fallback - only predict when useStack
+			int stackSize = comp.PredictStackSize() ?? 16384; //TODO Better fallback - only predict when useStack
 			if (stackSize == 0) useStack = false;
 
 			int dispWidth = (int)comp.Width;
@@ -175,7 +175,6 @@ namespace BefunCompile.CodeGeneration.Generator
 					codebuilder.AppendLine(@"int sp()");
 					codebuilder.AppendLine(@"begin");
 					codebuilder.AppendLine(@"if(si<0)then");
-					codebuilder.AppendLine(@"begin");
 					codebuilder.AppendLine(@"return 0;");
 					codebuilder.AppendLine(@"end");
 					codebuilder.AppendLine(@"si--;");
@@ -187,7 +186,6 @@ namespace BefunCompile.CodeGeneration.Generator
 					codebuilder.AppendLine(@"int sp()");
 					codebuilder.AppendLine(@"begin");
 					codebuilder.AppendLine(@"if(si<0)then");
-					codebuilder.AppendLine(@"begin");
 					codebuilder.AppendLine(@"return 0;");
 					codebuilder.AppendLine(@"end");
 					codebuilder.AppendLine(@"si--;");
@@ -210,7 +208,6 @@ namespace BefunCompile.CodeGeneration.Generator
 				codebuilder.AppendLine(@"int sr()");
 				codebuilder.AppendLine(@"begin");
 				codebuilder.AppendLine(@"if(si<0)then");
-				codebuilder.AppendLine(@"begin");
 				codebuilder.AppendLine(@"return 0;");
 				codebuilder.AppendLine(@"end");
 				codebuilder.AppendLine(@"return (int)display[(si+{0})%{1},(si+{0})/{1}];", stackOffset, displayWidth);

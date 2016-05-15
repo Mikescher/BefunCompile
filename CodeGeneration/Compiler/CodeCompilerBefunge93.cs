@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
@@ -7,12 +7,19 @@ namespace BefunCompile.CodeGeneration.Compiler
 	{
 		protected override void Compile(string code, string path, StringBuilder dbgOutput)
 		{
-			throw new NotImplementedException();
+			File.WriteAllText(path, code);
 		}
 
 		protected override string Execute(string path)
 		{
-			throw new NotImplementedException();
+			var bfr = ProcExecute("BefunRun", string.Format("\"{0}\" --errorlevel=3", path));
+
+			if (bfr.ExitCode != 0)
+			{
+				throw new CodeCompilerError(bfr.StdErr, bfr.ExitCode);
+			}
+
+			return bfr.StdOut;
 		}
 
 		protected override string GetCodeExtension()
