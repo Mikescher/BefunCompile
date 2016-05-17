@@ -168,9 +168,9 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<int>();
 		}
 
-		public override string GenerateCode(OutputLanguage l, BCGraph g)
+		public override string GenerateCode(CodeGenerator cg)
 		{
-			return CodeGenerator.GenerateCodeBCVertexExprPopSet(l, this, g);
+			return cg.GenerateCodeBCVertexExprPopSet(this);
 		}
 
 		public override bool TestVertex()

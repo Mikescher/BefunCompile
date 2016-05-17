@@ -3,7 +3,6 @@ using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 // ReSharper disable UnusedParameter.Global
@@ -14,15 +13,24 @@ namespace BefunCompile.CodeGeneration.Generator
 		protected readonly MSZipImplementation MSZip = new MSZipImplementation();
 		protected readonly GZipImplementation GZip = new GZipImplementation();
 
-		private static Dictionary<OutputLanguage, CodeGenerator> _instances = null;
-
-		private static CodeGenerator Instance(OutputLanguage lang)
+		private static CodeGenerator Instance(OutputLanguage lang, BCGraph rg, bool fmt, bool ssa, bool sga, bool gz)
 		{
-			if (_instances == null) _instances = new Dictionary<OutputLanguage, CodeGenerator>();
+			return OutputLanguageHelper.CreateGenerator(lang, rg, fmt, ssa, sga, gz);
+		}
 
-			if (_instances.ContainsKey(lang)) return _instances[lang];
+		protected readonly BCGraph Graph;
+		protected readonly bool FormatOutput;
+		protected readonly bool ImplementSafeStackAccess;
+		protected readonly bool ImplementSafeGridAccess;
+		protected readonly bool UseGZip;
 
-			return _instances[lang] = OutputLanguageHelper.CreateGenerator(lang);
+		protected CodeGenerator(BCGraph graph, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
+		{
+			this.Graph = graph;
+			this.FormatOutput = fmtOutput;
+			this.ImplementSafeStackAccess = implementSafeStackAccess;
+			this.ImplementSafeGridAccess = implementSafeGridAccess;
+			this.UseGZip = useGZip;
 		}
 
 		#region Helper
@@ -61,278 +69,89 @@ namespace BefunCompile.CodeGeneration.Generator
 		}
 
 		#endregion
-
-		#region Static generation
-
+		
 		public static string GenerateCode(OutputLanguage l, BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
-			return Instance(l).GenerateCode(comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
+			return Instance(l, comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip).GenerateCode();
 		}
-
-		public static string GenerateCodeBCVertexBinaryMath(OutputLanguage l, BCVertexBinaryMath comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexBinaryMath(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexBlock(OutputLanguage l, BCVertexBlock comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexBlock(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexDecision(OutputLanguage l, BCVertexDecision comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexDecision(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexDecisionBlock(OutputLanguage l, BCVertexDecisionBlock comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexDecisionBlock(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexDup(OutputLanguage l, BCVertexDup comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexDup(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexExprDecision(OutputLanguage l, BCVertexExprDecision comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexExprDecision(comp, g); 
-		}
-
-		public static string GenerateCodeBCVertexExprDecisionBlock(OutputLanguage l, BCVertexExprDecisionBlock comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexExprDecisionBlock(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexExpression(OutputLanguage l, BCVertexExpression comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexExpression(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexExprGet(OutputLanguage l, BCVertexExprGet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexExprGet(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexExprOutput(OutputLanguage l, BCVertexExprOutput comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexExprOutput(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexExprPopBinaryMath(OutputLanguage l, BCVertexExprPopBinaryMath comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexExprPopBinaryMath(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexExprPopSet(OutputLanguage l, BCVertexExprPopSet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexExprPopSet(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexExprSet(OutputLanguage l, BCVertexExprSet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexExprSet(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexExprVarSet(OutputLanguage l, BCVertexExprVarSet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexExprVarSet(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexGet(OutputLanguage l, BCVertexGet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexGet(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexGetVarSet(OutputLanguage l, BCVertexGetVarSet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexGetVarSet(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexInput(OutputLanguage l, BCVertexInput comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexInput(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexInputVarSet(OutputLanguage l, BCVertexInputVarSet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexInputVarSet(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexNOP(OutputLanguage l, BCVertexNOP comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexNOP(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexNot(OutputLanguage l, BCVertexNot comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexNot(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexOutput(OutputLanguage l, BCVertexOutput comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexOutput(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexPop(OutputLanguage l, BCVertexPop comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexPop(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexRandom(OutputLanguage l, BCVertexRandom comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexRandom(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexSet(OutputLanguage l, BCVertexSet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexSet(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexStringOutput(OutputLanguage l, BCVertexStringOutput comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexStringOutput(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexSwap(OutputLanguage l, BCVertexSwap comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexSwap(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexVarGet(OutputLanguage l, BCVertexVarGet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexVarGet(comp, g);
-		}
-
-		public static string GenerateCodeBCVertexVarSet(OutputLanguage l, BCVertexVarSet comp, BCGraph g)
-		{
-			return Instance(l).GenerateCodeBCVertexVarSet(comp, g);
-		}
-
-		public static string GenerateCodeExpressionBCast(OutputLanguage l, ExpressionBCast comp, BCGraph g, bool forceLongReturn)
-		{
-			return Instance(l).GenerateCodeExpressionBCast(comp, g, forceLongReturn);
-		}
-
-		public static string GenerateCodeExpressionBinMath(OutputLanguage l, ExpressionBinMath comp, BCGraph g, bool forceLongReturn)
-		{
-			return Instance(l).GenerateCodeExpressionBinMath(comp, g, forceLongReturn);
-		}
-
-		public static string GenerateCodeExpressionBinMathDecision(OutputLanguage l, ExpressionBinMath comp, BCGraph g, bool forceLongReturn)
-		{
-			return Instance(l).GenerateCodeExpressionBinMathDecision(comp, g, forceLongReturn);
-		}
-
-		public static string GenerateCodeExpressionNotDecision(OutputLanguage l, ExpressionNot comp, BCGraph g, bool forceLongReturn)
-		{
-			return Instance(l).GenerateCodeExpressionNotDecision(comp, g, forceLongReturn);
-		}
-
-		public static string GenerateCodeExpressionNot(OutputLanguage l, ExpressionNot comp, BCGraph g, bool forceLongReturn)
-		{
-			return Instance(l).GenerateCodeExpressionNot(comp, g, forceLongReturn);
-		}
-
-		public static string GenerateCodeExpressionPeek(OutputLanguage l, ExpressionPeek comp, BCGraph g, bool forceLongReturn)
-		{
-			return Instance(l).GenerateCodeExpressionPeek(comp, g, forceLongReturn);
-		}
-
-		public static string GenerateCodeExpressionVariable(OutputLanguage l, ExpressionVariable comp, BCGraph g, bool forceLongReturn)
-		{
-			return Instance(l).GenerateCodeExpressionVariable(comp, g, forceLongReturn);
-		}
-
-		public static string GenerateCodeExpressionConstant(OutputLanguage l, ExpressionConstant comp, BCGraph g, bool forceLongReturn)
-		{
-			return Instance(l).GenerateCodeExpressionConstant(comp, g, forceLongReturn);
-		}
-
-		public static string GenerateCodeExpressionGet(OutputLanguage l, ExpressionGet comp, BCGraph g, bool forceLongReturn)
-		{
-			return Instance(l).GenerateCodeExpressionGet(comp, g, forceLongReturn);
-		}
-
-		#endregion
 
 		#region Abstract generation
 
-		protected abstract string GenerateCode(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip);
+		protected abstract string GenerateCode();
 
-		protected abstract string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp);
 
-		protected abstract string GenerateCodeBCVertexBlock(BCVertexBlock comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexBlock(BCVertexBlock comp);
 
-		protected abstract string GenerateCodeBCVertexDecision(BCVertexDecision comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexDecision(BCVertexDecision comp);
 
-		protected abstract string GenerateCodeBCVertexDecisionBlock(BCVertexDecisionBlock comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexDecisionBlock(BCVertexDecisionBlock comp);
 
-		protected abstract string GenerateCodeBCVertexDup(BCVertexDup comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexDup(BCVertexDup comp);
 
-		protected abstract string GenerateCodeBCVertexExprDecision(BCVertexExprDecision comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexExprDecision(BCVertexExprDecision comp);
 
-		protected abstract string GenerateCodeBCVertexExprDecisionBlock(BCVertexExprDecisionBlock comp, BCGraph g); 
+		public abstract string GenerateCodeBCVertexExprDecisionBlock(BCVertexExprDecisionBlock comp); 
 
-		protected abstract string GenerateCodeBCVertexExpression(BCVertexExpression comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexExpression(BCVertexExpression comp);
 
-		protected abstract string GenerateCodeBCVertexExprGet(BCVertexExprGet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexExprGet(BCVertexExprGet comp);
 
-		protected abstract string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp);
 
-		protected abstract string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp);
 
-		protected abstract string GenerateCodeBCVertexExprPopSet(BCVertexExprPopSet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexExprPopSet(BCVertexExprPopSet comp);
 
-		protected abstract string GenerateCodeBCVertexExprSet(BCVertexExprSet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexExprSet(BCVertexExprSet comp);
 
-		protected abstract string GenerateCodeBCVertexExprVarSet(BCVertexExprVarSet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexExprVarSet(BCVertexExprVarSet comp);
 
-		protected abstract string GenerateCodeBCVertexGet(BCVertexGet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexGet(BCVertexGet comp);
 
-		protected abstract string GenerateCodeBCVertexGetVarSet(BCVertexGetVarSet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexGetVarSet(BCVertexGetVarSet comp);
 
-		protected abstract string GenerateCodeBCVertexInput(BCVertexInput comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexInput(BCVertexInput comp);
 
-		protected abstract string GenerateCodeBCVertexInputVarSet(BCVertexInputVarSet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexInputVarSet(BCVertexInputVarSet comp);
 
-		protected abstract string GenerateCodeBCVertexNOP(BCVertexNOP comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexNOP(BCVertexNOP comp);
 
-		protected abstract string GenerateCodeBCVertexNot(BCVertexNot comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexNot(BCVertexNot comp);
 
-		protected abstract string GenerateCodeBCVertexOutput(BCVertexOutput comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexOutput(BCVertexOutput comp);
 
-		protected abstract string GenerateCodeBCVertexPop(BCVertexPop comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexPop(BCVertexPop comp);
 
-		protected abstract string GenerateCodeBCVertexRandom(BCVertexRandom comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexRandom(BCVertexRandom comp);
 
-		protected abstract string GenerateCodeBCVertexSet(BCVertexSet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexSet(BCVertexSet comp);
 
-		protected abstract string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp);
 
-		protected abstract string GenerateCodeBCVertexSwap(BCVertexSwap comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexSwap(BCVertexSwap comp);
 
-		protected abstract string GenerateCodeBCVertexVarGet(BCVertexVarGet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexVarGet(BCVertexVarGet comp);
 
-		protected abstract string GenerateCodeBCVertexVarSet(BCVertexVarSet comp, BCGraph g);
+		public abstract string GenerateCodeBCVertexVarSet(BCVertexVarSet comp);
 
-		protected abstract string GenerateCodeExpressionBCast(ExpressionBCast comp, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeExpressionBCast(ExpressionBCast comp, bool forceLongReturn);
 
-		protected abstract string GenerateCodeExpressionBinMath(ExpressionBinMath comp, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeExpressionBinMath(ExpressionBinMath comp, bool forceLongReturn);
 
-		protected abstract string GenerateCodeExpressionBinMathDecision(ExpressionBinMath comp, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeExpressionBinMathDecision(ExpressionBinMath comp, bool forceLongReturn);
 
-		protected abstract string GenerateCodeExpressionNotDecision(ExpressionNot comp, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeExpressionNotDecision(ExpressionNot comp, bool forceLongReturn);
 
-		protected abstract string GenerateCodeExpressionNot(ExpressionNot comp, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeExpressionNot(ExpressionNot comp, bool forceLongReturn);
 
-		protected abstract string GenerateCodeExpressionPeek(ExpressionPeek comp, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeExpressionPeek(ExpressionPeek comp, bool forceLongReturn);
 
-		protected abstract string GenerateCodeExpressionVariable(ExpressionVariable comp, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeExpressionVariable(ExpressionVariable comp, bool forceLongReturn);
 
-		protected abstract string GenerateCodeExpressionConstant(ExpressionConstant comp, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeExpressionConstant(ExpressionConstant comp, bool forceLongReturn);
 
-		protected abstract string GenerateCodeExpressionGet(ExpressionGet comp, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCodeExpressionGet(ExpressionGet comp, bool forceLongReturn);
 
 		#endregion
 	}

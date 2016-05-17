@@ -126,9 +126,9 @@ namespace BefunCompile.Graph.Vertex
 			yield return g.Vertices.IndexOf(EdgeFalse);
 		}
 
-		public override string GenerateCode(OutputLanguage l, BCGraph g)
+		public override string GenerateCode(CodeGenerator cg)
 		{
-			return CodeGenerator.GenerateCodeBCVertexExprDecision(l, this, g);
+			return cg.GenerateCodeBCVertexExprDecision(this);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

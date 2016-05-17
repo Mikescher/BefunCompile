@@ -1,10 +1,8 @@
-﻿
-using BefunCompile.CodeGeneration;
+﻿using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BefunCompile.CodeGeneration.Generator;
 
 namespace BefunCompile.Graph.Expression
 {
@@ -118,14 +116,14 @@ namespace BefunCompile.Graph.Expression
 			return false;
 		}
 
-		public override string GenerateCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
+		public override string GenerateCode(CodeGenerator cg, bool forceLongReturn)
 		{
-			return CodeGenerator.GenerateCodeExpressionNot(l, this, g, forceLongReturn);
+			return cg.GenerateCodeExpressionNot(this, forceLongReturn);
 		}
 
-		public string GenerateCodeDecision(OutputLanguage l, BCGraph g, bool forceLongReturn)
+		public string GenerateCodeDecision(CodeGenerator cg, bool forceLongReturn)
 		{
-			return CodeGenerator.GenerateCodeExpressionNotDecision(l, this, g, forceLongReturn);
+			return cg.GenerateCodeExpressionNotDecision(this, forceLongReturn);
 		}
 
 		public override bool IsNotGridAccess()

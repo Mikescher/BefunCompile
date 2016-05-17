@@ -6,7 +6,11 @@ namespace BefunCompile.CodeGeneration.Generator
 {
 	class CodeGeneratorPython2 : CodeGeneratorPython
 	{
-		protected override OutputLanguage LANG => OutputLanguage.Python2;
+		public CodeGeneratorPython2(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip) 
+			: base(comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip)
+		{
+			// <EMPTY />
+		}
 
 		protected override string SHEBANG => @"#!/usr/bin/env python2";
 		
@@ -26,39 +30,39 @@ namespace BefunCompile.CodeGeneration.Generator
 			return codebuilder.ToString();
 		}
 
-		protected override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp)
 		{
 			var builder = new SourceCodeBuilder();
 
 			if (comp.ModeInteger)
-				builder.AppendLine(string.Format("sys.stdout.write(str({0}))", comp.Value.GenerateCode(LANG, g, false)));
+				builder.AppendLine("sys.stdout.write(str({0}))", comp.Value.GenerateCode(this, false));
 			else
-				builder.AppendLine(string.Format("sys.stdout.write(chr({0}))", comp.Value.GenerateCode(LANG, g, false)));
+				builder.AppendLine("sys.stdout.write(chr({0}))", comp.Value.GenerateCode(this, false));
 
 			builder.AppendLine("sys.stdout.flush()");
 
 			return builder.ToString();
 		}
 
-		protected override string GenerateCodeBCVertexOutput(BCVertexOutput comp, BCGraph g)
+		public override string GenerateCodeBCVertexOutput(BCVertexOutput comp)
 		{
 			var builder = new SourceCodeBuilder();
 
 			if (comp.ModeInteger)
-				builder.AppendLine(string.Format("sys.stdout.write(str({0}))", "sp()"));
+				builder.AppendLine("sys.stdout.write(str({0}))", "sp()");
 			else
-				builder.AppendLine(string.Format("sys.stdout.write(chr({0}))", "sp()"));
+				builder.AppendLine("sys.stdout.write(chr({0}))", "sp()");
 
 			builder.AppendLine("sys.stdout.flush()");
 
 			return builder.ToString();
 		}
 
-		protected override string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp, BCGraph g)
+		public override string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp)
 		{
 			var builder = new SourceCodeBuilder();
 
-			builder.AppendLine(string.Format("sys.stdout.write(\"{0}\")", comp.Value));
+			builder.AppendLine("sys.stdout.write(\"{0}\")", comp.Value);
 
 			builder.AppendLine("sys.stdout.flush()");
 

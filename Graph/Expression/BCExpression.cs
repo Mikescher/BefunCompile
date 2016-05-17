@@ -1,4 +1,4 @@
-﻿using BefunCompile.CodeGeneration;
+﻿using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using System;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace BefunCompile.Graph.Expression
 
 		public abstract bool IsAlwaysLongReturn();
 
-		public abstract string GenerateCode(OutputLanguage l, BCGraph g, bool forceLongReturn);
+		public abstract string GenerateCode(CodeGenerator cg, bool forceLongReturn);
 
 		public abstract BCExpression ReplaceUnstackify(UnstackifyValueAccess access);
 

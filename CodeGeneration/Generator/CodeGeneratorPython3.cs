@@ -7,7 +7,11 @@ namespace BefunCompile.CodeGeneration.Generator
 {
 	class CodeGeneratorPython3 : CodeGeneratorPython
 	{
-		protected override OutputLanguage LANG => OutputLanguage.Python3;
+		public CodeGeneratorPython3(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip) 
+			: base(comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip)
+		{
+			// <EMPTY />
+		}
 
 		protected override string SHEBANG => @"#!/usr/bin/env python3";
 
@@ -27,15 +31,15 @@ namespace BefunCompile.CodeGeneration.Generator
 			return codebuilder.ToString();
 		}
 
-		protected override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp)
 		{
 			if (comp.ModeInteger)
-				return string.Format("print({0},end=\"\",flush=True)", comp.Value.GenerateCode(LANG, g, false));
+				return string.Format("print({0},end=\"\",flush=True)", comp.Value.GenerateCode(this, false));
 			else
-				return string.Format("print(chr({0}),end=\"\",flush=True)", comp.Value.GenerateCode(LANG, g, false));
+				return string.Format("print(chr({0}),end=\"\",flush=True)", comp.Value.GenerateCode(this, false));
 		}
 
-		protected override string GenerateCodeBCVertexOutput(BCVertexOutput comp, BCGraph g)
+		public override string GenerateCodeBCVertexOutput(BCVertexOutput comp)
 		{
 			if (comp.ModeInteger)
 				return string.Format("print({0},end=\"\",flush=True)", "sp()");
@@ -43,7 +47,7 @@ namespace BefunCompile.CodeGeneration.Generator
 				return string.Format("print(chr({0}),end=\"\",flush=True)", "sp()");
 		}
 
-		protected override string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp, BCGraph g)
+		public override string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp)
 		{
 			return string.Format("print(\"{0}\",end=\"\",flush=True)", comp.Value);
 		}

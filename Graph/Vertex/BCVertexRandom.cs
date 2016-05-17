@@ -111,9 +111,9 @@ namespace BefunCompile.Graph.Vertex
 			return Children.Select(child => g.Vertices.IndexOf(child));
 		}
 
-		public override string GenerateCode(OutputLanguage l, BCGraph g)
+		public override string GenerateCode(CodeGenerator cg)
 		{
-			return CodeGenerator.GenerateCodeBCVertexRandom(l, this, g);
+			return cg.GenerateCodeBCVertexRandom(this);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

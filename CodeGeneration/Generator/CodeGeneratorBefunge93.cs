@@ -10,9 +10,15 @@ namespace BefunCompile.CodeGeneration.Generator
 {
 	class CodeGeneratorBefunge93 : CodeGenerator
 	{
-		protected override string GenerateCode(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
+		public CodeGeneratorBefunge93(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip) 
+			: base(comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip)
 		{
-			string codeFunge = CodeGenerator.GenerateCode(OutputLanguage.TextFunge, comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
+			// <EMPTY />
+		}
+
+		protected override string GenerateCode()
+		{
+			string codeFunge = CodeGenerator.GenerateCode(OutputLanguage.TextFunge, Graph, FormatOutput, ImplementSafeStackAccess, ImplementSafeGridAccess, UseGZip);
 
 			var parser = new TextFungeParser();
 
@@ -53,187 +59,187 @@ namespace BefunCompile.CodeGeneration.Generator
 			return string.Join(Environment.NewLine, codeLines);
 		}
 
-		protected override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp, BCGraph g)
+		public override string GenerateCodeBCVertexBinaryMath(BCVertexBinaryMath comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexBlock(BCVertexBlock comp, BCGraph g)
+		public override string GenerateCodeBCVertexBlock(BCVertexBlock comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexDecision(BCVertexDecision comp, BCGraph g)
+		public override string GenerateCodeBCVertexDecision(BCVertexDecision comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexDecisionBlock(BCVertexDecisionBlock comp, BCGraph g)
+		public override string GenerateCodeBCVertexDecisionBlock(BCVertexDecisionBlock comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexDup(BCVertexDup comp, BCGraph g)
+		public override string GenerateCodeBCVertexDup(BCVertexDup comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexExprDecision(BCVertexExprDecision comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprDecision(BCVertexExprDecision comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexExprDecisionBlock(BCVertexExprDecisionBlock comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprDecisionBlock(BCVertexExprDecisionBlock comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexExpression(BCVertexExpression comp, BCGraph g)
+		public override string GenerateCodeBCVertexExpression(BCVertexExpression comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexExprGet(BCVertexExprGet comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprGet(BCVertexExprGet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexExprPopSet(BCVertexExprPopSet comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprPopSet(BCVertexExprPopSet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexExprSet(BCVertexExprSet comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprSet(BCVertexExprSet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexExprVarSet(BCVertexExprVarSet comp, BCGraph g)
+		public override string GenerateCodeBCVertexExprVarSet(BCVertexExprVarSet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexGet(BCVertexGet comp, BCGraph g)
+		public override string GenerateCodeBCVertexGet(BCVertexGet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexGetVarSet(BCVertexGetVarSet comp, BCGraph g)
+		public override string GenerateCodeBCVertexGetVarSet(BCVertexGetVarSet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexInput(BCVertexInput comp, BCGraph g)
+		public override string GenerateCodeBCVertexInput(BCVertexInput comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexInputVarSet(BCVertexInputVarSet comp, BCGraph g)
+		public override string GenerateCodeBCVertexInputVarSet(BCVertexInputVarSet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexNOP(BCVertexNOP comp, BCGraph g)
+		public override string GenerateCodeBCVertexNOP(BCVertexNOP comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexNot(BCVertexNot comp, BCGraph g)
+		public override string GenerateCodeBCVertexNot(BCVertexNot comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexOutput(BCVertexOutput comp, BCGraph g)
+		public override string GenerateCodeBCVertexOutput(BCVertexOutput comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexPop(BCVertexPop comp, BCGraph g)
+		public override string GenerateCodeBCVertexPop(BCVertexPop comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexRandom(BCVertexRandom comp, BCGraph g)
+		public override string GenerateCodeBCVertexRandom(BCVertexRandom comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexSet(BCVertexSet comp, BCGraph g)
+		public override string GenerateCodeBCVertexSet(BCVertexSet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp, BCGraph g)
+		public override string GenerateCodeBCVertexStringOutput(BCVertexStringOutput comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexSwap(BCVertexSwap comp, BCGraph g)
+		public override string GenerateCodeBCVertexSwap(BCVertexSwap comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexVarGet(BCVertexVarGet comp, BCGraph g)
+		public override string GenerateCodeBCVertexVarGet(BCVertexVarGet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeBCVertexVarSet(BCVertexVarSet comp, BCGraph g)
+		public override string GenerateCodeBCVertexVarSet(BCVertexVarSet comp)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeExpressionBCast(ExpressionBCast comp, BCGraph g, bool forceLongReturn)
+		public override string GenerateCodeExpressionBCast(ExpressionBCast comp, bool forceLongReturn)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeExpressionBinMath(ExpressionBinMath comp, BCGraph g, bool forceLongReturn)
+		public override string GenerateCodeExpressionBinMath(ExpressionBinMath comp, bool forceLongReturn)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeExpressionBinMathDecision(ExpressionBinMath comp, BCGraph g, bool forceLongReturn)
+		public override string GenerateCodeExpressionBinMathDecision(ExpressionBinMath comp, bool forceLongReturn)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeExpressionNotDecision(ExpressionNot comp, BCGraph g, bool forceLongReturn)
+		public override string GenerateCodeExpressionNotDecision(ExpressionNot comp, bool forceLongReturn)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeExpressionNot(ExpressionNot comp, BCGraph g, bool forceLongReturn)
+		public override string GenerateCodeExpressionNot(ExpressionNot comp, bool forceLongReturn)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeExpressionPeek(ExpressionPeek comp, BCGraph g, bool forceLongReturn)
+		public override string GenerateCodeExpressionPeek(ExpressionPeek comp, bool forceLongReturn)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeExpressionVariable(ExpressionVariable comp, BCGraph g, bool forceLongReturn)
+		public override string GenerateCodeExpressionVariable(ExpressionVariable comp, bool forceLongReturn)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeExpressionConstant(ExpressionConstant comp, BCGraph g, bool forceLongReturn)
+		public override string GenerateCodeExpressionConstant(ExpressionConstant comp, bool forceLongReturn)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		protected override string GenerateCodeExpressionGet(ExpressionGet comp, BCGraph g, bool forceLongReturn)
+		public override string GenerateCodeExpressionGet(ExpressionGet comp, bool forceLongReturn)
 		{
 			throw new System.NotImplementedException();
 		}

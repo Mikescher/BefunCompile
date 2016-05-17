@@ -1,4 +1,4 @@
-﻿using BefunCompile.CodeGeneration;
+﻿using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
@@ -179,7 +179,7 @@ namespace BefunCompile.Graph
 		public abstract IEnumerable<ExpressionVariable> GetVariables();
 		public abstract IEnumerable<int> GetAllJumps(BCGraph g);
 
-		public abstract string GenerateCode(OutputLanguage l, BCGraph g);
+		public abstract string GenerateCode(CodeGenerator cg);
 
 		public abstract UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state);
 		public abstract BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access);

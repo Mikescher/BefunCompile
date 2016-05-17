@@ -1,6 +1,7 @@
 ﻿
 using BefunCompile.CodeGeneration.Compiler;
 using BefunCompile.CodeGeneration.Generator;
+using BefunCompile.Graph;
 using System;
 
 namespace BefunCompile.CodeGeneration
@@ -74,24 +75,24 @@ namespace BefunCompile.CodeGeneration
 			}
 		}
 
-		public static CodeGenerator CreateGenerator(OutputLanguage ol)
+		public static CodeGenerator CreateGenerator(OutputLanguage ol, BCGraph rg, bool fmt, bool ssa, bool sga, bool gz)
 		{
 			switch (ol)
 			{
 				case OutputLanguage.CSharp:
-					return new CodeGeneratorCSharp();
+					return new CodeGeneratorCSharp(rg, fmt, ssa, sga, gz);
 				case OutputLanguage.C:
-					return new CodeGeneratorC();
+					return new CodeGeneratorC(rg, fmt, ssa, sga, gz);
 				case OutputLanguage.Python2:
-					return new CodeGeneratorPython2();
+					return new CodeGeneratorPython2(rg, fmt, ssa, sga, gz);
 				case OutputLanguage.Python3:
-					return new CodeGeneratorPython3();
+					return new CodeGeneratorPython3(rg, fmt, ssa, sga, gz);
 				case OutputLanguage.Java:
-					return new CodeGeneratorJava();
+					return new CodeGeneratorJava(rg, fmt, ssa, sga, gz);
 				case OutputLanguage.TextFunge:
-					return new CodeGeneratorTextFunge();
+					return new CodeGeneratorTextFunge(rg, fmt, ssa, sga, gz);
 				case OutputLanguage.Befunge93:
-					return new CodeGeneratorBefunge93();
+					return new CodeGeneratorBefunge93(rg, fmt, ssa, sga, gz);
 				default:
 					throw new ArgumentOutOfRangeException();
 			}

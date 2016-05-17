@@ -1,5 +1,4 @@
-﻿using BefunCompile.CodeGeneration;
-using BefunCompile.CodeGeneration.Generator;
+﻿using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
@@ -180,9 +179,9 @@ namespace BefunCompile.Graph.Vertex
 			return Enumerable.Empty<int>();
 		}
 
-		public override string GenerateCode(OutputLanguage l, BCGraph g)
+		public override string GenerateCode(CodeGenerator cg)
 		{
-			return CodeGenerator.GenerateCodeBCVertexBinaryMath(l, this, g);
+			return cg.GenerateCodeBCVertexBinaryMath(this);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

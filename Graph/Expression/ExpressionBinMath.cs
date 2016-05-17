@@ -1,5 +1,4 @@
-﻿using BefunCompile.CodeGeneration;
-using BefunCompile.CodeGeneration.Generator;
+﻿using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Exceptions;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
@@ -404,14 +403,14 @@ namespace BefunCompile.Graph.Expression
 			return true;
 		}
 
-		public override string GenerateCode(OutputLanguage l, BCGraph g, bool forceLongReturn)
+		public override string GenerateCode(CodeGenerator cg, bool forceLongReturn)
 		{
-			return CodeGenerator.GenerateCodeExpressionBinMath(l, this, g, forceLongReturn);
+			return cg.GenerateCodeExpressionBinMath(this, forceLongReturn);
 		}
 
-		public string GenerateCodeDecision(OutputLanguage l, BCGraph g, bool forceLongReturn)
+		public string GenerateCodeDecision(CodeGenerator cg, bool forceLongReturn)
 		{
-			return CodeGenerator.GenerateCodeExpressionBinMathDecision(l, this, g, forceLongReturn);
+			return cg.GenerateCodeExpressionBinMathDecision(this, forceLongReturn);
 		}
 
 		public override bool IsNotGridAccess()

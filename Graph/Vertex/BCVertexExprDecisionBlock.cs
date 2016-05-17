@@ -125,9 +125,9 @@ namespace BefunCompile.Graph.Vertex
 			return Block.GetAllJumps(g).Concat(Decision.GetAllJumps(g));
 		}
 
-		public override string GenerateCode(OutputLanguage l, BCGraph g)
+		public override string GenerateCode(CodeGenerator cg)
 		{
-			return CodeGenerator.GenerateCodeBCVertexExprDecisionBlock(l, this, g);
+			return cg.GenerateCodeBCVertexExprDecisionBlock(this);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)

@@ -1,5 +1,4 @@
-﻿using BefunCompile.CodeGeneration;
-using BefunCompile.CodeGeneration.Generator;
+﻿using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.StacksizePredictor;
@@ -145,9 +144,9 @@ namespace BefunCompile.Graph.Vertex
 			return nodes.SelectMany(p => p.GetAllJumps(g));
 		}
 
-		public override string GenerateCode(OutputLanguage l, BCGraph g)
+		public override string GenerateCode(CodeGenerator cg)
 		{
-			return CodeGenerator.GenerateCodeBCVertexBlock(l, this, g);
+			return cg.GenerateCodeBCVertexBlock(this);
 		}
 
 		public override UnstackifyState WalkUnstackify(UnstackifyStateHistory history, UnstackifyState state)
