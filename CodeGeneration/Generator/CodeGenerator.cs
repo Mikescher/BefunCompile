@@ -26,11 +26,11 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected CodeGenerator(BCGraph graph, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
 		{
-			this.Graph = graph;
-			this.FormatOutput = fmtOutput;
-			this.ImplementSafeStackAccess = implementSafeStackAccess;
-			this.ImplementSafeGridAccess = implementSafeGridAccess;
-			this.UseGZip = useGZip;
+			Graph = graph;
+			FormatOutput = fmtOutput;
+			ImplementSafeStackAccess = implementSafeStackAccess;
+			ImplementSafeGridAccess = implementSafeGridAccess;
+			UseGZip = useGZip;
 		}
 
 		#region Helper
