@@ -7,8 +7,8 @@ namespace BefunCompile.CodeGeneration.Generator
 {
 	class CodeGeneratorPython3 : CodeGeneratorPython
 	{
-		public CodeGeneratorPython3(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip) 
-			: base(comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip)
+		public CodeGeneratorPython3(BCGraph comp, CodeGeneratorOptions options) 
+			: base(comp, options)
 		{
 			// <EMPTY />
 		}

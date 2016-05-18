@@ -8,8 +8,8 @@ namespace BefunCompile.CodeGeneration.Generator
 {
 	public class CodeGeneratorJava : CodeGenerator
 	{
-		public CodeGeneratorJava(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip) 
-			: base(comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip)
+		public CodeGeneratorJava(BCGraph comp, CodeGeneratorOptions options) 
+			: base(comp, options)
 		{
 			// <EMPTY />
 		}

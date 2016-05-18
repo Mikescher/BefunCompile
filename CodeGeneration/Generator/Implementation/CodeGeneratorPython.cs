@@ -13,8 +13,8 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected abstract IEnumerable<string> AdditionalImports { get; }
 
-		protected CodeGeneratorPython(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip) 
-			: base(comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip)
+		protected CodeGeneratorPython(BCGraph comp, CodeGeneratorOptions options) 
+			: base(comp, options)
 		{
 			// <EMPTY />
 		}

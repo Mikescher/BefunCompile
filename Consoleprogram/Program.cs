@@ -1,10 +1,11 @@
 ﻿using BefunCompile.CodeGeneration;
-using BefunCompile.CodeGeneration.Compiler;
+using BefunCompile.CodeGeneration.Generator;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CodeCompiler = BefunCompile.CodeGeneration.Compiler.CodeCompiler;
 
 namespace BefunCompile.Consoleprogram
 {
@@ -16,12 +17,9 @@ namespace BefunCompile.Consoleprogram
 		private static string outputfileformat;
 		private static OutputLanguage[] languages;
 
-		private static bool optionFormat;
-		private static bool optionSafeStackAccess;
-		private static bool optionSafeGridAccess;
 		private static bool optionIgnoreSelfmod;
 		private static bool optionOverride;
-		private static bool optionUseGZip;
+		private static CodeGeneratorOptions cgOptions;
 
 		static void Main(string[] args)
 		{
@@ -75,17 +73,16 @@ namespace BefunCompile.Consoleprogram
 
 			languages = ParseLanguages(cmda).Distinct().ToArray();
 
-			optionFormat = cmda.Contains("format") || cmda.Contains("fmt");
-
-			optionSafeStackAccess = cmda.Contains("safestack") || cmda.Contains("ss");
-
-			optionSafeGridAccess = cmda.Contains("safegrid") || cmda.Contains("sg");
-
 			optionIgnoreSelfmod = cmda.Contains("unsafe") || cmda.Contains("ignoreselfmod") || cmda.Contains("ism");
 
 			optionOverride = cmda.Contains("override") || cmda.Contains("f");
 
-			optionUseGZip = cmda.Contains("usegzip") || cmda.Contains("gzip");
+			var optionFormat = cmda.Contains("format") || cmda.Contains("fmt");
+			var optionSafeStackAccess = cmda.Contains("safestack") || cmda.Contains("ss");
+			var optionSafeGridAccess = cmda.Contains("safegrid") || cmda.Contains("sg");
+			var optionUseGZip = cmda.Contains("usegzip") || cmda.Contains("gzip");
+
+			cgOptions = new CodeGeneratorOptions(optionFormat, optionSafeStackAccess, optionSafeGridAccess, optionUseGZip, false);
 		}
 
 		private static string[] GetWildcardFiles(string wc)
@@ -222,12 +219,7 @@ namespace BefunCompile.Consoleprogram
 
 					string source = File.ReadAllText(input);
 
-					var comp = new BefunCompiler(source,
-						optionFormat,
-						optionIgnoreSelfmod,
-						optionSafeStackAccess,
-						optionSafeGridAccess,
-						optionUseGZip);
+					var comp = new BefunCompiler(source, optionIgnoreSelfmod, cgOptions);
 
 					string code;
 					try

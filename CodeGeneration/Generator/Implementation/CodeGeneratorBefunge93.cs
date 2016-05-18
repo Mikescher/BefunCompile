@@ -10,15 +10,15 @@ namespace BefunCompile.CodeGeneration.Generator
 {
 	class CodeGeneratorBefunge93 : CodeGenerator
 	{
-		public CodeGeneratorBefunge93(BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip) 
-			: base(comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip)
+		public CodeGeneratorBefunge93(BCGraph comp, CodeGeneratorOptions options) 
+			: base(comp, options)
 		{
 			// <EMPTY />
 		}
 
 		protected override string GenerateCode()
 		{
-			string codeFunge = CodeGenerator.GenerateCode(OutputLanguage.TextFunge, Graph, FormatOutput, ImplementSafeStackAccess, ImplementSafeGridAccess, UseGZip);
+			string codeFunge = CodeGenerator.GenerateCode(OutputLanguage.TextFunge, Graph, Options);
 
 			var parser = new TextFungeParser();
 

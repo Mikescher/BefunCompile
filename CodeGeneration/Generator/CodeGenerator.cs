@@ -13,24 +13,24 @@ namespace BefunCompile.CodeGeneration.Generator
 		protected readonly MSZipImplementation MSZip = new MSZipImplementation();
 		protected readonly GZipImplementation GZip = new GZipImplementation();
 
-		private static CodeGenerator Instance(OutputLanguage lang, BCGraph rg, bool fmt, bool ssa, bool sga, bool gz)
-		{
-			return OutputLanguageHelper.CreateGenerator(lang, rg, fmt, ssa, sga, gz);
-		}
-
 		protected readonly BCGraph Graph;
-		protected readonly bool FormatOutput;
-		protected readonly bool ImplementSafeStackAccess;
-		protected readonly bool ImplementSafeGridAccess;
-		protected readonly bool UseGZip;
+		protected readonly CodeGeneratorOptions Options;
 
-		protected CodeGenerator(BCGraph graph, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
+		protected bool FormatOutput => Options.FormatOutput;
+		protected bool ImplementSafeStackAccess => Options.ImplementSafeStackAccess;
+		protected bool ImplementSafeGridAccess => Options.ImplementSafeGridAccess;
+		protected bool UseGZip => Options.UseGZip;
+		protected bool AddCosmeticChoices => Options.AddCosmeticChoices;
+
+		private static CodeGenerator Instance(OutputLanguage lang, BCGraph rg, CodeGeneratorOptions options)
+		{
+			return OutputLanguageHelper.CreateGenerator(lang, rg, options);
+		}
+		
+		protected CodeGenerator(BCGraph graph, CodeGeneratorOptions options)
 		{
 			Graph = graph;
-			FormatOutput = fmtOutput;
-			ImplementSafeStackAccess = implementSafeStackAccess;
-			ImplementSafeGridAccess = implementSafeGridAccess;
-			UseGZip = useGZip;
+			Options = options;
 		}
 
 		#region Helper
@@ -70,9 +70,9 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		#endregion
 		
-		public static string GenerateCode(OutputLanguage l, BCGraph comp, bool fmtOutput, bool implementSafeStackAccess, bool implementSafeGridAccess, bool useGZip)
+		public static string GenerateCode(OutputLanguage l, BCGraph comp, CodeGeneratorOptions options)
 		{
-			return Instance(l, comp, fmtOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip).GenerateCode();
+			return Instance(l, comp, options).GenerateCode();
 		}
 
 		#region Abstract generation

@@ -75,24 +75,24 @@ namespace BefunCompile.CodeGeneration
 			}
 		}
 
-		public static CodeGenerator CreateGenerator(OutputLanguage ol, BCGraph rg, bool fmt, bool ssa, bool sga, bool gz)
+		public static CodeGenerator CreateGenerator(OutputLanguage ol, BCGraph rg, CodeGeneratorOptions options)
 		{
 			switch (ol)
 			{
 				case OutputLanguage.CSharp:
-					return new CodeGeneratorCSharp(rg, fmt, ssa, sga, gz);
+					return new CodeGeneratorCSharp(rg, options);
 				case OutputLanguage.C:
-					return new CodeGeneratorC(rg, fmt, ssa, sga, gz);
+					return new CodeGeneratorC(rg, options);
 				case OutputLanguage.Python2:
-					return new CodeGeneratorPython2(rg, fmt, ssa, sga, gz);
+					return new CodeGeneratorPython2(rg, options);
 				case OutputLanguage.Python3:
-					return new CodeGeneratorPython3(rg, fmt, ssa, sga, gz);
+					return new CodeGeneratorPython3(rg, options);
 				case OutputLanguage.Java:
-					return new CodeGeneratorJava(rg, fmt, ssa, sga, gz);
+					return new CodeGeneratorJava(rg, options);
 				case OutputLanguage.TextFunge:
-					return new CodeGeneratorTextFunge(rg, fmt, ssa, sga, gz);
+					return new CodeGeneratorTextFunge(rg, options);
 				case OutputLanguage.Befunge93:
-					return new CodeGeneratorBefunge93(rg, fmt, ssa, sga, gz);
+					return new CodeGeneratorBefunge93(rg, options);
 				default:
 					throw new ArgumentOutOfRangeException();
 			}

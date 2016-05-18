@@ -30,14 +30,11 @@ namespace BefunCompile
 		private readonly int height;
 
 		private readonly bool ignoreSelfModification;
-		private readonly bool implementSafeStackAccess;
-		private readonly bool implementSafeGridAccess;
-		private readonly bool useGZip;
-		private readonly bool formatOutput;
+		private readonly CodeGeneratorOptions codeGeneratorOptions;
 
 		public readonly int[] LogCycles;
 
-		public BefunCompiler(string befsource, bool fmtOut, bool ignoreSelfMod, bool safeStackAcc, bool safeGridAcc, bool usegzip)
+		public BefunCompiler(string befsource, bool ignoreSelfMod, CodeGeneratorOptions options)
 		{
 			sourceGrid = StringToCharArr(befsource);
 
@@ -45,10 +42,7 @@ namespace BefunCompile
 			height = sourceGrid.GetLength(1);
 
 			ignoreSelfModification = ignoreSelfMod;
-			implementSafeStackAccess = safeStackAcc;
-			implementSafeGridAccess = safeGridAcc;
-			formatOutput = fmtOut;
-			useGZip = usegzip;
+			codeGeneratorOptions = options;
 
 			//##########################################################################
 
@@ -103,7 +97,7 @@ namespace BefunCompile
 
 		public string GenerateCode(OutputLanguage lang)
 		{
-			return CodeGenerator.GenerateCode(lang, GenerateGraph(), formatOutput, implementSafeStackAccess, implementSafeGridAccess, useGZip);
+			return CodeGenerator.GenerateCode(lang, GenerateGraph(), codeGeneratorOptions);
 		}
 
 		private BCGraph GenerateUntouchedGraph(GenerationLevel lvl, int level = -1) // O:0 
