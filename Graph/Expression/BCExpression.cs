@@ -39,5 +39,6 @@ namespace BefunCompile.Graph.Expression
 		}
 
 		public abstract bool IsIdentical(BCExpression other);
+		public abstract bool IsConstant(int value);
 	}
 }

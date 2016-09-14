@@ -154,5 +154,10 @@ namespace BefunCompile.Graph.Expression
 
 			return Value.IsIdentical(arg.Value);
 		}
+
+		public override bool IsConstant(int value)
+		{
+			return false;
+		}
 	}
 }

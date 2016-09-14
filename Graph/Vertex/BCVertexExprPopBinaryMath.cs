@@ -1,5 +1,4 @@
-﻿using BefunCompile.CodeGeneration;
-using BefunCompile.CodeGeneration.Generator;
+﻿using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
@@ -25,7 +24,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override string ToString()
 		{
-			return "PUSH(#pop# " + ExpressionBinMath.MathTypeToString(MathType) + " " + SecondExpression + ")";
+			return "PUSH(#p0p# " + ExpressionBinMath.MathTypeToString(MathType) + " " + SecondExpression + ")";
 		}
 
 		private long Calc(long a, long b) // Reihenfolge:   a  b  +

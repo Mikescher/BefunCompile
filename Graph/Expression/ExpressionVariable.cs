@@ -135,5 +135,10 @@ namespace BefunCompile.Graph.Expression
 		{
 			return (ExpressionConstant) ExpressionConstant.Create(initial);
 		}
+
+		public override bool IsConstant(int value)
+		{
+			return false;
+		}
 	}
 }

@@ -1,7 +1,7 @@
 ![](https://raw.githubusercontent.com/Mikescher/BefunUtils/master/README-FILES/icon_BefunCompile.png) BefunCompile
 ========
 
-BefunGen is a Befunge-93 compiler. *(Like all of my Befunge-93 content the Befunge-93 [size restriction](https://github.com/catseye/Befunge-93/blob/master/doc/Befunge-93.markdown) is removed, programs can be any size - much like in Befunge-98)*
+BefunCompile is a Befunge-93 compiler. *(Like all of my Befunge-93 content the Befunge-93 [size restriction](https://github.com/catseye/Befunge-93/blob/master/doc/Befunge-93.markdown) is removed, programs can be any size - much like in Befunge-98)*
 There [are](https://github.com/nilp0inter/awkfunge) [many](https://github.com/serprex/Befunge) [general](http://madflame991.github.io/befunjit/src/visualizer/visualizer.html) [compiler](http://quadium.net/funge/tbc/) out there. But mine is not one of them.
 It can only compile Befunge-code which does **not** modify its own source code *(its ok to modify other, non interpreted, cells)*. But nearly every program in Befunge, handmade or automatically generated does not change its own code while running.
 

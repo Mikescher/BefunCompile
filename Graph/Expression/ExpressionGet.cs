@@ -140,5 +140,10 @@ namespace BefunCompile.Graph.Expression
 
 			return X.IsIdentical(arg.X) && Y.IsIdentical(arg.Y);
 		}
+
+		public override bool IsConstant(int value)
+		{
+			return false;
+		}
 	}
 }

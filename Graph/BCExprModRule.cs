@@ -13,12 +13,22 @@ namespace BefunCompile.Graph
 			//
 		}
 
-		public void setPreq(Func<BCExpression, bool> p)
+		public void SetPreq<T>() where T : BCExpression
+		{
+			this.prerequisite = v => v is T;
+		}
+
+		public void SetPreq<T>(Func<T, bool> p) where T : BCExpression
+		{
+			this.prerequisite = v => v is T && p((T)v);
+		}
+
+		public void SetPreq(Func<BCExpression, bool> p)
 		{
 			this.prerequisite = p;
 		}
 
-		public void setRep(Func<BCExpression, BCExpression> r)
+		public void SetRep(Func<BCExpression, BCExpression> r)
 		{
 			this.replacement = r;
 		}

@@ -96,5 +96,10 @@ namespace BefunCompile.Graph.Expression
 
 			return Value == arg?.Value;
 		}
+
+		public override bool IsConstant(int value)
+		{
+			return this.Value == value;
+		}
 	}
 }

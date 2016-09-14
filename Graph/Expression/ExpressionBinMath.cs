@@ -33,52 +33,52 @@ namespace BefunCompile.Graph.Expression
 
 			//########  0/x  ########
 
-			if (t == BinaryMathType.DIV && a is ExpressionConstant && a.Calculate(null) == 0)
+			if (t == BinaryMathType.DIV && a.IsConstant(0))
 				return ExpressionConstant.Create(0);
 
 			//########  0*x  ########
 
-			if (t == BinaryMathType.MUL && a is ExpressionConstant && a.Calculate(null) == 1)
+			if (t == BinaryMathType.MUL && a.IsConstant(1))
 				return b;
 
 			//########  x*0  ########
 
-			if (t == BinaryMathType.MUL && b is ExpressionConstant && b.Calculate(null) == 1)
+			if (t == BinaryMathType.MUL && b.IsConstant(1))
 				return a;
 
 			//########  X*1  ########
 
-			if (t == BinaryMathType.MUL && b is ExpressionConstant && b.Calculate(null) == 1)
+			if (t == BinaryMathType.MUL && b.IsConstant(1))
 				return a;
 
 			//########  1*X  ########
 
-			if (t == BinaryMathType.MUL && a is ExpressionConstant && a.Calculate(null) == 1)
+			if (t == BinaryMathType.MUL && a.IsConstant(1))
 				return b;
 
 			//########  X/1  ########
 
-			if (t == BinaryMathType.DIV && b is ExpressionConstant && b.Calculate(null) == 1)
+			if (t == BinaryMathType.DIV && b.IsConstant(1))
 				return a;
 
 			//########  0%X  ########
 
-			if (t == BinaryMathType.MOD && a is ExpressionConstant && a.Calculate(null) == 0)
+			if (t == BinaryMathType.MOD && a.IsConstant(0))
 				return ExpressionConstant.Create(0);
 
 			//########  X+0  ########
 
-			if (t == BinaryMathType.ADD && b is ExpressionConstant && b.Calculate(null) == 0)
+			if (t == BinaryMathType.ADD && b.IsConstant(0))
 				return a;
 
 			//########  0+X  ########
 
-			if (t == BinaryMathType.ADD && a is ExpressionConstant && a.Calculate(null) == 0)
+			if (t == BinaryMathType.ADD && a.IsConstant(0))
 				return b;
 
 			//########  X-0  ########
 
-			if (t == BinaryMathType.SUB && b is ExpressionConstant && b.Calculate(null) == 0)
+			if (t == BinaryMathType.SUB && b.IsConstant(0))
 				return a;
 
 			//########  X o (X o X) || (X o X) o X  ########
@@ -440,6 +440,11 @@ namespace BefunCompile.Graph.Expression
 			if (arg == null) return false;
 
 			return ValueA.IsIdentical(arg.ValueA) && ValueB.IsIdentical(arg.ValueB);
+		}
+
+		public override bool IsConstant(int value)
+		{
+			return false;
 		}
 	}
 }

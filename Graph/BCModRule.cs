@@ -22,6 +22,16 @@ namespace BefunCompile.Graph
 			allowSplitCodePathReplacement = allowSPC;
 		}
 
+		public void AddPreq<T>() where T : BCVertex
+		{
+			prerequisites.Add(v => v is T);
+		}
+
+		public void AddPreq<T>(Func<T, bool> p) where T : BCVertex
+		{
+			prerequisites.Add(v => v is T && p((T)v));
+		}
+
 		public void AddPreq(params Func<BCVertex, bool>[] p)
 		{
 			foreach (var preq in p)
