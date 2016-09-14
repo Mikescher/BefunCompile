@@ -439,7 +439,7 @@ namespace BefunCompile.Graph.Expression
 
 			if (arg == null) return false;
 
-			return ValueA.IsIdentical(arg.ValueA) && ValueB.IsIdentical(arg.ValueB);
+			return ValueA.IsIdentical(arg.ValueA) && ValueB.IsIdentical(arg.ValueB) && (Type == arg.Type);
 		}
 
 		public override bool IsConstant(int value)
