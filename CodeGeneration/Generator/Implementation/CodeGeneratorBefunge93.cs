@@ -52,7 +52,7 @@ namespace BefunCompile.CodeGeneration.Generator
 				CustomNOPSymbol = '@',
 			};
 
-			var code = parser.generateCode(codeFunge, TextFungeParser.ExtractDisplayFromTFFormat(codeFunge), false);
+			var code = parser.GenerateCode(codeFunge, TextFungeParser.ExtractDisplayFromTFFormat(codeFunge), false);
 			var codeLines = Regex.Split(code, @"\r?\n");
 			codeLines[0] = codeLines[0].TrimEnd() + "  |  compiled with BefunCompile v" + BefunCompiler.VERSION + "(c) 2015";
 
@@ -214,12 +214,12 @@ namespace BefunCompile.CodeGeneration.Generator
 			throw new InvalidOperationException();
 		}
 
-		public override string GenerateCodeExpressionNotDecision(ExpressionNot comp, bool forceLongReturn)
+		public override string GenerateCodeExpressionNotDecision(Graph.Expression.ExpressionNot comp, bool forceLongReturn)
 		{
 			throw new InvalidOperationException();
 		}
 
-		public override string GenerateCodeExpressionNot(ExpressionNot comp, bool forceLongReturn)
+		public override string GenerateCodeExpressionNot(Graph.Expression.ExpressionNot comp, bool forceLongReturn)
 		{
 			throw new InvalidOperationException();
 		}
