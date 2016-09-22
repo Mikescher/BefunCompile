@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/Mikescher/BefunUtils/master/README-FILES/icon_BefunCompile.png) BefunCompile
+![](https://raw.githubusercontent.com/Mikescher/BefunUtils/master/README-FILES/icon_BefunCompile.png) BefunCompile [![Build status](https://ci.appveyor.com/api/projects/status/990qb5py2anch1lg/branch/master?svg=true)](https://ci.appveyor.com/project/Mikescher/befuncompile/branch/master)
 ========
 
 BefunCompile is a Befunge-93 compiler. *(Like all of my Befunge-93 content the Befunge-93 [size restriction](https://github.com/catseye/Befunge-93/blob/master/doc/Befunge-93.markdown) is removed, programs can be any size - much like in Befunge-98)*
@@ -34,7 +34,19 @@ after that you can compile the resulting code with the respective compilers:
 csc Euler_Problem-001.cs
 gcc Euler_Problem-001.c
 python Euler_Problem-001.py
+...
 ~~~
+
+Supported Output Languages
+==========================
+
+ - C-Sharp
+ - C *(ANSI-C)*
+ - Java
+ - Python2
+ - Python3
+ - [Textfunge](https://github.com/Mikescher/BefunWrite)
+ - Befunge93 (via [BefunGen](https://github.com/Mikescher/BefunGen))
 
 Examples
 ========
@@ -46,6 +58,8 @@ Download
 
 You can download the binaries from my website [www.mikescher.com](http://www.mikescher.com/programs/view/BefunUtils).   
 Or compile them yourself by forking this repository
+
+Or you can download the latest (nightly) version from the **[AppVeyor build server](https://ci.appveyor.com/project/Mikescher/BefunExec/build/artifacts)**
 
 Set Up
 ======
@@ -75,3 +89,8 @@ BefunCompile (Graph display of [Euler_Problem-002](https://github.com/Mikescher/
 BefunCompile (Graph display of [Euler_Problem-002](https://github.com/Mikescher/Project-Euler_Befunge/blob/master/Euler_Problem-002.b93) Level **5**) *(via [BefunDebug](https://github.com/Mikescher/BefunDebug))*:  
 ![](https://raw.githubusercontent.com/Mikescher/BefunUtils/master/README-FILES/BefunCompile_Graph-5_example.png)
 
+
+Contributions
+=============
+
+Yes, please

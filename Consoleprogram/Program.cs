@@ -133,7 +133,7 @@ namespace BefunCompile.Consoleprogram
 
 			Console.WriteLine("lang | language | languages:");
 			Console.WriteLine("    " + "The target languages");
-			Console.WriteLine("    " + "[ c | csharp | python | all ]");
+			Console.WriteLine("    " + "[ c | csharp | python | java | py2 | py3 | textfunge | bef93 | all ]");
 			Console.WriteLine("    " + "seperate multiple target languages with a semicolon");
 			Console.WriteLine("    " + "use 'all' to target all languages");
 
