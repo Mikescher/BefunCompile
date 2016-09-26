@@ -62,7 +62,7 @@ build:
 
 test:
   assemblies:
-    # none
+    - BefunUtils\bin\Release\Tests\BefunCompileTest.dll
 
 #---------------------------------#
 #      artifacts configuration    #
