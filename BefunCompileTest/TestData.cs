@@ -1,4 +1,12 @@
-﻿using BefunCompileTest.Properties;
+﻿using BefunCompile;
+using BefunCompile.CodeGeneration;
+using BefunCompile.CodeGeneration.Compiler;
+using BefunCompile.CodeGeneration.Generator;
+using BefunCompileTest.Properties;
+using NUnit.Framework;
+using System;
+using System.IO;
+using System.Text;
 
 namespace BefunCompileTest
 {
@@ -67,5 +75,41 @@ namespace BefunCompileTest
 			new BFDataSet("data_077", Resources.testdata_077, "71"),
 			new BFDataSet("data_079", Resources.testdata_079, "73162890"),
 		};
+
+		public static readonly BFDataSet[] Data_fast =
+		{
+			new BFDataSet("data_005", Resources.testdata_005, "232792560"),
+			new BFDataSet("data_018", Resources.testdata_018, "1074"),
+			new BFDataSet("data_024", Resources.testdata_024, "2783915460"),
+			new BFDataSet("data_040", Resources.testdata_040, "210"),
+			new BFDataSet("data_069", Resources.testdata_069, "510510"),
+			new BFDataSet("data_079", Resources.testdata_079, "73162890"),
+		};
+
+		public static void Test_Execute(TestData.BFDataSet set, OutputLanguage lang)
+		{
+			var compiler = new BefunCompiler(set.Code, true, new CodeGeneratorOptions(true, true, true, true, false));
+
+			var gencode = compiler.GenerateCode(lang);
+
+			var file = Path.GetTempFileName() + "." + CodeCompiler.GetBinaryExtension(lang);
+
+			var consoleBuilder = new StringBuilder();
+			CodeCompiler.Compile(lang, gencode, file, consoleBuilder);
+			Console.Out.WriteLine(consoleBuilder.ToString());
+
+			string output = CodeCompiler.Execute(lang, file).Replace("\r\n", "\n").Replace("\n", "\\n");
+
+			Assert.AreEqual(output, set.Result);
+		}
+
+		public static void Test_Generate(TestData.BFDataSet set, OutputLanguage lang)
+		{
+			var compiler = new BefunCompiler(set.Code, true, new CodeGeneratorOptions(true, true, true, true, false));
+
+			var result = compiler.GenerateCode(lang);
+
+			Assert.IsNotEmpty(result);
+		}
 	}
 }
