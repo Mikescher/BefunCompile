@@ -90,8 +90,10 @@ namespace BefunCompileTest
 		{
 			Console.Out.WriteLine("Compiling test set " + set.Name + " with BefunCompile");
 
-			//var compiler = new BefunCompiler(set.Code, true, new CodeGeneratorOptions(true, true, true, true, false));
-			//var gencode = compiler.GenerateCode(lang);
+			var compiler = new BefunCompiler(set.Code, true, new CodeGeneratorOptions(true, true, true, true, false));
+			var gencode = compiler.GenerateCode(lang);
+
+			Assert.IsNotEmpty(gencode);
 
 			//var file = Guid.NewGuid().ToString("D") + "." + CodeCompiler.GetBinaryExtension(lang);
 
@@ -114,10 +116,10 @@ namespace BefunCompileTest
 		{
 			Console.Out.WriteLine("Compiling test set " + set.Name + " with BefunCompile");
 
-			//var compiler = new BefunCompiler(set.Code, true, new CodeGeneratorOptions(true, true, true, true, false));
-			//var gencode = compiler.GenerateCode(lang);
+			var compiler = new BefunCompiler(set.Code, true, new CodeGeneratorOptions(true, true, true, true, false));
+			var gencode = compiler.GenerateCode(lang);
 
-			//Assert.IsNotEmpty(gencode);
+			Assert.IsNotEmpty(gencode);
 		}
 	}
 }
