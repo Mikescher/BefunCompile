@@ -10,12 +10,12 @@ namespace BefunCompile.CodeGeneration.Compiler
 			File.WriteAllText(path, code);
 		}
 
-		protected override string Execute(string path)
+		protected override string Execute(string path, int? timeout = null)
 		{
 			var pyPath = FilesystemCompilerSearch.FindPYTH2().FirstOrDefault();
 			if (pyPath == null) throw new CodeCompilerEnvironmentException("python-2 not found on this system");
 
-			var prog = ProcessLauncher.ProcExecute(pyPath, string.Format("\"{0}\"", path));
+			var prog = ProcessLauncher.ProcExecute(pyPath, string.Format("\"{0}\"", path), timeout);
 
 			if (prog.ExitCode != 0)
 			{

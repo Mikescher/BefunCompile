@@ -6,6 +6,8 @@ namespace BefunCompile.CodeGeneration.Compiler
 {
 	public abstract class CodeCompiler
 	{
+		protected const int TIMEOUT_COMPILE = 16 * 1000; // ms
+
 		private static Dictionary<OutputLanguage, CodeCompiler> _instances = null;
 
 		private static CodeCompiler Instance(OutputLanguage lang)
@@ -27,9 +29,9 @@ namespace BefunCompile.CodeGeneration.Compiler
 			Instance(l).Compile(code, path, dbgOutput);
 		}
 
-		public static string Execute(OutputLanguage l, string path)
+		public static string Execute(OutputLanguage l, string path, int? timeout = null)
 		{
-			return Instance(l).Execute(path);
+			return Instance(l).Execute(path, timeout);
 		}
 
 		public static string GetCodeExtension(OutputLanguage l)
@@ -63,7 +65,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 		}
 
 		protected abstract void Compile(string code, string path, IOutputReciever dbgOutput);
-		protected abstract string Execute(string path);
+		protected abstract string Execute(string path, int? timeout = null);
 		protected abstract string GetCodeExtension();
 		protected abstract string GetBinaryExtension();
 		protected abstract string GetAcronym();

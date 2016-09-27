@@ -9,9 +9,9 @@ namespace BefunCompile.CodeGeneration.Compiler
 			File.WriteAllText(path, code);
 		}
 
-		protected override string Execute(string path)
+		protected override string Execute(string path, int? timeout = null)
 		{
-			var bfr = ProcessLauncher.ProcExecute("BefunRun", string.Format("\"{0}\" --errorlevel=3", path));
+			var bfr = ProcessLauncher.ProcExecute("BefunRun", string.Format("\"{0}\" --errorlevel=3", path), timeout);
 
 			if (bfr.ExitCode != 0)
 			{

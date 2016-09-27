@@ -13,7 +13,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 			var fn1 = Path.GetTempFileName() + ".b93.cs";
 			File.WriteAllText(fn1, code);
 
-			var csc = ProcessLauncher.ProcExecute(cscPath, string.Format("/out:\"{1}\" /optimize /nologo \"{0}\"", fn1, path), dbgOutput);
+			var csc = ProcessLauncher.ProcExecute(cscPath, string.Format("/out:\"{1}\" /optimize /nologo \"{0}\"", fn1, path), dbgOutput, TIMEOUT_COMPILE);
 
 			if (csc.ExitCode != 0)
 			{
@@ -23,9 +23,9 @@ namespace BefunCompile.CodeGeneration.Compiler
 			}
 		}
 
-		protected override string Execute(string path)
+		protected override string Execute(string path, int? timeout = null)
 		{
-			var prog = ProcessLauncher.ProcExecute(path, string.Empty);
+			var prog = ProcessLauncher.ProcExecute(path, string.Empty, timeout);
 
 			if (prog.ExitCode != 0)
 			{

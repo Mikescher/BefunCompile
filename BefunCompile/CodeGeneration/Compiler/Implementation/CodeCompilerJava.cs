@@ -26,7 +26,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 			#region JVC
 
-			var jvc = ProcessLauncher.ProcExecute(javacPath, string.Format("\"{0}\"", fn1), dbgOutput);
+			var jvc = ProcessLauncher.ProcExecute(javacPath, string.Format("\"{0}\"", fn1), dbgOutput, TIMEOUT_COMPILE);
 			
 			File.Delete(fn1);
 				
@@ -41,7 +41,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 			#region JAR
 
-			var jar = ProcessLauncher.ProcExecute(jarPath, string.Format("-cfve \"{0}\" Program \"{1}\"", path, Path.GetFileName(fn3)), fn0, dbgOutput);
+			var jar = ProcessLauncher.ProcExecute(jarPath, string.Format("-cfve \"{0}\" Program \"{1}\"", path, Path.GetFileName(fn3)), fn0, dbgOutput, TIMEOUT_COMPILE);
 
 			File.Delete(fn3);
 
@@ -57,12 +57,12 @@ namespace BefunCompile.CodeGeneration.Compiler
 			Directory.Delete(fn0, true);
 		}
 
-		protected override string Execute(string path)
+		protected override string Execute(string path, int? timeout = null)
 		{
 			var javaPath = FilesystemCompilerSearch.FindJAVA().FirstOrDefault();
 			if (javaPath == null) throw new CodeCompilerEnvironmentException("java not found on this system");
 
-			var prog = ProcessLauncher.ProcExecute(javaPath, string.Format("-jar \"{0}\"", path));
+			var prog = ProcessLauncher.ProcExecute(javaPath, string.Format("-jar \"{0}\"", path), timeout);
 
 			if (prog.ExitCode != 0)
 			{

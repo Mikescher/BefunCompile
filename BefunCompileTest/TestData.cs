@@ -105,7 +105,7 @@ namespace BefunCompileTest
 
 			Console.Out.WriteLine("Executing test set " + set.Name + " with CodeCompiler");
 
-			string output = CodeCompiler.Execute(lang, file).Replace("\r\n", "\n").Replace("\n", "\\n");
+			string output = CodeCompiler.Execute(lang, file, 120 * 1000).Replace("\r\n", "\n").Replace("\n", "\\n");
 
 			Assert.AreEqual(output, set.Result);
 

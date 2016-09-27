@@ -1,17 +1,18 @@
 ﻿using System.Diagnostics;
 using System.Text;
 
+// ReSharper disable MethodOverloadWithOptionalParameter
 namespace BefunCompile.CodeGeneration.Compiler
 {
 	public static class ProcessLauncher
 	{
-		public static ProcessOutput ProcExecute(string command, string arguments) => ProcExecute(command, arguments, null, null);
+		public static ProcessOutput ProcExecute(string command, string arguments, int? timeout) => ProcExecute(command, arguments, null, null, timeout);
 
-		public static ProcessOutput ProcExecute(string command, string arguments, IOutputReciever dbgOutput) => ProcExecute(command, arguments, null, dbgOutput);
+		public static ProcessOutput ProcExecute(string command, string arguments) => ProcExecute(command, arguments, null, null, null);
 
-		public static ProcessOutput ProcExecute(string command, string arguments, string workingDirectory) => ProcExecute(command, arguments, workingDirectory, null);
+		public static ProcessOutput ProcExecute(string command, string arguments, IOutputReciever dbgOutput = null, int? timeout = null) => ProcExecute(command, arguments, null, dbgOutput, timeout);
 
-		public static ProcessOutput ProcExecute(string command, string arguments, string workingDirectory, IOutputReciever dbgOutput)
+		public static ProcessOutput ProcExecute(string command, string arguments, string workingDirectory, IOutputReciever dbgOutput, int? timeout)
 		{
 			if (dbgOutput == null) dbgOutput = new DummyReciever();
 
@@ -65,8 +66,10 @@ namespace BefunCompile.CodeGeneration.Compiler
 			process.BeginOutputReadLine();
 			process.BeginErrorReadLine();
 
-
-			process.WaitForExit();
+			if (timeout.HasValue)
+				process.WaitForExit(timeout.Value);
+			else
+				process.WaitForExit();
 
 			return new ProcessOutput(process.ExitCode, builderOut.ToString(), builderErr.ToString());
 		}
