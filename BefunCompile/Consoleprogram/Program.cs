@@ -11,43 +11,43 @@ namespace BefunCompile.Consoleprogram
 {
 	public static class Program
 	{
-		private static CommandLineArguments cmda;
+		private static CommandLineArguments _cmda;
 
-		private static string[] inputfiles;
-		private static string outputfileformat;
-		private static OutputLanguage[] languages;
+		private static string[] _inputfiles;
+		private static string _outputfileformat;
+		private static OutputLanguage[] _languages;
 
-		private static bool optionIgnoreSelfmod;
-		private static bool optionOverride;
-		private static CodeGeneratorOptions cgOptions;
+		private static bool _optionIgnoreSelfmod;
+		private static bool _optionOverride;
+		private static CodeGeneratorOptions _cgOptions;
 
 		static void Main(string[] args)
 		{
-			cmda = new CommandLineArguments(args);
+			_cmda = new CommandLineArguments(args);
 
-			if (cmda.Contains("help") || cmda.Contains("h"))
+			if (_cmda.Contains("help") || _cmda.Contains("h"))
 			{
-				printCMDHelp();
+				PrintCMDHelp();
 			}
-			else if (cmda.Count() == 0)
+			else if (_cmda.Count() == 0)
 			{
 				Console.WriteLine("No command line arguments supplied:");
 				Console.WriteLine("");
 				Console.WriteLine("");
-				printCMDHelp();
+				PrintCMDHelp();
 				return;
 			}
 
-			loadArguments(cmda);
+			LoadArguments(_cmda);
 
-			run();
+			Run();
 		}
 
 		private static IEnumerable<OutputLanguage> ParseLanguages(CommandLineArguments cmda)
 		{
 			var allLanguages = ((OutputLanguage[]) Enum.GetValues(typeof (OutputLanguage))).ToList();
 
-			foreach (var arg in new[] {"lang", "language", "languages"})
+			foreach (var arg in new[] {"lang", "language", "_languages"})
 			{
 				var data = cmda.GetStringDefault(arg, "").ToLower().Split(';');
 				foreach (var datum in data)
@@ -65,40 +65,40 @@ namespace BefunCompile.Consoleprogram
 			}
 		}
 
-		private static void loadArguments(CommandLineArguments cmda)
+		private static void LoadArguments(CommandLineArguments cmda)
 		{
-			inputfiles = GetWildcardFiles(cmda.GetStringDefault("file", null));
+			_inputfiles = GetWildcardFiles(cmda.GetStringDefault("file", null));
 
-			outputfileformat = cmda.GetStringDefault("out", null) ?? cmda.GetStringDefault("output", null);
+			_outputfileformat = cmda.GetStringDefault("out", null) ?? cmda.GetStringDefault("output", null);
 
-			languages = ParseLanguages(cmda).Distinct().ToArray();
+			_languages = ParseLanguages(cmda).Distinct().ToArray();
 
-			optionIgnoreSelfmod = cmda.Contains("unsafe") || cmda.Contains("ignoreselfmod") || cmda.Contains("ism");
+			_optionIgnoreSelfmod = cmda.Contains("unsafe") || cmda.Contains("ignoreselfmod") || cmda.Contains("ism");
 
-			optionOverride = cmda.Contains("override") || cmda.Contains("f");
+			_optionOverride = cmda.Contains("override") || cmda.Contains("f");
 
 			var optionFormat = cmda.Contains("format") || cmda.Contains("fmt");
 			var optionSafeStackAccess = cmda.Contains("safestack") || cmda.Contains("ss");
 			var optionSafeGridAccess = cmda.Contains("safegrid") || cmda.Contains("sg");
 			var optionUseGZip = cmda.Contains("usegzip") || cmda.Contains("gzip");
 
-			cgOptions = new CodeGeneratorOptions(optionFormat, optionSafeStackAccess, optionSafeGridAccess, optionUseGZip, false);
+			_cgOptions = new CodeGeneratorOptions(optionFormat, optionSafeStackAccess, optionSafeGridAccess, optionUseGZip, false);
 		}
 
 		private static string[] GetWildcardFiles(string wc)
 		{
-			if (wc == null || wc == "")
+			if (string.IsNullOrEmpty(wc))
 				return new string[] { };
 
 			Regex rex = new Regex("^" + Regex.Escape(wc).Replace(@"\*", @"[^\/]*").Replace(@"\?", @"[^\/]?") + "$", RegexOptions.Compiled);
 
 			return Directory
-				.GetFiles(Path.GetDirectoryName(wc))
+				.GetFiles(Path.GetDirectoryName(wc) ?? wc)
 				.Where(p => rex.IsMatch(p))
 				.ToArray();
 		}
 
-		private static void printCMDHelp()
+		private static void PrintCMDHelp()
 		{
 			Console.WriteLine("CMD Arguments:");
 			Console.WriteLine("==============");
@@ -131,11 +131,11 @@ namespace BefunCompile.Consoleprogram
 
 			Console.WriteLine("");
 
-			Console.WriteLine("lang | language | languages:");
-			Console.WriteLine("    " + "The target languages");
+			Console.WriteLine("lang | language | _languages:");
+			Console.WriteLine("    " + "The target _languages");
 			Console.WriteLine("    " + "[ c | csharp | python | java | py2 | py3 | textfunge | bef93 | all ]");
-			Console.WriteLine("    " + "seperate multiple target languages with a semicolon");
-			Console.WriteLine("    " + "use 'all' to target all languages");
+			Console.WriteLine("    " + "seperate multiple target _languages with a semicolon");
+			Console.WriteLine("    " + "use 'all' to target all _languages");
 
 			Console.WriteLine("");
 
@@ -173,7 +173,6 @@ namespace BefunCompile.Consoleprogram
 			Console.WriteLine("");
 			Console.WriteLine("Press [Enter] to continue...");
 			Console.ReadLine();
-
 		}
 
 		private static string GetLangExt(OutputLanguage l)
@@ -181,34 +180,34 @@ namespace BefunCompile.Consoleprogram
 			return CodeCompiler.GetCodeExtension(l);
 		}
 
-		private static void run()
+		private static void Run()
 		{
-			if (inputfiles.Length == 0)
+			if (_inputfiles.Length == 0)
 			{
 				Console.WriteLine("Error: No files found.");
 				return;
 			}
 
-			if (languages.Length == 0)
+			if (_languages.Length == 0)
 			{
-				Console.WriteLine("Error: No languages specified.");
+				Console.WriteLine("Error: No _languages specified.");
 				return;
 			}
 
-			if (string.IsNullOrEmpty(outputfileformat))
+			if (string.IsNullOrEmpty(_outputfileformat))
 			{
 				Console.WriteLine("Error: No output file specified.");
 				return;
 			}
 
 			int counter = 0;
-			foreach (var input in inputfiles)
+			foreach (var input in _inputfiles)
 			{
-				foreach (var lang in languages)
+				foreach (var lang in _languages)
 				{
 					counter++;
 
-					string outputfilename = outputfileformat
+					string outputfilename = _outputfileformat
 						.Replace("{fn}", Path.GetFileName(input))
 						.Replace("{f}", Path.GetFileNameWithoutExtension(input))
 						.Replace("{p}", input)
@@ -219,7 +218,7 @@ namespace BefunCompile.Consoleprogram
 
 					string source = File.ReadAllText(input);
 
-					var comp = new BefunCompiler(source, optionIgnoreSelfmod, cgOptions);
+					var comp = new BefunCompiler(source, _optionIgnoreSelfmod, _cgOptions);
 
 					string code;
 					try
@@ -232,16 +231,16 @@ namespace BefunCompile.Consoleprogram
 						break;
 					}
 
-					if (File.Exists(outputfilename) && !optionOverride)
+					if (File.Exists(outputfilename) && !_optionOverride)
 					{
 						Console.Error.WriteLine("Error: File " + Path.GetFileName(outputfilename) + " already exists.");
 						break;
 					}
 
-					Directory.CreateDirectory(Path.GetDirectoryName(outputfilename));
+					Directory.CreateDirectory(Path.GetDirectoryName(outputfilename) ?? outputfilename);
 					File.WriteAllText(outputfilename, code);
 
-					Console.Error.WriteLine(string.Format("[{0:000}]File {1} succesfully compiled to {2}", counter, Path.GetFileName(input), Path.GetFileName(outputfilename)));
+					Console.Error.WriteLine("[{0:000}]File {1} succesfully compiled to {2}", counter, Path.GetFileName(input), Path.GetFileName(outputfilename));
 				}
 			}
 		}

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
@@ -7,10 +8,13 @@ namespace BefunCompile.CodeGeneration.Compiler
 	{
 		protected override void Compile(string code, string path, StringBuilder dbgOutput)
 		{
+			var cscPath = FilesystemCompilerSearch.FindCSC().FirstOrDefault();
+			if (cscPath == null) throw new CodeCompilerEnvironmentException("csc not found on this system");
+
 			var fn1 = Path.GetTempFileName() + ".b93.cs";
 			File.WriteAllText(fn1, code);
 
-			var csc = ProcExecute("csc", string.Format("/out:\"{1}\" /optimize /nologo \"{0}\"", fn1, path), dbgOutput);
+			var csc = ProcessLauncher.ProcExecute(cscPath, string.Format("/out:\"{1}\" /optimize /nologo \"{0}\"", fn1, path), dbgOutput);
 
 			if (csc.ExitCode != 0)
 			{
@@ -22,7 +26,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		protected override string Execute(string path)
 		{
-			var prog = ProcExecute(path, string.Empty);
+			var prog = ProcessLauncher.ProcExecute(path, string.Empty);
 
 			if (prog.ExitCode != 0)
 			{

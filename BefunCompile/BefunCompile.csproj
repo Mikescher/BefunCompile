@@ -50,7 +50,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BefunCompiler.cs" />
+    <Compile Include="CodeGeneration\CodeCompilerEnvironmentException.cs" />
     <Compile Include="CodeGeneration\Compiler\CodeCompiler.cs" />
+    <Compile Include="CodeGeneration\Compiler\FilesystemCompilerSearch.cs" />
     <Compile Include="CodeGeneration\Compiler\Implementation\CodeCompilerBefunge93.cs" />
     <Compile Include="CodeGeneration\Compiler\Implementation\CodeCompilerC.cs" />
     <Compile Include="CodeGeneration\Compiler\Implementation\CodeCompilerCSharp.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="CodeGeneration\Compiler\Implementation\CodeCompilerPython2.cs" />
     <Compile Include="CodeGeneration\Compiler\Implementation\CodeCompilerPython3.cs" />
     <Compile Include="CodeGeneration\Compiler\Implementation\CodeCompilerTextFunge.cs" />
+    <Compile Include="CodeGeneration\Compiler\ProcessLauncher.cs" />
     <Compile Include="CodeGeneration\Compiler\ProcessOutput.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGenerator.cs" />
     <Compile Include="CodeGeneration\Generator\Implementation\CodeGeneratorBefunge93.cs" />

@@ -10,7 +10,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 			var fn1 = Path.GetTempFileName() + ".tf";
 			File.WriteAllText(fn1, code);
 
-			var bgc = ProcExecute("BefunGen", string.Format("\"{0}\" \"{1}\"", fn1, path), dbgOutput);
+			var bgc = ProcessLauncher.ProcExecute("BefunGen", string.Format("\"{0}\" \"{1}\"", fn1, path), dbgOutput);
 
 			if (bgc.ExitCode != 0)
 			{
@@ -22,7 +22,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		protected override string Execute(string path)
 		{
-			var bfr = ProcExecute("BefunRun", string.Format("\"{0}\" --errorlevel=3", path));
+			var bfr = ProcessLauncher.ProcExecute("BefunRun", string.Format("\"{0}\" --errorlevel=3", path));
 
 			if (bfr.ExitCode != 0)
 			{

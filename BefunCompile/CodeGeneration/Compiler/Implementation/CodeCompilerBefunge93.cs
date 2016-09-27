@@ -12,7 +12,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		protected override string Execute(string path)
 		{
-			var bfr = ProcExecute("BefunRun", string.Format("\"{0}\" --errorlevel=3", path));
+			var bfr = ProcessLauncher.ProcExecute("BefunRun", string.Format("\"{0}\" --errorlevel=3", path));
 
 			if (bfr.ExitCode != 0)
 			{

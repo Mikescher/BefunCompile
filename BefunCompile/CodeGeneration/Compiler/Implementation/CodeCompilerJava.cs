@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
@@ -8,6 +9,12 @@ namespace BefunCompile.CodeGeneration.Compiler
 	{
 		protected override void Compile(string code, string path, StringBuilder dbgOutput)
 		{
+			var javacPath = FilesystemCompilerSearch.FindJAVAC().FirstOrDefault();
+			if (javacPath == null) throw new CodeCompilerEnvironmentException("javac not found on this system");
+
+			var jarPath = FilesystemCompilerSearch.FindJAR().FirstOrDefault();
+			if (jarPath == null) throw new CodeCompilerEnvironmentException("jar not found on this system");
+
 			var guid = Guid.NewGuid();
 
 			var fn0 = Path.Combine(Path.GetTempPath(), guid.ToString());
@@ -20,7 +27,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 			#region JVC
 
-			var jvc = ProcExecute("javac", string.Format("\"{0}\"", fn1), dbgOutput);
+			var jvc = ProcessLauncher.ProcExecute(javacPath, string.Format("\"{0}\"", fn1), dbgOutput);
 			
 			File.Delete(fn1);
 				
@@ -35,7 +42,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 			#region JAR
 
-			var jar = ProcExecute("jar", string.Format("-cfve \"{0}\" Program \"{1}\"", path, Path.GetFileName(fn3)), fn0, dbgOutput);
+			var jar = ProcessLauncher.ProcExecute(jarPath, string.Format("-cfve \"{0}\" Program \"{1}\"", path, Path.GetFileName(fn3)), fn0, dbgOutput);
 
 			File.Delete(fn3);
 
@@ -53,7 +60,10 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		protected override string Execute(string path)
 		{
-			var prog = ProcExecute("java", string.Format("-jar \"{0}\"", path));
+			var javaPath = FilesystemCompilerSearch.FindJAVA().FirstOrDefault();
+			if (javaPath == null) throw new CodeCompilerEnvironmentException("java not found on this system");
+
+			var prog = ProcessLauncher.ProcExecute(javaPath, string.Format("-jar \"{0}\"", path));
 
 			if (prog.ExitCode != 0)
 			{

@@ -95,21 +95,23 @@ namespace BefunCompileTest
 
 			Assert.IsNotEmpty(gencode);
 
-			//var file = Guid.NewGuid().ToString("D") + "." + CodeCompiler.GetBinaryExtension(lang);
+			var file = Path.GetFullPath(Guid.NewGuid().ToString("D") + "." + CodeCompiler.GetBinaryExtension(lang));
 
 			Console.Out.WriteLine("Building test set " + set.Name + " with CodeCompiler");
 			
-			//var consoleBuilder = new StringBuilder();
-			//CodeCompiler.Compile(lang, gencode, file, consoleBuilder);
-			//Console.Out.WriteLine(consoleBuilder.ToString());
+			var consoleBuilder = new StringBuilder();
+			CodeCompiler.Compile(lang, gencode, file, consoleBuilder);
+			Console.Out.WriteLine(consoleBuilder.ToString());
 
 			Console.Out.WriteLine("Executing test set " + set.Name + " with CodeCompiler");
 
-			//string output = CodeCompiler.Execute(lang, file).Replace("\r\n", "\n").Replace("\n", "\\n");
+			string output = CodeCompiler.Execute(lang, file).Replace("\r\n", "\n").Replace("\n", "\\n");
 
-			//Assert.AreEqual(output, set.Result);
+			Assert.AreEqual(output, set.Result);
 
-			//File.Delete(file);
+			if (output == set.Result) Console.Out.WriteLine("Output matches with expected");
+
+			File.Delete(file);
 		}
 
 		public static void Test_Generate(TestData.BFDataSet set, OutputLanguage lang)

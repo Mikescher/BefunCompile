@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
@@ -12,7 +13,10 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		protected override string Execute(string path)
 		{
-			var prog = ProcExecute("pypy", string.Format("\"{0}\"", path));
+			var pyPath = FilesystemCompilerSearch.FindPYTH2().FirstOrDefault();
+			if (pyPath == null) throw new CodeCompilerEnvironmentException("python-2 not found on this system");
+
+			var prog = ProcessLauncher.ProcExecute(pyPath, string.Format("\"{0}\"", path));
 
 			if (prog.ExitCode != 0)
 			{

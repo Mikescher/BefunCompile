@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
@@ -8,11 +9,14 @@ namespace BefunCompile.CodeGeneration.Compiler
 	{
 		protected override void Compile(string code, string path, StringBuilder dbgOutput)
 		{
+			var gccPath = FilesystemCompilerSearch.FindGCC().FirstOrDefault();
+			if (gccPath == null) throw new CodeCompilerEnvironmentException("gcc not found on this system");
+
 			var fn1 = Path.GetTempPath() + Guid.NewGuid() + ".b93.c";
 
 			File.WriteAllText(fn1, code);
 
-			var gcc = ProcExecute("gcc", string.Format(" -x c \"{0}\" -o \"{1}\"", fn1, path), dbgOutput);
+			var gcc = ProcessLauncher.ProcExecute(gccPath, string.Format(" -x c \"{0}\" -o \"{1}\"", fn1, path), dbgOutput);
 
 			if (gcc.ExitCode != 0)
 			{
@@ -24,7 +28,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		protected override string Execute(string path)
 		{
-			var prog = ProcExecute(path, string.Empty);
+			var prog = ProcessLauncher.ProcExecute(path, string.Empty);
 
 			if (prog.ExitCode != 0)
 			{
