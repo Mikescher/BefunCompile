@@ -67,9 +67,20 @@ namespace BefunCompile.CodeGeneration.Compiler
 			process.BeginErrorReadLine();
 
 			if (timeout.HasValue)
-				process.WaitForExit(timeout.Value);
+			{
+				var result = process.WaitForExit(timeout.Value);
+
+				if (!result)
+				{
+					process.Kill();
+					return new ProcessOutput(-1, builderOut.ToString(), builderErr + "\r\nProcess manually terminated by controller after timeout");
+				}
+			}
 			else
+			{
 				process.WaitForExit();
+				
+			}
 
 			return new ProcessOutput(process.ExitCode, builderOut.ToString(), builderErr.ToString());
 		}
