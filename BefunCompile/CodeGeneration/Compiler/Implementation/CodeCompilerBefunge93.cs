@@ -1,11 +1,10 @@
 ﻿using System.IO;
-using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
 {
 	class CodeCompilerBefunge93 : CodeCompiler
 	{
-		protected override void Compile(string code, string path, StringBuilder dbgOutput)
+		protected override void Compile(string code, string path, IOutputReciever dbgOutput)
 		{
 			File.WriteAllText(path, code);
 		}

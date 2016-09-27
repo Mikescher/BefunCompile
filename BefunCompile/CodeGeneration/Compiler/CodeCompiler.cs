@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
 {
@@ -20,10 +19,10 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		public static void Compile(OutputLanguage l, string code, string path)
 		{
-			Compile(l, code, path, new StringBuilder());
+			Compile(l, code, path, new DummyReciever());
 		}
 
-		public static void Compile(OutputLanguage l, string code, string path, StringBuilder dbgOutput)
+		public static void Compile(OutputLanguage l, string code, string path, IOutputReciever dbgOutput)
 		{
 			Instance(l).Compile(code, path, dbgOutput);
 		}
@@ -48,13 +47,13 @@ namespace BefunCompile.CodeGeneration.Compiler
 			return Instance(l).GetAcronym();
 		}
 
-		public static string ExecuteCode(OutputLanguage l, string code, StringBuilder dbgOutput)
+		public static string ExecuteCode(OutputLanguage l, string code, IOutputReciever dbgOutput)
 		{
 			var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + "." + GetBinaryExtension(l));
 
 			try
 			{
-				Compile(l, code, path, dbgOutput ?? new StringBuilder());
+				Compile(l, code, path, dbgOutput ?? new DummyReciever());
 				return Execute(l, path);
 			}
 			finally
@@ -63,7 +62,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 			}
 		}
 
-		protected abstract void Compile(string code, string path, StringBuilder dbgOutput);
+		protected abstract void Compile(string code, string path, IOutputReciever dbgOutput);
 		protected abstract string Execute(string path);
 		protected abstract string GetCodeExtension();
 		protected abstract string GetBinaryExtension();

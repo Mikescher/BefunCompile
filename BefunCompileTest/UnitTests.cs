@@ -12,10 +12,10 @@ namespace BefunCompileTest
 		public void Test_GCC_Compile(TestData.BFDataSet set) { TestData.Test_Execute(set, OutputLanguage.C); }
 
 
-/*
+
 		[TestCaseSource(nameof(TD_FULL)), Timeout(16000)]
 		public void Test_CSC_Compile(TestData.BFDataSet set) { TestData.Test_Execute(set, OutputLanguage.CSharp); }
-*/
+
 
 
 		[TestCaseSource(nameof(TD_FULL)), Timeout(16000)]

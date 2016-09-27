@@ -61,6 +61,7 @@
     <Compile Include="CodeGeneration\Compiler\Implementation\CodeCompilerPython2.cs" />
     <Compile Include="CodeGeneration\Compiler\Implementation\CodeCompilerPython3.cs" />
     <Compile Include="CodeGeneration\Compiler\Implementation\CodeCompilerTextFunge.cs" />
+    <Compile Include="CodeGeneration\Compiler\OutputReciever.cs" />
     <Compile Include="CodeGeneration\Compiler\ProcessLauncher.cs" />
     <Compile Include="CodeGeneration\Compiler\ProcessOutput.cs" />
     <Compile Include="CodeGeneration\Generator\CodeGenerator.cs" />

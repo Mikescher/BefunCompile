@@ -1,11 +1,10 @@
 ﻿using System.IO;
-using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
 {
 	class CodeCompilerTextFunge : CodeCompiler
 	{
-		protected override void Compile(string code, string path, StringBuilder dbgOutput)
+		protected override void Compile(string code, string path, IOutputReciever dbgOutput)
 		{
 			var fn1 = Path.GetTempFileName() + ".tf";
 			File.WriteAllText(fn1, code);

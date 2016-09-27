@@ -1,12 +1,11 @@
 ﻿using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
 {
 	class CodeCompilerCSharp : CodeCompiler
 	{
-		protected override void Compile(string code, string path, StringBuilder dbgOutput)
+		protected override void Compile(string code, string path, IOutputReciever dbgOutput)
 		{
 			var cscPath = FilesystemCompilerSearch.FindCSC().FirstOrDefault();
 			if (cscPath == null) throw new CodeCompilerEnvironmentException("csc not found on this system");

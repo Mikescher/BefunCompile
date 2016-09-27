@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
 {
 	class CodeCompilerJava : CodeCompiler
 	{
-		protected override void Compile(string code, string path, StringBuilder dbgOutput)
+		protected override void Compile(string code, string path, IOutputReciever dbgOutput)
 		{
 			var javacPath = FilesystemCompilerSearch.FindJAVAC().FirstOrDefault();
 			if (javacPath == null) throw new CodeCompilerEnvironmentException("javac not found on this system");

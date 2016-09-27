@@ -7,13 +7,13 @@ namespace BefunCompile.CodeGeneration.Compiler
 	{
 		public static ProcessOutput ProcExecute(string command, string arguments) => ProcExecute(command, arguments, null, null);
 
-		public static ProcessOutput ProcExecute(string command, string arguments, StringBuilder dbgOutput) => ProcExecute(command, arguments, null, dbgOutput);
+		public static ProcessOutput ProcExecute(string command, string arguments, IOutputReciever dbgOutput) => ProcExecute(command, arguments, null, dbgOutput);
 
 		public static ProcessOutput ProcExecute(string command, string arguments, string workingDirectory) => ProcExecute(command, arguments, workingDirectory, null);
 
-		public static ProcessOutput ProcExecute(string command, string arguments, string workingDirectory, StringBuilder dbgOutput)
+		public static ProcessOutput ProcExecute(string command, string arguments, string workingDirectory, IOutputReciever dbgOutput)
 		{
-			if (dbgOutput == null) dbgOutput = new StringBuilder();
+			if (dbgOutput == null) dbgOutput = new DummyReciever();
 
 			dbgOutput.AppendLine();
 			dbgOutput.AppendLine(string.Format("> {0} {1}", command, arguments));

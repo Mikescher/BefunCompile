@@ -1,12 +1,11 @@
 ﻿using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace BefunCompile.CodeGeneration.Compiler
 {
 	class CodeCompilerPython3 : CodeCompiler
 	{
-		protected override void Compile(string code, string path, StringBuilder dbgOutput)
+		protected override void Compile(string code, string path, IOutputReciever dbgOutput)
 		{
 			File.WriteAllText(path, code);
 		}

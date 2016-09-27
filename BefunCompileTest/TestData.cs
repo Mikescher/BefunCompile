@@ -100,7 +100,7 @@ namespace BefunCompileTest
 			Console.Out.WriteLine("Building test set " + set.Name + " with CodeCompiler");
 			
 			var consoleBuilder = new StringBuilder();
-			CodeCompiler.Compile(lang, gencode, file, consoleBuilder);
+			CodeCompiler.Compile(lang, gencode, file, new StandardOutReciever());
 			Console.Out.WriteLine(consoleBuilder.ToString());
 
 			Console.Out.WriteLine("Executing test set " + set.Name + " with CodeCompiler");
