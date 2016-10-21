@@ -142,7 +142,7 @@ namespace BefunCompileTest
 			var pathMe = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase).Replace(@"file:\", string.Empty);
 			var pathRel = @".\..\..\..\BefunCompile\BefunCompileTest\Resources\tcc\tcc.exe";
 			var pathTCC = Path.GetFullPath(Path.Combine(pathMe, pathRel));
-			var prog = ProcessLauncher.ProcExecute(pathTCC, $"-run \"{file}\"", 120 * 1000);
+			var prog = ProcessLauncher.ProcExecute(pathTCC, $"-run \"{file}\"", new StandardOutReciever(), 120 * 1000);
 
 			Assert.AreEqual(0, prog.ExitCode);
 
