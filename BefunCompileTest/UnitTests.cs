@@ -15,6 +15,9 @@ namespace BefunCompileTest
 		//[TestCaseSource(nameof(TD_FULL))]
 		//public void Test_GCC_Compile(TestData.BFDataSet set) { TestData.Test_Execute(set, OutputLanguage.C); }
 
+		[TestCaseSource(nameof(TD_FULL))]
+		public void Test_GCC_RunWithTCC(TestData.BFDataSet set) { TestData.Test_RunTCC(set, OutputLanguage.C); }
+
 
 
 
@@ -40,8 +43,8 @@ namespace BefunCompileTest
 		[TestCaseSource(nameof(TD_FULL))]
 		public void Test_PY2_Generate(TestData.BFDataSet set) { TestData.Test_Generate(set, OutputLanguage.Python2); }
 
-		[TestCaseSource(nameof(TD_SMALL))]
-		public void Test_PY2_Compile(TestData.BFDataSet set) { TestData.Test_Execute(set, OutputLanguage.Python2); }
+		//[TestCaseSource(nameof(TD_SMALL))]
+		//public void Test_PY2_Compile(TestData.BFDataSet set) { TestData.Test_Execute(set, OutputLanguage.Python2); }
 
 
 
@@ -50,8 +53,8 @@ namespace BefunCompileTest
 		[TestCaseSource(nameof(TD_FULL))]
 		public void Test_PY3_Generate(TestData.BFDataSet set) { TestData.Test_Generate(set, OutputLanguage.Python3); }
 
-		[TestCaseSource(nameof(TD_SMALL))]
-		public void Test_PY3_Compile(TestData.BFDataSet set) { TestData.Test_Execute(set, OutputLanguage.Python3); }
+		//[TestCaseSource(nameof(TD_SMALL))]
+		//public void Test_PY3_Compile(TestData.BFDataSet set) { TestData.Test_Execute(set, OutputLanguage.Python3); }
 
 
 

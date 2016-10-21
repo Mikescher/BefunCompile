@@ -6,6 +6,7 @@ using BefunCompileTest.Properties;
 using NUnit.Framework;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace BefunCompileTest
@@ -122,6 +123,36 @@ namespace BefunCompileTest
 			var gencode = compiler.GenerateCode(lang);
 
 			Assert.IsNotEmpty(gencode);
+		}
+
+		public static void Test_RunTCC(TestData.BFDataSet set, OutputLanguage lang)
+		{
+			Console.Out.WriteLine("Compiling test set " + set.Name + " with BefunCompile");
+
+			var compiler = new BefunCompiler(set.Code, true, new CodeGeneratorOptions(true, true, true, true, false));
+			var gencode = compiler.GenerateCode(lang);
+
+			Assert.IsNotEmpty(gencode);
+
+			var file = Path.GetFullPath(Guid.NewGuid().ToString("D") + "." + CodeCompiler.GetCodeExtension(lang));
+			File.WriteAllText(file, gencode, new UTF8Encoding(false, true));
+
+			Console.Out.WriteLine("Executing test set " + set.Name + " with CodeCompiler");
+
+			var pathMe = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase).Replace(@"file:\", string.Empty);
+			var pathRel = @".\..\..\..\BefunCompile\BefunCompileTest\Resources\tcc\tcc.exe";
+			var pathTCC = Path.GetFullPath(Path.Combine(pathMe, pathRel));
+			var prog = ProcessLauncher.ProcExecute(pathTCC, $"-run \"{file}\"", 120 * 1000);
+
+			Assert.AreEqual(0, prog.ExitCode);
+
+			string output = prog.StdOut.Replace("\r\n", "\n").Replace("\n", "\\n");
+
+			Assert.AreEqual(output, set.Result);
+
+			if (output == set.Result) Console.Out.WriteLine("Output matches with expected");
+
+			File.Delete(file);
 		}
 	}
 }
