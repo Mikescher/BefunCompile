@@ -39,13 +39,11 @@ namespace BefunCompileTest
 
 
 
-
 		[TestCaseSource(nameof(TD_FULL))]
 		public void Test_PY2_Generate(TestData.BFDataSet set) { TestData.Test_Generate(set, OutputLanguage.Python2); }
 
 		//[TestCaseSource(nameof(TD_SMALL))]
 		//public void Test_PY2_Compile(TestData.BFDataSet set) { TestData.Test_Execute(set, OutputLanguage.Python2); }
-
 
 
 
@@ -59,10 +57,8 @@ namespace BefunCompileTest
 
 
 
-
 		//[TestCaseSource(nameof(TD_FULL))]
 		//public void Test_TF_Generate(TestData.BFDataSet set) { TestData.Test_Generate(set, OutputLanguage.TextFunge); }
-
 
 
 
