@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace BefunCompile.CodeGeneration.Compiler
 {
-	public class FilesystemCompilerSearch
+	public static class FilesystemCompilerSearch
 	{
 		private static IEnumerable<string> SafeEnumerateDirectories(params string[] paths)
 		{
