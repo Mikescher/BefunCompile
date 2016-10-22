@@ -15,8 +15,8 @@ namespace BefunCompileTest
 		//[TestCaseSource(nameof(TD_FULL))]
 		//public void Test_GCC_Compile(TestData.BFDataSet set) { TestData.Test_Execute(set, OutputLanguage.C); }
 
-		[TestCaseSource(nameof(TD_FULL))]
-		public void Test_GCC_RunWithTCC(TestData.BFDataSet set) { TestData.Test_RunTCC(set, OutputLanguage.C); }
+		//[TestCaseSource(nameof(TD_FULL))]
+		//public void Test_GCC_RunWithTCC(TestData.BFDataSet set) { TestData.Test_RunTCC(set, OutputLanguage.C); }
 
 
 
