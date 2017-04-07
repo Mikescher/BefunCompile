@@ -46,7 +46,7 @@ namespace BefunCompile.CodeGeneration.Generator
 				DisplayBorder = '#',
 				DisplayBorderThickness = 1,
 
-				DefaultVarDeclarationSymbol = ' ',
+				DefaultVarDeclarationSymbol = '0',
 				DefaultTempSymbol = ' ',
 				DefaultResultTempSymbol = ' ',
 				CustomNOPSymbol = '@',
