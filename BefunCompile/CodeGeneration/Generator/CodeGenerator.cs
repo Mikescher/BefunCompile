@@ -37,7 +37,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		protected string Indent(string code, string indent)
 		{
-			return string.Join(Environment.NewLine, code.Split(new[] { Environment.NewLine }, StringSplitOptions.None).Select(p => indent + p));
+			return string.Join(Environment.NewLine, code.Split(new[] { Environment.NewLine }, StringSplitOptions.None).Select(p => p.Trim() == "" ? "" : indent + p));
 		}
 
 		protected bool IsASCIIChar(long chr)

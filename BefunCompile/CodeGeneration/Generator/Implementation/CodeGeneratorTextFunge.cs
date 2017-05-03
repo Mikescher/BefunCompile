@@ -53,7 +53,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			List<int> activeJumps = Graph.GetAllJumps().Distinct().ToList();
 
 			SourceCodeBuilder codebuilder = new SourceCodeBuilder(!FormatOutput);
-			codebuilder.AppendLine(@"/* graphiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
+			codebuilder.AppendLine(@"/* transpiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
 			if (FormatOutput) codebuilder.AppendLine();
 
 			if (useRealGrid)

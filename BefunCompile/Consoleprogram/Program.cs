@@ -26,11 +26,11 @@ namespace BefunCompile.Consoleprogram
 		{
 			mode = null;
 
-			if      (args.Length >= 2 && args[1].ToLower() == "generate") { mode = CommandMode.Generate; args = new[]{args[0]}.Concat(args.Skip(2)).ToArray(); }
-			else if (args.Length >= 2 && args[1].ToLower() == "compile")  { mode = CommandMode.Compile;  args = new[]{args[0]}.Concat(args.Skip(2)).ToArray(); }
-			else if (args.Length >= 2 && args[1].ToLower() == "execute")  { mode = CommandMode.Execute;  args = new[]{args[0]}.Concat(args.Skip(2)).ToArray(); }
-			else if (args.Length >= 2 && args[1].ToLower() == "exec")     { mode = CommandMode.Execute;  args = new[]{args[0]}.Concat(args.Skip(2)).ToArray(); }
-			else if (args.Length >= 2 && args[1].ToLower() == "gen")      { mode = CommandMode.Generate; args = new[]{args[0]}.Concat(args.Skip(2)).ToArray(); }
+			if      (args.Length >= 1 && args[0].ToLower() == "generate") { mode = CommandMode.Generate; args = args.Skip(1).ToArray(); }
+			else if (args.Length >= 1 && args[0].ToLower() == "compile")  { mode = CommandMode.Compile;  args = args.Skip(1).ToArray(); }
+			else if (args.Length >= 1 && args[0].ToLower() == "execute")  { mode = CommandMode.Execute;  args = args.Skip(1).ToArray(); }
+			else if (args.Length >= 1 && args[0].ToLower() == "exec")     { mode = CommandMode.Execute;  args = args.Skip(1).ToArray(); }
+			else if (args.Length >= 1 && args[0].ToLower() == "gen")      { mode = CommandMode.Generate; args = args.Skip(1).ToArray(); }
 
 			_cmda = new CommandLineArguments(args);
 
@@ -56,7 +56,7 @@ namespace BefunCompile.Consoleprogram
 		{
 			var allLanguages = ((OutputLanguage[]) Enum.GetValues(typeof (OutputLanguage))).ToList();
 
-			foreach (var arg in new[] {"lang", "language", "_languages"})
+			foreach (var arg in new[] {"lang", "language", "languages"})
 			{
 				var data = cmda.GetStringDefault(arg, "").ToLower().Split(';');
 				foreach (var datum in data)
@@ -196,7 +196,7 @@ namespace BefunCompile.Consoleprogram
 		{
 			if (mode == null)
 			{
-				Console.WriteLine("Error: No mode suppied via commandline.");
+				Console.WriteLine("Error: No mode supplied via commandline.");
 				return;
 			}
 
