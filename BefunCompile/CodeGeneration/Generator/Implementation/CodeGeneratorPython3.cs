@@ -34,7 +34,7 @@ namespace BefunCompile.CodeGeneration.Generator
 		public override string GenerateCodeBCVertexExprOutput(BCVertexExprOutput comp)
 		{
 			if (comp.ModeInteger)
-				return string.Format("print({0},end=\"\",flush=True)", comp.Value.GenerateCode(this, false));
+				return string.Format("print({0},end=\" \",flush=True)", comp.Value.GenerateCode(this, false));
 			else
 				return string.Format("print(chr({0}),end=\"\",flush=True)", comp.Value.GenerateCode(this, false));
 		}
@@ -42,7 +42,7 @@ namespace BefunCompile.CodeGeneration.Generator
 		public override string GenerateCodeBCVertexOutput(BCVertexOutput comp)
 		{
 			if (comp.ModeInteger)
-				return string.Format("print({0},end=\"\",flush=True)", "sp()");
+				return string.Format("print({0},end=\" \",flush=True)", "sp()");
 			else
 				return string.Format("print(chr({0}),end=\"\",flush=True)", "sp()");
 		}

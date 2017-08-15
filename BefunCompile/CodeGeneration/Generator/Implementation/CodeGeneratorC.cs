@@ -324,9 +324,9 @@ namespace BefunCompile.CodeGeneration.Generator
 				return string.Format("printf({0});", GetASCIICharRep(((ExpressionConstant) comp.Value).Value, "\""));
 
 			if (comp.ModeInteger)
-				return string.Format("printf(\"{0}\", {1});", "%lld", comp.Value.GenerateCode(this, true));
-
-			return string.Format("printf(\"{0}\", ({1})({2}));", comp.ModeInteger ? "%lld" : "%c", comp.ModeInteger ? "int64" : "char", comp.Value.GenerateCode(this, false));
+				return string.Format("printf(\"{0} \", {1});", "%lld", comp.Value.GenerateCode(this, true));
+			else
+				return string.Format("printf(\"{0}\", ({1})({2}));", "%c", "char", comp.Value.GenerateCode(this, false));
 		}
 
 		public override string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp)
@@ -448,9 +448,10 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		public override string GenerateCodeBCVertexOutput(BCVertexOutput comp)
 		{
-			return string.Format("printf(\"{0}\", ({1})(sp()));",
+			return string.Format("printf(\"{0}{2}\", ({1})(sp()));",
 				comp.ModeInteger ? "%lld" : "%c",
-				comp.ModeInteger ? "int64" : "char");
+				comp.ModeInteger ? "int64" : "char",
+				comp.ModeInteger ? " " : "");
 		}
 
 		public override string GenerateCodeBCVertexPop(BCVertexPop comp)

@@ -347,9 +347,9 @@ namespace BefunCompile.CodeGeneration.Generator
 				return string.Format("System.out.print({0});", GetASCIICharRep(((ExpressionConstant) comp.Value).Value, "'"));
 
 			if (comp.ModeInteger)
-				return string.Format("System.out.print(String.valueOf({0}));", comp.Value.GenerateCode(this, true));
-
-			return string.Format("System.out.print(String.valueOf(({0})({1})));", comp.ModeInteger ? "long" : "char", comp.Value.GenerateCode(this, false));
+				return string.Format("System.out.print(String.valueOf({0})+\" \");", comp.Value.GenerateCode(this, true));
+			else
+				return string.Format("System.out.print(String.valueOf((char)({0})));", comp.Value.GenerateCode(this, false));
 		}
 
 		public override string GenerateCodeBCVertexExprPopBinaryMath(BCVertexExprPopBinaryMath comp)
@@ -471,7 +471,9 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		public override string GenerateCodeBCVertexOutput(BCVertexOutput comp)
 		{
-			return string.Format("System.out.print(String.valueOf(({0})(sp())));", comp.ModeInteger ? "long" : "char");
+			return string.Format("System.out.print(String.valueOf(({0}{1})(sp())));", 
+				comp.ModeInteger ? "long" : "char",
+				comp.ModeInteger ? " " : "");
 		}
 
 		public override string GenerateCodeBCVertexPop(BCVertexPop comp)

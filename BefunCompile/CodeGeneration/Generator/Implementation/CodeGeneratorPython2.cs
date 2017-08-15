@@ -35,7 +35,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			var builder = new SourceCodeBuilder();
 
 			if (comp.ModeInteger)
-				builder.AppendLine("sys.stdout.write(str({0}))", comp.Value.GenerateCode(this, false));
+				builder.AppendLine("sys.stdout.write(str({0})+\" \")", comp.Value.GenerateCode(this, false));
 			else
 				builder.AppendLine("sys.stdout.write(chr({0}))", comp.Value.GenerateCode(this, false));
 
@@ -49,7 +49,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			var builder = new SourceCodeBuilder();
 
 			if (comp.ModeInteger)
-				builder.AppendLine("sys.stdout.write(str({0}))", "sp()");
+				builder.AppendLine("sys.stdout.write(str({0})+\" \")", "sp()");
 			else
 				builder.AppendLine("sys.stdout.write(chr({0}))", "sp()");
 
