@@ -15,7 +15,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 			File.WriteAllText(fn1, code);
 
-			var gcc = ProcessLauncher.ProcExecute(gccPath, string.Format(" -x c \"{0}\" -o \"{1}\"", fn1, path), dbgOutput, TIMEOUT_COMPILE);
+			var gcc = ProcessLauncher.ProcExecute(gccPath, string.Format(" -x c \"{0}\" -o \"{1}\"", fn1, path), Path.GetDirectoryName(gccPath), dbgOutput, TIMEOUT_COMPILE);
 
 			if (gcc.ExitCode != 0)
 			{
@@ -25,9 +25,9 @@ namespace BefunCompile.CodeGeneration.Compiler
 			}
 		}
 
-		protected override string Execute(string path, int? timeout = null)
+		protected override string Execute(string path, IOutputReciever dbgOutput, int? timeout = null)
 		{
-			var prog = ProcessLauncher.ProcExecute(path, string.Empty, timeout);
+			var prog = ProcessLauncher.ProcExecute(path, string.Empty, dbgOutput, timeout);
 
 			if (prog.ExitCode != 0)
 			{

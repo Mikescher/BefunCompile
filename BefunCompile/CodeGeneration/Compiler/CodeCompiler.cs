@@ -31,7 +31,12 @@ namespace BefunCompile.CodeGeneration.Compiler
 
 		public static string Execute(OutputLanguage l, string path, int? timeout = null)
 		{
-			return Instance(l).Execute(path, timeout);
+			return Execute(l, path, new DummyReciever(), timeout);
+		}
+
+		public static string Execute(OutputLanguage l, string path, IOutputReciever dbgOutput, int? timeout = null)
+		{
+			return Instance(l).Execute(path, dbgOutput, timeout);
 		}
 
 		public static string GetCodeExtension(OutputLanguage l)
@@ -56,7 +61,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 			try
 			{
 				Compile(l, code, path, dbgOutput ?? new DummyReciever());
-				return Execute(l, path);
+				return Execute(l, path, dbgOutput);
 			}
 			finally
 			{
@@ -65,7 +70,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 		}
 
 		protected abstract void Compile(string code, string path, IOutputReciever dbgOutput);
-		protected abstract string Execute(string path, int? timeout = null);
+		protected abstract string Execute(string path, IOutputReciever dbgOutput, int? timeout = null);
 		protected abstract string GetCodeExtension();
 		protected abstract string GetBinaryExtension();
 		protected abstract string GetAcronym();

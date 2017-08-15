@@ -29,6 +29,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			int stackSize = GetStackSize();
 			if (stackSize == 0) useStack = false;
+			if (stackSize == 1) stackSize = 2;
 
 			int dispWidth = (int)Graph.Width;
 			int dispHeight = (int)Graph.Height;

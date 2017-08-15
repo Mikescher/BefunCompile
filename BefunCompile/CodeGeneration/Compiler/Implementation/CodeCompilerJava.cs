@@ -57,12 +57,12 @@ namespace BefunCompile.CodeGeneration.Compiler
 			Directory.Delete(fn0, true);
 		}
 
-		protected override string Execute(string path, int? timeout = null)
+		protected override string Execute(string path, IOutputReciever dbgOutput, int? timeout = null)
 		{
 			var javaPath = FilesystemCompilerSearch.FindJAVA().FirstOrDefault();
 			if (javaPath == null) throw new CodeCompilerEnvironmentException("java not found on this system");
 
-			var prog = ProcessLauncher.ProcExecute(javaPath, string.Format("-jar \"{0}\"", path), timeout);
+			var prog = ProcessLauncher.ProcExecute(javaPath, string.Format("-jar \"{0}\"", path), dbgOutput, timeout);
 
 			if (prog.ExitCode != 0)
 			{

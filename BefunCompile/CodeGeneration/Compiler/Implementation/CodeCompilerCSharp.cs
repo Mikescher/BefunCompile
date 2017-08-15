@@ -23,9 +23,9 @@ namespace BefunCompile.CodeGeneration.Compiler
 			}
 		}
 
-		protected override string Execute(string path, int? timeout = null)
+		protected override string Execute(string path, IOutputReciever dbgOutput, int? timeout = null)
 		{
-			var prog = ProcessLauncher.ProcExecute(path, string.Empty, timeout);
+			var prog = ProcessLauncher.ProcExecute(path, string.Empty, dbgOutput, timeout);
 
 			if (prog.ExitCode != 0)
 			{
