@@ -71,7 +71,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override bool TestVertex()
 		{
-			return base.TestVertex() && SecondExpression.IsNotStackAccess();
+			return base.TestVertex() && !SecondExpression.IsStackAccess();
 		}
 
 		public override BCVertex Execute(StringBuilder outbuilder, GraphRunnerStack stackbuilder, ICalculateInterface ci)
@@ -110,31 +110,11 @@ namespace BefunCompile.Graph.Vertex
 			return found;
 		}
 
-		public override bool IsOutput()
+		public override BCModArea GetSideEffects()
 		{
-			return false;
+			return SecondExpression.GetSideEffects() | BCModArea.Stack;
 		}
-
-		public override bool IsInput()
-		{
-			return false;
-		}
-
-		public override bool IsNotGridAccess()
-		{
-			return SecondExpression.IsNotGridAccess();
-		}
-
-		public override bool IsNotStackAccess()
-		{
-			return false;
-		}
-
-		public override bool IsNotVariableAccess()
-		{
-			return SecondExpression.IsNotVariableAccess();
-		}
-
+		
 		public override bool IsCodePathSplit()
 		{
 			return false;

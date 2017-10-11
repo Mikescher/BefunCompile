@@ -413,21 +413,11 @@ namespace BefunCompile.Graph.Expression
 			return cg.GenerateCodeExpressionBinMathDecision(this, forceLongReturn);
 		}
 
-		public override bool IsNotGridAccess()
+		public override BCModArea GetSideEffects()
 		{
-			return ValueA.IsNotGridAccess() && ValueB.IsNotGridAccess();
+			return ValueA.GetSideEffects() | ValueB.GetSideEffects();
 		}
-
-		public override bool IsNotStackAccess()
-		{
-			return ValueA.IsNotStackAccess() && ValueB.IsNotStackAccess();
-		}
-
-		public override bool IsNotVariableAccess()
-		{
-			return ValueA.IsNotVariableAccess() && ValueB.IsNotVariableAccess();
-		}
-
+		
 		public override BCExpression ReplaceUnstackify(UnstackifyValueAccess access)
 		{
 			return ExpressionBinMath.Create(ValueA.ReplaceUnstackify(access), ValueB.ReplaceUnstackify(access), Type);

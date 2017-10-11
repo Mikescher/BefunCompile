@@ -122,29 +122,9 @@ namespace BefunCompile.Graph.Vertex
 			return found;
 		}
 
-		public override bool IsOutput()
+		public override BCModArea GetSideEffects()
 		{
-			return false;
-		}
-
-		public override bool IsInput()
-		{
-			return false;
-		}
-
-		public override bool IsNotGridAccess()
-		{
-			return false;
-		}
-
-		public override bool IsNotStackAccess()
-		{
-			return X.IsNotStackAccess() && Y.IsNotStackAccess();
-		}
-
-		public override bool IsNotVariableAccess()
-		{
-			return X.IsNotVariableAccess() && Y.IsNotVariableAccess();
+			return X.GetSideEffects() | Y.GetSideEffects() | BCModArea.Grid | BCModArea.Stack;
 		}
 
 		public override bool IsCodePathSplit()
@@ -181,10 +161,10 @@ namespace BefunCompile.Graph.Vertex
 		{
 			state = state.Clone();
 
-			if (!X.IsNotStackAccess())
+			if (X.IsStackAccess())
 				state.Peek().AddAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDX);
 
-			if (!Y.IsNotStackAccess())
+			if (Y.IsStackAccess())
 				state.Peek().AddAccess(this, UnstackifyValueAccessType.READ, UnstackifyValueAccessModifier.EXPR_GRIDY);
 
 			state.Push(new UnstackifyValue(this, UnstackifyValueAccessType.WRITE));

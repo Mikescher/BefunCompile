@@ -2,6 +2,7 @@
 using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Exceptions;
 using BefunCompile.Graph;
+using BefunCompile.Graph.Optimizations;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,8 @@ namespace BefunCompile
 
 		public readonly int[] LogCycles;
 
+		private readonly BCGraphOptimizer _optimizer;
+
 		public BefunCompiler(string befsource, bool ignoreSelfMod, CodeGeneratorOptions options)
 		{
 			sourceGrid = StringToCharArr(befsource);
@@ -43,6 +46,8 @@ namespace BefunCompile
 
 			ignoreSelfModification = ignoreSelfMod;
 			codeGeneratorOptions = options;
+
+			_optimizer = new BCGraphOptimizer(GetGridValue);
 
 			//##########################################################################
 
@@ -97,7 +102,12 @@ namespace BefunCompile
 
 		public string GenerateCode(OutputLanguage lang)
 		{
-			return CodeGenerator.GenerateCode(lang, GenerateGraph(), codeGeneratorOptions);
+			return GenerateCode(lang, out _);
+		}
+
+		public string GenerateCode(OutputLanguage lang, out BCGraph g)
+		{
+			return CodeGenerator.GenerateCode(lang, g = GenerateGraph(), codeGeneratorOptions);
 		}
 
 		private BCGraph GenerateUntouchedGraph(GenerationLevel lvl, int level = -1) // O:0 
@@ -159,7 +169,7 @@ namespace BefunCompile
 
 			for (int i = level; i != 0; i--)
 			{
-				bool op = graph.Minimize();
+				bool op = _optimizer.Execute(graph, 1);
 
 				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
@@ -181,7 +191,7 @@ namespace BefunCompile
 
 			for (int i = level; i != 0; i--)
 			{
-				bool op = graph.Substitute();
+				bool op = _optimizer.Execute(graph, 2);
 
 				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
@@ -203,7 +213,7 @@ namespace BefunCompile
 
 			for (int i = level; i != 0; i--)
 			{
-				bool op = graph.FlattenStack();
+				bool op = _optimizer.Execute(graph, 3);
 
 				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
@@ -236,7 +246,7 @@ namespace BefunCompile
 
 			for (int i = level; i != 0; i--)
 			{
-				bool op = graph.VariablizeGraph(GetGridValue, dynamGets, constGets);
+				bool op = _optimizer.Execute(graph, 4);
 
 				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
@@ -259,7 +269,7 @@ namespace BefunCompile
 
 			for (int i = level; i != 0; i--)
 			{
-				bool op = graph.Unstackify();
+				bool op = _optimizer.Execute(graph, 5);
 
 				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
@@ -282,7 +292,7 @@ namespace BefunCompile
 
 			for (int i = level; i != 0; i--)
 			{
-				bool op = graph.Nopify();
+				bool op = _optimizer.Execute(graph, 6);
 
 				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
@@ -304,7 +314,7 @@ namespace BefunCompile
 
 			for (int i = level; i != 0; i--)
 			{
-				bool op = graph.CombineBlocks();
+				bool op = _optimizer.Execute(graph, 7);
 
 				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
@@ -326,7 +336,7 @@ namespace BefunCompile
 
 			for (int i = level; i != 0; i--)
 			{
-				bool op = graph.ReduceBlocks();
+				bool op = _optimizer.Execute(graph, 8);
 
 				if (!graph.TestGraph())
 					throw new Exception("Internal Parent Exception :( ");
@@ -357,5 +367,4 @@ namespace BefunCompile
 //TODO Move Compiling and Executing into extra classes (for BefunDebug testing..)
 //     --> and perhaps make assemble callable per commandline (for ProjectEuler script)
 
-//TODO Compiling     0"!dlroW olleH">:#,_$@      failed ( out chr(0) )
 //TODO data_06 only works with safe stack acc

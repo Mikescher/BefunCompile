@@ -89,9 +89,11 @@
     <Compile Include="Exceptions\GraphGenException.cs" />
     <Compile Include="Exceptions\UnstackifyWalkException.cs" />
     <Compile Include="Graph\BCDirection.cs" />
-    <Compile Include="Graph\BCExprModRule.cs" />
+    <Compile Include="Graph\Optimizations\BCGraphOptimizer.cs" />
+    <Compile Include="Graph\Optimizations\GraphReplace\BCExprModRule.cs" />
     <Compile Include="Graph\BCGraph.cs" />
-    <Compile Include="Graph\BCModRule.cs" />
+    <Compile Include="Graph\BCModArea.cs" />
+    <Compile Include="Graph\Optimizations\GraphReplace\BCModRule.cs" />
     <Compile Include="Graph\BCVertex.cs" />
     <Compile Include="Graph\CalculateInterface.cs" />
     <Compile Include="Graph\Expression\ExpressionBCast.cs" />

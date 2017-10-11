@@ -25,7 +25,7 @@ namespace BefunCompile.CodeGeneration.Generator
 		protected override string GenerateCode()
 		{
 			bool useRealGrid = Graph.ListDynamicVariableAccess().Any() || Graph.ListConstantVariableAccess().Any();
-			bool useStack    = Graph.Vertices.Any(p => !p.IsNotStackAccess());
+			bool useStack    = Graph.Vertices.Any(p => p.IsStackAccess());
 
 			int stackSize = GetStackSize();
 			if (stackSize == 0) useStack = false;
@@ -136,7 +136,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		private int GetStackSize()
 		{
-			if (Graph.Vertices.All(v => v.IsNotStackAccess())) return 0;
+			if (Graph.Vertices.All(v => !v.IsStackAccess())) return 0;
 
 			return Graph.PredictStackSize() ?? 16384;
 		}

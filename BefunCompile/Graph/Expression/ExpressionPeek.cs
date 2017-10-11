@@ -80,21 +80,11 @@ namespace BefunCompile.Graph.Expression
 			return cg.GenerateCodeExpressionPeek(this, forceLongReturn);
 		}
 
-		public override bool IsNotGridAccess()
+		public override BCModArea GetSideEffects()
 		{
-			return true;
+			return BCModArea.Stack;
 		}
-
-		public override bool IsNotStackAccess()
-		{
-			return false;
-		}
-
-		public override bool IsNotVariableAccess()
-		{
-			return true;
-		}
-
+		
 		public override BCExpression ReplaceUnstackify(UnstackifyValueAccess access)
 		{
 			return access.Value.Replacement;

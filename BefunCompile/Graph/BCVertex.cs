@@ -165,12 +165,12 @@ namespace BefunCompile.Graph
 
 		public abstract bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
 
-		public abstract bool IsOutput();
-		public abstract bool IsInput();
-
-		public abstract bool IsNotGridAccess();
-		public abstract bool IsNotStackAccess();
-		public abstract bool IsNotVariableAccess();
+		public abstract BCModArea GetSideEffects();
+		public bool IsOutput()         => (GetSideEffects() & BCModArea.Output  ) == BCModArea.Output;
+		public bool IsInput()          => (GetSideEffects() & BCModArea.Input   ) == BCModArea.Input;
+		public bool IsStackAccess()    => (GetSideEffects() & BCModArea.Stack   ) == BCModArea.Stack;
+		public bool IsGridAccess()     => (GetSideEffects() & BCModArea.Grid    ) == BCModArea.Grid;
+		public bool IsVariableAccess() => (GetSideEffects() & BCModArea.Variable) == BCModArea.Variable;
 
 		public abstract bool IsCodePathSplit();
 		public abstract bool IsBlock();

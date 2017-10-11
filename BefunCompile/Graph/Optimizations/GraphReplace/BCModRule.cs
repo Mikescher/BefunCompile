@@ -15,11 +15,13 @@ namespace BefunCompile.Graph
 
 		private readonly bool allowPathExtraction;
 		private readonly bool allowSplitCodePathReplacement;
+		private readonly bool allowNodeReordering;
 
-		public BCModRule(bool allowExtr = true, bool allowSPC = false)
+		public BCModRule(bool allowExtr = true, bool allowSPC = false, bool allowReorder = true)
 		{
 			allowPathExtraction = allowExtr;
 			allowSplitCodePathReplacement = allowSPC;
+			allowNodeReordering = allowReorder;
 		}
 
 		public void AddPreq<T>() where T : BCVertex
@@ -118,6 +120,8 @@ namespace BefunCompile.Graph
 		private bool Execute(BCGraph g, BCVertex v, bool debug)
 		{
 			var chainlist = allowPathExtraction ? GetMatchingExtractedChain(g, v) : GetMatchingChain(v);
+
+			if (chainlist == null && allowNodeReordering) chainlist = GetMatchingReorderedChain(g, v);
 
 			if (chainlist == null)
 				return false;
@@ -341,6 +345,16 @@ namespace BefunCompile.Graph
 			}
 
 			return null;
+		}
+
+		private List<BCVertex> GetMatchingReorderedChain(BCGraph g, BCVertex v)
+		{
+			if (prerequisites.Count == 0) return null;
+
+			var match0 = prerequisites[0](v);
+			if (!match0) return null;
+
+			return null; //TODO Reordered chain
 		}
 
 		private List<BCVertex> ExtractChain(BCGraph g, List<BCVertex> chain)

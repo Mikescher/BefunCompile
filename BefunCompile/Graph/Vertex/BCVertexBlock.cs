@@ -94,31 +94,11 @@ namespace BefunCompile.Graph.Vertex
 			return new BCVertexBlock(Direction, Positions, nodes.Where(p => p != node).ToArray());
 		}
 
-		public override bool IsOutput()
+		public override BCModArea GetSideEffects()
 		{
-			return nodes.Any(p => p.IsOutput());
+			return nodes.Select(n => n.GetSideEffects()).Aggregate(BCModArea.None, (a,b) => a | b);
 		}
-
-		public override bool IsInput()
-		{
-			return nodes.Any(p => p.IsInput());
-		}
-
-		public override bool IsNotGridAccess()
-		{
-			return nodes.All(p => p.IsNotGridAccess());
-		}
-
-		public override bool IsNotStackAccess()
-		{
-			return nodes.All(p => p.IsNotStackAccess());
-		}
-
-		public override bool IsNotVariableAccess()
-		{
-			return nodes.All(p => p.IsNotVariableAccess());
-		}
-
+		
 		public override bool IsCodePathSplit()
 		{
 			return false;

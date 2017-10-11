@@ -126,19 +126,9 @@ namespace BefunCompile.Graph.Expression
 			return cg.GenerateCodeExpressionBCast(this, forceLongReturn);
 		}
 
-		public override bool IsNotGridAccess()
+		public override BCModArea GetSideEffects()
 		{
-			return Value.IsNotGridAccess();
-		}
-
-		public override bool IsNotStackAccess()
-		{
-			return Value.IsNotStackAccess();
-		}
-
-		public override bool IsNotVariableAccess()
-		{
-			return Value.IsNotVariableAccess();
+			return Value.GetSideEffects();
 		}
 
 		public override BCExpression ReplaceUnstackify(UnstackifyValueAccess access)

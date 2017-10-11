@@ -76,31 +76,11 @@ namespace BefunCompile.Graph.Vertex
 			return false;
 		}
 
-		public override bool IsOutput()
+		public override BCModArea GetSideEffects()
 		{
-			return true;
+			return BCModArea.Output | BCModArea.Stack;
 		}
-
-		public override bool IsInput()
-		{
-			return false;
-		}
-
-		public override bool IsNotGridAccess()
-		{
-			return true;
-		}
-
-		public override bool IsNotStackAccess()
-		{
-			return false;
-		}
-
-		public override bool IsNotVariableAccess()
-		{
-			return true;
-		}
-
+		
 		public override bool IsCodePathSplit()
 		{
 			return false;
