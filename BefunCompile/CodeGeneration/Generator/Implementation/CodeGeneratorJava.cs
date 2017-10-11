@@ -471,9 +471,10 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		public override string GenerateCodeBCVertexOutput(BCVertexOutput comp)
 		{
-			return string.Format("System.out.print(String.valueOf(({0}{1})(sp())));", 
-				comp.ModeInteger ? "long" : "char",
-				comp.ModeInteger ? " " : "");
+			if (comp.ModeInteger)
+				return "System.out.print(String.valueOf((long)(sp()))+\" \");";
+			else
+				return "System.out.print(String.valueOf((char)(sp())));";
 		}
 
 		public override string GenerateCodeBCVertexPop(BCVertexPop comp)

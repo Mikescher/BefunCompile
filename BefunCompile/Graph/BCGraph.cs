@@ -852,7 +852,7 @@ namespace BefunCompile.Graph
 			BCModRule combRule4 = new BCModRule();
 			combRule4.AddPreq<BCVertexExpression>();
 			combRule4.AddPreq<BCVertexOutput>();
-			combRule4.AddRep((l, p) => new BCVertexExprOutput(BCDirection.UNKNOWN, p, (l[1] as BCVertexOutput).ModeInteger, ExpressionNot.Create((l[0] as BCVertexExpression).Expression)));
+			combRule4.AddRep((l, p) => new BCVertexExprOutput(BCDirection.UNKNOWN, p, (l[1] as BCVertexOutput).ModeInteger, (l[0] as BCVertexExpression).Expression));
 
 			BCModRule combRule5 = new BCModRule(true, true);
 			combRule5.AddPreq<BCVertexExpression>();
@@ -894,7 +894,7 @@ namespace BefunCompile.Graph
 
 		private bool RemovePredeterminedDecisions()
 		{
-			bool[] cb = new[]
+			bool[] cb = new bool[]
 			{
 				RemovePredeterminedDecisions_0(),
 				RemovePredeterminedDecisions_1(),

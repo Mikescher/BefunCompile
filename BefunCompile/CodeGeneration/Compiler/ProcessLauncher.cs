@@ -6,6 +6,8 @@ namespace BefunCompile.CodeGeneration.Compiler
 {
 	public static class ProcessLauncher
 	{
+		public static Process CurrentProcess;
+
 		public static ProcessOutput ProcExecute(string command, string arguments, int? timeout) => ProcExecute(command, arguments, null, null, timeout);
 
 		public static ProcessOutput ProcExecute(string command, string arguments) => ProcExecute(command, arguments, null, null, null);
@@ -62,6 +64,7 @@ namespace BefunCompile.CodeGeneration.Compiler
 			};
 
 			process.Start();
+			CurrentProcess = process;
 
 			process.BeginOutputReadLine();
 			process.BeginErrorReadLine();

@@ -436,9 +436,10 @@ namespace BefunCompile.CodeGeneration.Generator
 
 		public override string GenerateCodeBCVertexOutput(BCVertexOutput comp)
 		{
-			return string.Format("System.Console.Out.Write(({0}{1})(sp()));", 
-				comp.ModeInteger ? "long" : "char",
-				comp.ModeInteger ? " " : "");
+			if (comp.ModeInteger)
+				return "System.Console.Out.Write(\"{0} \", (long)(sp()));";
+			else
+				return "System.Console.Out.Write((char)sp());";
 		}
 
 		public override string GenerateCodeBCVertexPop(BCVertexPop comp)
