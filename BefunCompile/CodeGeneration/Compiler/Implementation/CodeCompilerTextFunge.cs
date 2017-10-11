@@ -6,22 +6,12 @@ namespace BefunCompile.CodeGeneration.Compiler
 	{
 		protected override void Compile(string code, string path, IOutputReciever dbgOutput)
 		{
-			var fn1 = Path.GetTempFileName() + ".tf";
-			File.WriteAllText(fn1, code);
-
-			var bgc = ProcessLauncher.ProcExecute("BefunGen", string.Format("\"{0}\" \"{1}\"", fn1, path), dbgOutput, TIMEOUT_COMPILE);
-
-			if (bgc.ExitCode != 0)
-			{
-				File.Delete(fn1);
-
-				throw new CodeCompilerError(bgc.StdErr, bgc.ExitCode);
-			}
+			File.WriteAllText(path, code);
 		}
 
 		protected override string Execute(string path, IOutputReciever dbgOutput, int? timeout = null)
 		{
-			var bfr = ProcessLauncher.ProcExecute("BefunRun", string.Format("\"{0}\" --errorlevel=3", path), dbgOutput, timeout);
+			var bfr = ProcessLauncher.ProcExecute("BefunGen", string.Format("\"{0}\" --directrun", path), dbgOutput, timeout);
 
 			if (bfr.ExitCode != 0)
 			{
