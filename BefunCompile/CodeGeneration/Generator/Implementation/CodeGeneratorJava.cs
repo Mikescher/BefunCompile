@@ -27,7 +27,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			SourceCodeBuilder codebuilder = new SourceCodeBuilder(!FormatOutput);
 
-			codebuilder.AppendLine(@"/* transpiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
+			codebuilder.AppendLine($"/* transpiled with BefunCompile v{BefunCompiler.VERSION} (c) {BefunCompiler.YEAR} */");
 			codebuilder.AppendLine("class Program{");
 
 			if (FormatOutput) codebuilder.AppendLine("");

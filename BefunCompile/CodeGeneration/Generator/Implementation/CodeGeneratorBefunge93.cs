@@ -54,7 +54,7 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			var code = parser.GenerateCode(codeFunge, TextFungeParser.ExtractDisplayFromTFFormat(codeFunge), false);
 			var codeLines = Regex.Split(code, @"\r?\n");
-			codeLines[0] = codeLines[0].TrimEnd() + "  |  compiled with BefunCompile v" + BefunCompiler.VERSION + "(c) 2015";
+			codeLines[0] = codeLines[0].TrimEnd() + $"  |  compiled with BefunCompile v{BefunCompiler.VERSION}(c) {BefunCompiler.YEAR}";
 
 			return string.Join(Environment.NewLine, codeLines);
 		}

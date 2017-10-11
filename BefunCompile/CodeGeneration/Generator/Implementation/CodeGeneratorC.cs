@@ -31,7 +31,7 @@ namespace BefunCompile.CodeGeneration.Generator
 				indent1 = "";
 
 			SourceCodeBuilder codebuilder = new SourceCodeBuilder(!FormatOutput);
-			codebuilder.AppendLine(@"/* transpiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015 */");
+			codebuilder.AppendLine($"/* transpiled with BefunCompile v{BefunCompiler.VERSION} (c) {BefunCompiler.YEAR} */");
 
 			if (Graph.Vertices.Any(p => p.IsRandom()))
 				codebuilder.AppendLine("#include <time.h>");

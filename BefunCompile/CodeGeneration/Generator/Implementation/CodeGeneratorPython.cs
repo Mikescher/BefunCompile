@@ -28,7 +28,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			SourceCodeBuilder codebuilder = new SourceCodeBuilder(!FormatOutput);
 			codebuilder.AppendLine(SHEBANG);
 			codebuilder.AppendLine();
-			codebuilder.AppendLine(@"# transpiled with BefunCompile v" + BefunCompiler.VERSION + " (c) 2015");
+			codebuilder.AppendLine($"# transpiled with BefunCompile v{BefunCompiler.VERSION} (c) {BefunCompiler.YEAR}");
 
 			if (Graph.Vertices.Any(p => p.IsRandom()))
 				codebuilder.AppendLine(@"from random import randint");
