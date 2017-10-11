@@ -17,20 +17,21 @@ namespace BefunCompile.Graph
 
 		public List<BCVertex> Vertices = new List<BCVertex>();
 
-		public List<ExpressionVariable> Variables => Vertices.SelectMany(v => v.GetVariables()).Distinct().ToList();
+		public List<ExpressionVariable> Variables = new List<ExpressionVariable>();
 
 		public readonly long[,] SourceGrid;
 		public readonly long Width;
 		public readonly long Height;
 
-		public List<string> UsedOptimizations = new List<string>();
+		public readonly List<string> UsedOptimizations = new List<string>();
+		public readonly UnstackifyWalker Unstackifier;
 
 		public BCGraph(long[,] sg, long w, long h)
 		{
 			SourceGrid = sg;
 			Width = w;
 			Height = h;
-
+			Unstackifier = new UnstackifyWalker(this);
 		}
 
 		public BCVertex GetVertex(Vec2i pos, BCDirection dir)

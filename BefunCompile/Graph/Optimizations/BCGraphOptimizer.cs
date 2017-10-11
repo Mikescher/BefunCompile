@@ -43,30 +43,30 @@ namespace BefunCompile.Graph.Optimizations
 				rule1.AddPreq<BCVertexExpression>();
 				rule1.AddPreq<BCVertexBinaryMath>();
 				rule1.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionBinMath.Create(((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression, ((BCVertexBinaryMath)l[2]).MathType)));
-				Add("CreateExpressionFromBinMath", rule1, new[] { 2, 3, 4, 5, 6 });
+				Add("CreateExpressionFromBinMath", rule1, new[] { 2, 3 });
 
 				var rule2 = new BCModRule();
 				rule2.AddPreq<BCVertexExpression>();
 				rule2.AddPreq<BCVertexNot>();
 				rule2.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionNot.Create(((BCVertexExpression)l[0]).Expression)));
-				Add("IncludeNotInExpression", rule2, new[] { 2, 3, 4, 5, 6 });
+				Add("IncludeNotInExpression", rule2, new[] { 2, 3, 4 });
 
 				var rule3 = new BCModRule();
 				rule3.AddPreq<BCVertexExpression>();
 				rule3.AddPreq<BCVertexPop>();
-				Add("RemoveDiscardedExpression", rule3, new[] { 2, 3, 4, 5, 6 });
+				Add("RemoveDiscardedExpression", rule3, new[] { 2, 3 });
 
 				var rule4 = new BCModRule();
 				rule4.AddPreq<BCVertexSwap>();
 				rule4.AddPreq<BCVertexSwap>();
-				Add("RemoveDoubleSwap", rule4, new[] { 2, 3, 4, 5, 6 });
+				Add("RemoveDoubleSwap", rule4, new[] { 2, 3 });
 
 				var rule5 = new BCModRule();
 				rule5.AddPreq<BCVertexExpression>(v => !v.Expression.IsStackAccess());
 				rule5.AddPreq<BCVertexDup>();
 				rule5.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression));
 				rule5.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression));
-				Add("DuplicateExpressionInsteadOfResult", rule5, new[] { 2, 3, 4, 5, 6 });
+				Add("DuplicateExpressionInsteadOfResult", rule5, new[] { 2, 3 });
 
 				var rule6 = new BCModRule();
 				rule6.AddPreq<BCVertexExpression>(v => !v.Expression.IsStackAccess());
@@ -74,70 +74,62 @@ namespace BefunCompile.Graph.Optimizations
 				rule6.AddPreq<BCVertexSwap>();
 				rule6.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[1]).Expression));
 				rule6.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression));
-				Add("SwapExpressionsInsteadOfResults", rule6, new[] { 2, 3, 4, 5, 6 });
+				Add("SwapExpressionsInsteadOfResults", rule6, new[] { 2, 3 });
 
 				var rule7_1 = new BCModRule();
 				rule7_1.AddPreq<BCVertexSwap>();
 				rule7_1.AddPreq<BCVertexBinaryMath>(v => v.MathType == BinaryMathType.GT);
 				rule7_1.AddRep((l, p) => new BCVertexBinaryMath(BCDirection.UNKNOWN, p, BinaryMathType.LT));
-				Add("SwapGreaterThanToLessThan", rule7_1, new[] { 2, 3, 4, 5, 6 });
+				Add("SwapGreaterThanToLessThan", rule7_1, new[] { 2, 3 });
 
 				var rule7_2 = new BCModRule();
 				rule7_2.AddPreq<BCVertexSwap>();
 				rule7_2.AddPreq<BCVertexBinaryMath>(v => v.MathType == BinaryMathType.LT);
 				rule7_2.AddRep((l, p) => new BCVertexBinaryMath(BCDirection.UNKNOWN, p, BinaryMathType.GT));
-				Add("SwapLessThanToGreaterThan", rule7_2, new[] { 2, 3, 4, 5, 6 });
+				Add("SwapLessThanToGreaterThan", rule7_2, new[] { 2, 3 });
 
 				var rule7_3 = new BCModRule();
 				rule7_3.AddPreq<BCVertexSwap>();
 				rule7_3.AddPreq<BCVertexBinaryMath>(v => v.MathType == BinaryMathType.GET);
 				rule7_3.AddRep((l, p) => new BCVertexBinaryMath(BCDirection.UNKNOWN, p, BinaryMathType.LET));
-				Add("SwapGreaterEqualsThanToLessEqualsThan", rule7_3, new[] { 2, 3, 4, 5, 6 });
+				Add("SwapGreaterEqualsThanToLessEqualsThan", rule7_3, new[] { 2, 3 });
 
 				var rule7_4 = new BCModRule();
 				rule7_4.AddPreq<BCVertexSwap>();
 				rule7_4.AddPreq<BCVertexBinaryMath>(v => v.MathType == BinaryMathType.LET);
 				rule7_4.AddRep((l, p) => new BCVertexBinaryMath(BCDirection.UNKNOWN, p, BinaryMathType.GET));
-				Add("SwapLessEqualsThanToGreaterEqualsThan", rule7_4, new[] { 2, 3, 4, 5, 6 });
-
-				var rule8 = new BCModRule();
-				rule8.AddPreq<BCVertexExpression>();
-				rule8.AddPreq<BCVertexOutput>();
-				rule8.AddRep((l, p) => new BCVertexExprOutput(BCDirection.UNKNOWN, p, (l[1] as BCVertexOutput).ModeInteger, (l[0] as BCVertexExpression).Expression));
-				Add("CombineExpressionAndOutput", rule8, new[] { 2, 3, 4, 5, 6 });
+				Add("SwapLessEqualsThanToGreaterEqualsThan", rule7_4, new[] { 2, 3 });
 			}
 			#endregion
 
 			#region O:3 Flatten
 			{
-				Add("IntegrateDecisions", IntegrateDecisions, new[] { 3, 4, 5, 6 });
-
 				var rule1 = new BCModRule();
 				rule1.AddPreq<BCVertexExpression>();
 				rule1.AddPreq<BCVertexExpression>();
 				rule1.AddPreq<BCVertexGet>();
 				rule1.AddRep((l, p) => new BCVertexExprGet(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression));
-				Add("CreateExprGetFromRawGet", rule1, new[] { 3, 4, 5, 6 });
+				Add("CreateExprGetFromRawGet", rule1, new[] { 3 });
 
 				var rule2 = new BCModRule();
 				rule2.AddPreq<BCVertexExpression>();
 				rule2.AddPreq<BCVertexExpression>();
 				rule2.AddPreq<BCVertexSet>();
 				rule2.AddRep((l, p) => new BCVertexExprPopSet(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression));
-				Add("CreateExprSetFromRawGet", rule2, new[] { 3, 4, 5, 6 });
+				Add("CreateExprSetFromRawGet", rule2, new[] { 3 });
 
 				var rule3 = new BCModRule();
 				rule3.AddPreq<BCVertexExpression>();
 				rule3.AddPreq<BCVertexExprPopSet>();
 				rule3.AddRep((l, p) => new BCVertexExprSet(BCDirection.UNKNOWN, p, ((BCVertexExprPopSet)l[1]).X, ((BCVertexExprPopSet)l[1]).Y, ((BCVertexExpression)l[0]).Expression));
-				Add("CreateExprSetFromExpressionAndPopSet", rule3, new[] { 3, 4, 5, 6 });
+				Add("CreateExprSetFromExpressionAndPopSet", rule3, new[] { 3 });
 
 				var rule4 = new BCModRule();
 				rule4.AddPreq<BCVertexExprGet>();
 				rule4.AddPreq<BCVertexDup>();
 				rule4.AddRep((l, p) => l[0].Duplicate());
 				rule4.AddRep((l, p) => { var v = l[0].Duplicate(); v.Positions = p; return v; });
-				Add("FlattenExprGetWithDuplicate", rule4, new[] { 3, 4, 5, 6 });
+				Add("FlattenExprGetWithDuplicate", rule4, new[] { 3 });
 
 				var rule5 = new BCModRule();
 				rule5.AddPreq(v => !(v is BCVertexExprSet || v is BCVertexExprVarSet || v is BCVertexExprOutput || v is BCVertexStringOutput || v is BCVertexOutput) && !v.IsCodePathSplit() && !v.IsGridAccess() && !v.IsVariableAccess()); // <-- Stack Access
@@ -145,74 +137,84 @@ namespace BefunCompile.Graph.Optimizations
 				rule5.AddRep((l, p) => l[1].Duplicate());
 				rule5.AddRep((l, p) => l[0].Duplicate());
 				rule5.AddCond(d => !(d[0].IsOutput() && d[1].IsOutput()));
-				Add("SwapNonStackAccessBack", rule5, new[] { 3, 4, 5, 6 });
+				Add("SwapNonStackAccessBack", rule5, new[] { 3 });
 
 				var rule6 = new BCModRule();
 				rule6.AddPreq<BCVertexExprGet>();
 				rule6.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ((BCVertexExprGet)l[0]).ToExpression()));
-				Add("ConvertRawGetToExprGet", rule6, new[] { 3, 4, 5, 6 });
-				
+				Add("ConvertRawGetToExprGet", rule6, new[] { 3 });
+
+				var rule7 = new BCModRule();
+				rule7.AddPreq<BCVertexExpression>();
+				rule7.AddPreq<BCVertexOutput>();
+				rule7.AddRep((l, p) => new BCVertexExprOutput(BCDirection.UNKNOWN, p, (l[1] as BCVertexOutput).ModeInteger, (l[0] as BCVertexExpression).Expression));
+				Add("CombineExpressionAndOutput", rule7, new[] { 3, 4 });
+
 				var rule8 = new BCModRule();
 				rule8.AddPreq<BCVertexExprOutput>(v => (v.Value as ExpressionConstant)?.IsSimpleASCIIChar() ?? false);
 				rule8.AddPreq<BCVertexExprOutput>(v => (v.Value as ExpressionConstant)?.IsSimpleASCIIChar() ?? false);
 				rule8.AddRep((l, p) => new BCVertexStringOutput(BCDirection.UNKNOWN, p, ((ExpressionConstant)((BCVertexExprOutput)l[0]).Value).AsSimpleASCIIChar() + "" + ((ExpressionConstant)((BCVertexExprOutput)l[1]).Value).AsSimpleASCIIChar()));
-				Add("CombineTwoExprOutputToStringOutput", rule8, new[] { 3, 4, 5, 6 });
+				Add("CombineTwoExprOutputToStringOutput", rule8, new[] { 3 });
 
 				var rule9 = new BCModRule();
 				rule9.AddPreq<BCVertexExprOutput>(v => (v.Value as ExpressionConstant)?.IsSimpleASCIIChar() ?? false);
 				rule9.AddPreq<BCVertexStringOutput>();
 				rule9.AddRep((l, p) => new BCVertexStringOutput(BCDirection.UNKNOWN, p, ((ExpressionConstant)((BCVertexExprOutput)l[0]).Value).AsSimpleASCIIChar() + ((BCVertexStringOutput)l[1]).Value));
-				Add("CombineExprOutputAndStringOutput", rule9, new[] { 3, 4, 5, 6 });
+				Add("CombineExprOutputAndStringOutput", rule9, new[] { 3 });
 
 				var rule10 = new BCModRule();
 				rule10.AddPreq<BCVertexStringOutput>();
 				rule10.AddPreq<BCVertexExprOutput>(v => (v.Value as ExpressionConstant)?.IsSimpleASCIIChar() ?? false);
 				rule10.AddRep((l, p) => new BCVertexStringOutput(BCDirection.UNKNOWN, p, ((BCVertexStringOutput)l[0]).Value + ((ExpressionConstant)((BCVertexExprOutput)l[1]).Value).AsSimpleASCIIChar()));
-				Add("CombineStringOutputAndExprOutput", rule10, new[] { 3, 4, 5, 6 });
+				Add("CombineStringOutputAndExprOutput", rule10, new[] { 3 });
+
+				Add("IntegrateDecisions", IntegrateDecisions, new[] { 3 });
 			}
 			#endregion
 
 			#region O:4 Variablize
 			{
-				Add("SubstituteConstMemoryAccess", SubstituteConstMemoryAccess, new[] { 4, 5, 6 });
-				Add("RemovePredeterminedDecisions_0", RemovePredeterminedDecisions_0, new[] { 4, 5, 6, 7 });
-				Add("RemovePredeterminedDecisions_1", RemovePredeterminedDecisions_1, new[] { 4, 5, 6, 7 });
+				Add("SubstituteConstMemoryAccess", SubstituteConstMemoryAccess, new[] { 4 });
 
 				BCModRule combRule1 = new BCModRule();
 				combRule1.AddPreq<BCVertexExpression>(p => !p.Expression.IsStackAccess());
 				combRule1.AddPreq<BCVertexBinaryMath>();
 				combRule1.AddRep((l, p) => new BCVertexExprPopBinaryMath(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexBinaryMath)l[1]).MathType));
-				Add("MergeExpressionIntoBinMath", combRule1, new[] { 4, 5, 6 });
+				Add("MergeExpressionIntoBinMath", combRule1, new[] { 4 });
 
 				BCModRule combRule2 = new BCModRule(false);
 				combRule2.AddPreq<BCVertexDup>();
 				combRule2.AddPreq<BCVertexExprPopBinaryMath>(p => !p.SecondExpression.IsStackAccess());
 				combRule2.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionPeek.Create(), ((BCVertexExprPopBinaryMath)l[1]).MathType, ((BCVertexExprPopBinaryMath)l[1]).SecondExpression));
-				Add("DupAndPopBinMathToPeekBinMath", combRule2, new[] { 4, 5, 6 });
+				Add("DupAndPopBinMathToPeekBinMath", combRule2, new[] { 4 });
 				
 				BCModRule combRule5 = new BCModRule(true, true);
 				combRule5.AddPreq<BCVertexExpression>();
 				combRule5.AddPreq<BCVertexDecision>();
 				combRule5.AddRep((l, p) => new BCVertexExprDecision(BCDirection.UNKNOWN, p, (l[1] as BCVertexDecision).EdgeTrue, (l[1] as BCVertexDecision).EdgeFalse, (l[0] as BCVertexExpression).Expression));
-				Add("CombineExprAndDecisionToExprDecision", combRule5, new[] { 4, 5, 6 });
+				Add("CombineExprAndDecisionToExprDecision", combRule5, new[] { 4 });
 
 				BCModRule combRule6 = new BCModRule();
 				combRule6.AddPreq<BCVertexExpression>();
 				combRule6.AddPreq<BCVertexExprPopBinaryMath>(p => !p.SecondExpression.IsStackAccess());
 				combRule6.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionBinMath.Create((l[0] as BCVertexExpression).Expression, (l[1] as BCVertexExprPopBinaryMath).SecondExpression, (l[1] as BCVertexExprPopBinaryMath).MathType)));
-				Add("MergeExpressionIntoPopBinMath", combRule6, new[] { 4, 5, 6 });
+				Add("MergeExpressionIntoPopBinMath", combRule6, new[] { 4, });
 
 				BCModRule combRule7 = new BCModRule();
 				combRule7.AddPreq<BCVertexDup>();
 				combRule7.AddPreq<BCVertexVarSet>();
 				combRule7.AddRep((l, p) => new BCVertexExprVarSet(BCDirection.UNKNOWN, p, (l[1] as BCVertexVarSet).Variable, ExpressionPeek.Create()));
-				Add("CombineDupAndVarSetToPeekVarSet", combRule7, new[] { 4, 5, 6 });
+				Add("CombineDupAndVarSetToPeekVarSet", combRule7, new[] { 4 });
 
 				BCModRule nopRule1 = new BCModRule();
 				nopRule1.AddPreq<BCVertexExprPopBinaryMath>(p => p.MathType == BinaryMathType.MUL && p.SecondExpression.IsConstant(0));
 				nopRule1.AddRep((l, p) => new BCVertexPop(BCDirection.UNKNOWN, p));
 				nopRule1.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionConstant.Create(0)));
-				Add("MakeMultZeroConstant", nopRule1, new[] { 4, 5, 6 });
+				Add("MakeMultZeroConstant", nopRule1, new[] { 4 });
+
+
+				Add("RemovePredeterminedDecisions_0", RemovePredeterminedDecisions_0, new[] { 4 });
+				Add("RemovePredeterminedDecisions_1", RemovePredeterminedDecisions_1, new[] { 4 });
 			}
 			#endregion
 
@@ -528,13 +530,16 @@ namespace BefunCompile.Graph.Optimizations
 			var dvs = g.ListDynamicVariableAccess().ToList();
 			var ios = g.ListConstantVariableAccess().ToList();
 
-			if (dvs.Count > 0 || ios.Count > 0) return false;
+			if (dvs.Count > 0) return false;
+			if (ios.Count == 0) return false;
 
 			var newvars = ios
 				.Select(p => new Vec2l(p.getX().Calculate(null), p.getY().Calculate(null)))
 				.Distinct()
 				.Select((p, i) => ExpressionVariable.CreateUserVariable(i, _gridGet(p.X, p.Y), p))
 				.ToList();
+
+			g.Variables.AddRange(newvars);
 
 			var vardic = new Dictionary<Vec2l, ExpressionVariable>();
 			newvars.ForEach(p => vardic.Add(p.position, p));
@@ -555,17 +560,25 @@ namespace BefunCompile.Graph.Optimizations
 			exprRule1.SetPreq<ExpressionGet>(p => ios.Contains(p));
 			exprRule1.SetRep(p => vardic[((ExpressionGet)p).getConstantPos()]);
 
+			bool changed = true;
 
-			bool[] cb = new[]
+			int c = -1;
+			while (changed)
 			{
-				vertexRule1.Execute(g),
-				vertexRule2.Execute(g),
-				vertexRule3.Execute(g),
+				c++;
+				bool[] cb = new[]
+				{
+					vertexRule1.Execute(g),
+					vertexRule2.Execute(g),
+					vertexRule3.Execute(g),
 
-				exprRule1.Execute(g),
-			};
+					exprRule1.Execute(g),
+				};
 
-			return cb.Any(p => p);
+				changed = cb.Any(p => p);
+			}
+
+			return c > 0;
 		}
 
 		private bool RemovePredeterminedDecisions_0(BCGraph g)
@@ -693,8 +706,7 @@ namespace BefunCompile.Graph.Optimizations
 
 		private bool Unstackify(BCGraph g)
 		{
-			var usw = new UnstackifyWalker(g);
-			return usw.Run();
+			return g.Unstackifier.Run();
 		}
 
 		private bool ReplaceVariableIntializer(BCGraph g)
@@ -812,6 +824,10 @@ namespace BefunCompile.Graph.Optimizations
 			foreach (var step in AllSteps.Where(s => s.Scope.Contains(level)))
 			{
 				var r = step.Action(g);
+
+#if DEBUG
+				g.TestGraph();
+#endif
 
 				if (r) g.UsedOptimizations.Add($"[{level}] {step.Name}");
 
