@@ -1,5 +1,6 @@
 ﻿using BefunCompile.CodeGeneration;
 using BefunCompile.CodeGeneration.Generator;
+using BefunCompile.Graph;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -237,24 +238,36 @@ namespace BefunCompile.Consoleprogram
 			int counter = 0;
 			foreach (var input in _inputfiles)
 			{
+				if (! _languages.Any()) continue;
+
+				string source = File.ReadAllText(input);
+				var comp = new BefunCompiler(source, _optionIgnoreSelfmod, _cgOptions);
+
+				BCGraph graph;
+				try
+				{
+					graph = comp.GenerateGraph();
+				}
+				catch (Exception e)
+				{
+					Console.Error.WriteLine("Fatal Failure on file " + Path.GetFileName(input) + ": " + e.GetType().Name);
+					continue;
+				}
+
 				foreach (var lang in _languages)
 				{
 					counter++;
 
 					var outputfilename = InsertPlaceholder(input, counter, lang);
 
-					string source = File.ReadAllText(input);
-
-					var comp = new BefunCompiler(source, _optionIgnoreSelfmod, _cgOptions);
-
 					string code;
 					try
 					{
-						code = comp.GenerateCode(lang);
+						code = comp.GenerateCodeFromGraph(lang, graph);
 					}
 					catch (Exception e)
 					{
-						Console.Error.WriteLine("Fatal Failure on file " + Path.GetFileName(input) + ": " + e.GetType().Name);
+						Console.Error.WriteLine("Fatal Failure on file " + Path.GetFileName(input) + " (" + lang + "): " + e.GetType().Name);
 						break;
 					}
 

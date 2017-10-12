@@ -114,7 +114,7 @@ namespace BefunCompile.Graph.Expression
 
 		public override BCModArea GetSideEffects()
 		{
-			return X.GetSideEffects() | Y.GetSideEffects() | BCModArea.Grid;
+			return X.GetSideEffects() | Y.GetSideEffects() | BCModArea.Grid_Read;
 		}
 
 		public override BCExpression ReplaceUnstackify(UnstackifyValueAccess access)

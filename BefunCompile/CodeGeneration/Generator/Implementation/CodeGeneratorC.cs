@@ -147,7 +147,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			for (int i = 0; i < msz.Count; i++)
 			{
 				if (i == 0 && (i + 1) == msz.Count)
-					codebuilder.AppendLine(@"char* _g= = " + '"' + msz[i] + '"' + ";");
+					codebuilder.AppendLine(@"char* _g = " + '"' + msz[i] + '"' + ";");
 				else if (i == 0)
 					codebuilder.AppendLine(@"char* _g = " + '"' + msz[i] + '"' + "");
 				else if ((i + 1) == msz.Count)

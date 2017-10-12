@@ -104,7 +104,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCModArea GetSideEffects()
 		{
-			return BCModArea.Stack | BCModArea.Grid | BCModArea.Variable;
+			return BCModArea.Stack_Read | BCModArea.Stack_Write | BCModArea.Grid_Read | BCModArea.Variable_Write;
 		}
 		
 		public override bool IsCodePathSplit()

@@ -66,7 +66,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCModArea GetSideEffects()
 		{
-			return BCModArea.Output;
+			return BCModArea.IO_Write;
 		}
 		
 		public override bool IsCodePathSplit()

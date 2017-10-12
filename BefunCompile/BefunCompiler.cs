@@ -111,6 +111,11 @@ namespace BefunCompile
 			return CodeGenerator.GenerateCode(lang, g = GenerateGraph(), codeGeneratorOptions);
 		}
 
+		public string GenerateCodeFromGraph(OutputLanguage lang, BCGraph g)
+		{
+			return CodeGenerator.GenerateCode(lang, g, codeGeneratorOptions);
+		}
+
 		private BCGraph GenerateUntouchedGraph(GenerationLevel lvl, int level = -1) // O:0 
 		{
 			var unfinished = new Stack<Tuple<BCVertex, Vec2i, BCDirection>>(); /*<parent, position, direction>*/

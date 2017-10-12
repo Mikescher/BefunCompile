@@ -166,11 +166,13 @@ namespace BefunCompile.Graph
 		public abstract bool SubsituteExpression(Func<BCExpression, bool> prerequisite, Func<BCExpression, BCExpression> replacement);
 
 		public abstract BCModArea GetSideEffects();
-		public bool IsOutput()         => (GetSideEffects() & BCModArea.Output  ) == BCModArea.Output;
-		public bool IsInput()          => (GetSideEffects() & BCModArea.Input   ) == BCModArea.Input;
-		public bool IsStackAccess()    => (GetSideEffects() & BCModArea.Stack   ) == BCModArea.Stack;
-		public bool IsGridAccess()     => (GetSideEffects() & BCModArea.Grid    ) == BCModArea.Grid;
-		public bool IsVariableAccess() => (GetSideEffects() & BCModArea.Variable) == BCModArea.Variable;
+		public bool IsOutput()         => (GetSideEffects() & BCModArea.IO_Write    ) != BCModArea.None;
+		public bool IsInput()          => (GetSideEffects() & BCModArea.IO_Read     ) != BCModArea.None;
+		public bool IsStackAccess()    => (GetSideEffects() & BCModArea.Any_Stack   ) != BCModArea.None;
+		public bool IsGridAccess()     => (GetSideEffects() & BCModArea.Any_Grid    ) != BCModArea.None;
+		public bool IsVariableAccess() => (GetSideEffects() & BCModArea.Any_Variable) != BCModArea.None;
+		public bool IsStateModifying() => (GetSideEffects() & BCModArea.Any_Write   ) != BCModArea.None;
+		public bool IsStackRead()      => (GetSideEffects() & BCModArea.Stack_Read  ) != BCModArea.None;
 
 		public abstract bool IsCodePathSplit();
 		public abstract bool IsBlock();

@@ -89,7 +89,7 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCModArea GetSideEffects()
 		{
-			return Expression.GetSideEffects() | BCModArea.Stack;
+			return Expression.GetSideEffects() | BCModArea.Stack_Write;
 		}
 
 		public override bool IsCodePathSplit()
@@ -141,16 +141,24 @@ namespace BefunCompile.Graph.Vertex
 
 		public override BCVertex ReplaceUnstackify(List<UnstackifyValueAccess> access)
 		{
-			var var_write = access.Single(p => p.Type == UnstackifyValueAccessType.WRITE);
+			var var_write = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.WRITE);
 			var var_read = access.SingleOrDefault(p => p.Type == UnstackifyValueAccessType.READ);
 
-			if (var_read != null)
+			if (var_read != null && var_write != null)
 			{
 				return new BCVertexExprVarSet(Direction, Positions, var_write.Value.Replacement, Expression.ReplaceUnstackify(var_read));
 			}
-			else
+			else if (var_write != null)
 			{
 				return new BCVertexExprVarSet(Direction, Positions, var_write.Value.Replacement, Expression);
+			}
+			else if (var_read != null)
+			{
+				return new BCVertexExpression(Direction, Positions, Expression.ReplaceUnstackify(var_read));
+			}
+			else
+			{
+				throw new Exception("r+w == null");
 			}
 		}
 

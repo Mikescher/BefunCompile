@@ -127,7 +127,12 @@ namespace BefunCompile.Graph
 			}
 
 			if (travelled.Count != Vertices.Count)
+			{
+				var miss1 = travelled.Except(Vertices).ToList();
+				var miss2 = Vertices.Except(travelled).ToList();
+
 				return false;
+			}
 
 			if (travelled.Any(p => !Vertices.Contains(p)))
 				return false;
