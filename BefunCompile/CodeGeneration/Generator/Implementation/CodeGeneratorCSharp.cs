@@ -37,10 +37,12 @@ namespace BefunCompile.CodeGeneration.Generator
 			codebuilder.AppendLine(@"public static class Program ");
 			codebuilder.AppendLine("{");
 
-			if (Graph.ListDynamicVariableAccess().Any() || Graph.ListConstantVariableAccess().Any())
-				codebuilder.Append(GenerateGridAccess());
-			codebuilder.Append(GenerateStackAccess());
+			bool isGrid = Graph.ListDynamicVariableAccess().Any() || Graph.ListConstantVariableAccess().Any();
+			bool isStack = Graph.Vertices.Any(v => v.IsStackAccess());
+
+			if (isGrid) codebuilder.Append(GenerateGridAccess());
 			codebuilder.Append(GenerateHelperMethods());
+			if (isStack) codebuilder.Append(GenerateStackAccess());
 
 			codebuilder.AppendLine("static void Main(string[]args)");
 			codebuilder.AppendLine("{");

@@ -35,14 +35,15 @@ namespace BefunCompile.CodeGeneration.Generator
 
 			AdditionalImports.ToList().ForEach(codebuilder.AppendLine);
 
-			if (Graph.ListDynamicVariableAccess().Any() || Graph.ListConstantVariableAccess().Any())
-				codebuilder.Append(GenerateGridAccess());
+			bool isGrid = Graph.ListDynamicVariableAccess().Any() || Graph.ListConstantVariableAccess().Any();
+			bool isStack = Graph.Vertices.Any(v => v.IsStackAccess());
+
+			if (isGrid) codebuilder.Append(GenerateGridAccess());
 			codebuilder.Append(GenerateHelperMethods());
-			codebuilder.Append(GenerateStackAccess());
+			if (isStack) codebuilder.Append(GenerateStackAccess());
 
 			foreach (var variable in Graph.Variables.Where(p => p.isUserDefinied))
 				codebuilder.AppendLine(variable.Identifier + "=" + variable.initial);
-
 
 			for (int i = 0; i < Graph.Vertices.Count; i++)
 			{

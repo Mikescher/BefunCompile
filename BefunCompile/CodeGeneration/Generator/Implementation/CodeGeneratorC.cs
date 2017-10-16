@@ -40,10 +40,12 @@ namespace BefunCompile.CodeGeneration.Generator
 			codebuilder.AppendLine("#include <stdlib.h>");
 			codebuilder.AppendLine("#define int64 long long");
 
-			if (Graph.ListDynamicVariableAccess().Any() || Graph.ListConstantVariableAccess().Any())
-				codebuilder.Append(GenerateGridAccess());
+			bool isGrid = Graph.ListDynamicVariableAccess().Any() || Graph.ListConstantVariableAccess().Any();
+			bool isStack = Graph.Vertices.Any(v => v.IsStackAccess());
+
+			if (isGrid) codebuilder.Append(GenerateGridAccess());
 			codebuilder.Append(GenerateHelperMethods());
-			codebuilder.Append(GenerateStackAccess());
+			if (isStack) codebuilder.Append(GenerateStackAccess());
 
 			codebuilder.AppendLine("int main(void)");
 			codebuilder.AppendLine("{");
@@ -64,7 +66,7 @@ namespace BefunCompile.CodeGeneration.Generator
 			if (Graph.Vertices.Any(p => p.IsRandom()))
 				codebuilder.AppendLine(indent1 + "srand(time(NULL));");
 
-			codebuilder.AppendLine(indent1 + "s=(int64*)calloc(q,sizeof(int64));");
+			if (isStack) codebuilder.AppendLine(indent1 + "s=(int64*)calloc(q,sizeof(int64));");
 
 			if (Graph.Vertices.IndexOf(Graph.Root) != 0)
 				codebuilder.AppendLine(indent1 + "goto _" + Graph.Vertices.IndexOf(Graph.Root) + ";");
