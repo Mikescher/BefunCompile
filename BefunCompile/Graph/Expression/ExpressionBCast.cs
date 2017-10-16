@@ -87,7 +87,7 @@ namespace BefunCompile.Graph.Expression
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return Enumerable.Empty<ExpressionVariable>();
+			return Value.GetVariables();
 		}
 
 		public bool NeedsParen()

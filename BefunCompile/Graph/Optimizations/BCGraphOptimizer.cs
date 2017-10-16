@@ -17,6 +17,9 @@ namespace BefunCompile.Graph.Optimizations
 			public string Name;
 			public Func<BCGraph, bool> Action;
 			public HashSet<int> Scope;
+			public string LastRunInfo;
+
+			public bool Run(BCGraph g) { LastRunInfo = ""; return Action(g); }
 		}
 
 		private List<OptimizerStep> AllSteps = new List<OptimizerStep>();
@@ -232,7 +235,9 @@ namespace BefunCompile.Graph.Optimizations
 				rule1.AddPreq<BCVertexExprVarSet>(v => v.Variable == (v.Value as ExpressionVariable));
 				rule1.AddRep((l, p) => new BCVertexNOP(BCDirection.UNKNOWN, p));
 				Add("RemoveIdentityVarAsignment", rule1, new[] { 6 });
-				
+
+				Add("RemoveUnusedVariables", RemoveUnusedVariables, new[] { 6, 7, 8 });
+
 				var ruleMinimize = new BCModRule(false);
 				ruleMinimize.AddPreq<BCVertexNOP>();
 				Add("RemoveGenericNOPs", ruleMinimize, new[] { 6, 7 });
@@ -810,16 +815,86 @@ namespace BefunCompile.Graph.Optimizations
 			}
 		}
 
+		private bool RemoveUnusedVariables(BCGraph g)
+		{
+			foreach (var v in g.Variables.ToList())
+			{
+				var usage = g.Vertices.Where(gv => gv.GetVariables().Contains(v)).ToList();
+
+				bool rem = true;
+				foreach (var usg in usage)
+				{
+					if (usg is BCVertexVarSet)
+					{
+						continue;
+					}
+					else if (usg is BCVertexExprVarSet)
+					{
+						var vtx = (BCVertexExprVarSet)usg;
+
+						if (vtx.Value.IsStateModifying())
+						{
+							rem = false;
+							break;
+						}
+					}
+					else if (usg is BCVertexGetVarSet)
+					{
+						continue;
+					}
+					else
+					{
+						rem = false;
+						break;
+					}
+				}
+
+				if (rem)
+				{
+					foreach (var usg in usage)
+					{
+						if (usg is BCVertexVarSet)
+						{
+							g.ReplaceVertex(usg, new BCVertexPop(usg.Direction, usg.Positions));
+						}
+						else if (usg is BCVertexExprVarSet)
+						{
+							g.RemoveVertex(usg);
+						}
+						else if (usg is BCVertexGetVarSet)
+						{
+							var lst = new List<BCVertex>
+							{
+								new BCVertexPop(usg.Direction, usg.Positions),
+								new BCVertexPop(usg.Direction, usg.Positions),
+							};
+
+							g.ReplaceVertex(usg, lst);
+						}
+						else
+						{
+							g.RemoveVertex(usg);
+						}
+					}
+
+					g.Variables.Remove(v);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		#endregion
 
 		private void Add(string name, BCModRule rule, int[] scope)
 		{
-			AllSteps.Add(new OptimizerStep
-			{
-				Name = name,
-				Action = (g) => rule.Execute(g),
-				Scope = new HashSet<int>(scope),
-			});
+			var os = new OptimizerStep();
+			os.Name = name;
+			os.Scope = new HashSet<int>(scope);
+			os.Action = (g) => { var r = rule.Execute(g); os.LastRunInfo = string.Join(", ", rule.LastRunInfo.Distinct()); return r; };
+
+			AllSteps.Add(os);
 		}
 
 		private void Add(string name, Func<BCGraph, bool> a, int[] scope)
@@ -838,13 +913,13 @@ namespace BefunCompile.Graph.Optimizations
 
 			foreach (var step in AllSteps.Where(s => s.Scope.Contains(level)))
 			{
-				var r = step.Action(g);
+				var r = step.Run(g);
 
 #if DEBUG
 				if (!g.TestGraph()) throw new Exception("Graph became invalid !");
 #endif
 
-				if (r) g.UsedOptimizations.Add($"[{level}] {step.Name}");
+				if (r) g.UsedOptimizations.Add($"[{level}] {step.Name} {{{step.LastRunInfo}}}");
 
 				result = result || r;
 			}

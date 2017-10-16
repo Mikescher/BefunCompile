@@ -104,7 +104,7 @@ namespace BefunCompile.Graph.Expression
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return Enumerable.Empty<ExpressionVariable>();
+			return Enumerable.Concat(X.GetVariables(), Y.GetVariables());
 		}
 
 		public override string GenerateCode(CodeGenerator cg, bool forceLongReturn)

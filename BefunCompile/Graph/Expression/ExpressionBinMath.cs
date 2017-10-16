@@ -319,7 +319,7 @@ namespace BefunCompile.Graph.Expression
 
 		public override IEnumerable<ExpressionVariable> GetVariables()
 		{
-			return Enumerable.Empty<ExpressionVariable>();
+			return Enumerable.Concat(ValueA.GetVariables(), ValueB.GetVariables());
 		}
 
 		public bool NeedsLSParen()

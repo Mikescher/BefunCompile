@@ -177,7 +177,7 @@ namespace BefunCompile.Graph
 
 		public void RemoveVertex(BCVertex oldVertex)
 		{
-			if (oldVertex.Children.Count != 1)
+			if (oldVertex == Root || oldVertex.Children.Count != 1)
 			{
 				ReplaceVertex(oldVertex, new BCVertexNOP(BCDirection.UNKNOWN, oldVertex.Positions));
 				return;
@@ -203,6 +203,7 @@ namespace BefunCompile.Graph
 				}
 				child.Parents.Add(parent);
 			}
+
 
 
 			if (!TestGraph())
