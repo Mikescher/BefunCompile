@@ -9,7 +9,7 @@ namespace BefunCompileTest
 		private static object TD_FULL = TestData.Data;
 		private static object TD_SMALL = TestData.Data_fast;
 
-		[TestCaseSource(nameof(TD_FULL))]
+		[TestCaseSource(nameof(TD_SMALL))]
 		public void Test_GCC_Generate(TestData.BFDataSet set) { TestData.Test_Generate(set, OutputLanguage.C); }
 
 		//[TestCaseSource(nameof(TD_FULL))]
@@ -21,7 +21,7 @@ namespace BefunCompileTest
 
 
 
-		[TestCaseSource(nameof(TD_FULL))]
+		[TestCaseSource(nameof(TD_SMALL))]
 		public void Test_CSC_Generate(TestData.BFDataSet set) { TestData.Test_Generate(set, OutputLanguage.CSharp); }
 
 		//[TestCaseSource(nameof(TD_FULL))]
@@ -30,7 +30,7 @@ namespace BefunCompileTest
 
 
 
-		[TestCaseSource(nameof(TD_FULL))]
+		[TestCaseSource(nameof(TD_SMALL))]
 		public void Test_JVC_Generate(TestData.BFDataSet set) { TestData.Test_Generate(set, OutputLanguage.Java); }
 
 		//[TestCaseSource(nameof(TD_FULL))]
@@ -39,7 +39,7 @@ namespace BefunCompileTest
 
 
 
-		[TestCaseSource(nameof(TD_FULL))]
+		[TestCaseSource(nameof(TD_SMALL))]
 		public void Test_PY2_Generate(TestData.BFDataSet set) { TestData.Test_Generate(set, OutputLanguage.Python2); }
 
 		//[TestCaseSource(nameof(TD_SMALL))]
@@ -48,7 +48,7 @@ namespace BefunCompileTest
 
 
 
-		[TestCaseSource(nameof(TD_FULL))]
+		[TestCaseSource(nameof(TD_SMALL))]
 		public void Test_PY3_Generate(TestData.BFDataSet set) { TestData.Test_Generate(set, OutputLanguage.Python3); }
 
 		//[TestCaseSource(nameof(TD_SMALL))]

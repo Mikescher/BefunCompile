@@ -42,7 +42,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			StackValues = new HashSet<UnstackifyValue>(StackValues.Where(p => !p.IsPoisoned));
 		}
 
-		public void CreateVariables(BCGraph graph, ref int identity)
+		public void CreateVariables(BCGraph graph, ref int identity, ref List<string> info)
 		{
 			var timetable = new List<List<UnstackifyValue>>();
 
@@ -69,6 +69,8 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			{
 				var systemvar = ExpressionVariable.CreateSystemVariable(identity++, row.Select(p => p.Scope.ToList()).ToList());
 				graph.Variables.Add(systemvar);
+
+				info.Add(systemvar.Identifier);
 
 				row.ForEach(p => p.Replacement = systemvar);
 			}

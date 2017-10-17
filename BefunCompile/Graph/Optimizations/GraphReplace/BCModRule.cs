@@ -402,6 +402,7 @@ namespace BefunCompile.Graph
 				{
 					rawchain2.Add(Tuple.Create(newchain[i], rawchain[i].Item2, rawchain[i].Item3));
 				}
+				LastRunInfo.Add("EXTRACTED");
 				rawchain = rawchain2;
 			}
 

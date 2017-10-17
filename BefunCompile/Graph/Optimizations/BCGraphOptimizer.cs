@@ -1,12 +1,9 @@
 ﻿using BefunCompile.Graph.Expression;
-using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
 using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BefunCompile.Graph.Optimizations
 {
@@ -21,6 +18,8 @@ namespace BefunCompile.Graph.Optimizations
 
 			public bool Run(BCGraph g) { LastRunInfo = ""; return Action(g); }
 		}
+
+		private delegate bool StepAction(BCGraph g, out string info);
 
 		private List<OptimizerStep> AllSteps = new List<OptimizerStep>();
 
@@ -719,14 +718,20 @@ namespace BefunCompile.Graph.Optimizations
 
 			for (int i = g.Vertices.Count - 1; i >= 0; i--)
 			{
-				if (!reachable.Contains(g.Vertices[i])) g.Vertices.RemoveAt(i);
+				if (!reachable.Contains(g.Vertices[i]))
+				{
+					foreach (var c in g.Vertices[i].Children) c.Parents.Remove(g.Vertices[i]);
+					g.Vertices.RemoveAt(i);
+				}
 			}
 
 		}
 
-		private bool Unstackify(BCGraph g)
+		private bool Unstackify(BCGraph g, out string info)
 		{
-			return g.Unstackifier.Run();
+			var r = g.Unstackifier.Run();
+			info = string.Join(";", g.Unstackifier.LastRunInfo);
+			return r;
 		}
 
 		private bool ReplaceVariableIntializer(BCGraph g)
@@ -815,7 +820,7 @@ namespace BefunCompile.Graph.Optimizations
 			}
 		}
 
-		private bool RemoveUnusedVariables(BCGraph g)
+		private bool RemoveUnusedVariables(BCGraph g, out string info)
 		{
 			foreach (var v in g.Variables.ToList())
 			{
@@ -828,7 +833,7 @@ namespace BefunCompile.Graph.Optimizations
 					{
 						continue;
 					}
-					else if (usg is BCVertexExprVarSet)
+					else if (usg is BCVertexExprVarSet && ((BCVertexExprVarSet)usg).Variable == v)
 					{
 						var vtx = (BCVertexExprVarSet)usg;
 
@@ -878,10 +883,12 @@ namespace BefunCompile.Graph.Optimizations
 					}
 
 					g.Variables.Remove(v);
+					info = v.Identifier;
 					return true;
 				}
 			}
 
+			info = string.Empty;
 			return false;
 		}
 
@@ -905,6 +912,16 @@ namespace BefunCompile.Graph.Optimizations
 				Action = a,
 				Scope = new HashSet<int>(scope),
 			});
+		}
+
+		private void Add(string name, StepAction a, int[] scope)
+		{
+			var os = new OptimizerStep();
+			os.Name = name;
+			os.Scope = new HashSet<int>(scope);
+			os.Action = (g) => { string i; var r = a(g, out i); os.LastRunInfo = i; return r; };
+
+			AllSteps.Add(os);
 		}
 
 		public bool Execute(BCGraph g, int level)

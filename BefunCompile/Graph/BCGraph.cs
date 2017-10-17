@@ -98,6 +98,12 @@ namespace BefunCompile.Graph
 
 				if (v is IDecisionVertex && !v.Children.Contains((v as IDecisionVertex).EdgeFalse))
 					return false;
+
+				if (v.Parents.Any(p => !Vertices.Contains(p)))
+					return false;
+
+				if (v.Children.Any(p => !Vertices.Contains(p)))
+					return false;
 			}
 
 			if (Variables.Where(p => !p.isUserDefinied).Any(p => p.initial != 0))
@@ -135,6 +141,9 @@ namespace BefunCompile.Graph
 			}
 
 			if (travelled.Any(p => !Vertices.Contains(p)))
+				return false;
+
+			if (Vertices.Any(p => !travelled.Contains(p)))
 				return false;
 
 			if (Vertices.Count(p => p.Parents.Count == 0) > 1)

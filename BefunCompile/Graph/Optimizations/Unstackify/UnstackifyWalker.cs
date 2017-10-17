@@ -14,6 +14,8 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		private readonly HashSet<BCVertex> protectedVertices = new HashSet<BCVertex>();
 
+		public List<string> LastRunInfo = new List<string>();
+
 		public UnstackifyWalker(BCGraph graph)
 		{
 			this.graph = graph;
@@ -21,6 +23,8 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 		public bool Run()
 		{
+			LastRunInfo.Clear();
+
 			UnstackifyStateHistory history = new UnstackifyStateHistory();
 
 			Walk(graph.Root, history, new UnstackifyState());
@@ -91,7 +95,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 			protectedVertices.ToList().ForEach(history.PoisonVertex);
 
 			history.RemovePoison();
-			history.CreateVariables(graph, ref varIdentity);
+			history.CreateVariables(graph, ref varIdentity, ref LastRunInfo);
 			
 			foreach (var vertex in graph.Vertices.ToList())
 			{
