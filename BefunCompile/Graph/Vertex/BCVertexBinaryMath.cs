@@ -19,7 +19,9 @@ namespace BefunCompile.Graph.Vertex
 		LT,
 		GET,
 		LET,
-		MOD
+		MOD,
+		EQ,
+		NEQ,
 	}
 
 	public class BCVertexBinaryMath : BCVertex
@@ -87,6 +89,10 @@ namespace BefunCompile.Graph.Vertex
 					return (a <= b) ? 1 : 0;
 				case BinaryMathType.MOD:
 					return b == 0 ? 0 : (a % b);
+				case BinaryMathType.EQ:
+					return (a == b) ? 1 : 0;
+				case BinaryMathType.NEQ:
+					return (a != b) ? 1 : 0;
 				default:
 					throw new Exception("uwotm8");
 			}

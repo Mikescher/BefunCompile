@@ -203,6 +203,46 @@ namespace BefunCompile.Graph.Expression
 				ExpressionBinMath.Create(b, a, t);
 			}
 
+			//########  (X - C) [==,<>] C  ########
+
+			if ((t == BinaryMathType.EQ || t == BinaryMathType.NEQ) && a is ExpressionBinMath && (a as ExpressionBinMath).Type == BinaryMathType.SUB && b is ExpressionConstant && (a as ExpressionBinMath).ValueB is ExpressionConstant)
+				return ExpressionBinMath.Create((a as ExpressionBinMath).ValueA, ExpressionConstant.Create(b.Calculate(null) + (a as ExpressionBinMath).ValueB.Calculate(null)), t);
+
+			//########  (C - X) [==,<>] C  ########
+
+			if ((t == BinaryMathType.EQ || t == BinaryMathType.NEQ) && a is ExpressionBinMath && (a as ExpressionBinMath).Type == BinaryMathType.SUB && b is ExpressionConstant && (a as ExpressionBinMath).ValueA is ExpressionConstant)
+				return ExpressionBinMath.Create((a as ExpressionBinMath).ValueB, ExpressionConstant.Create((a as ExpressionBinMath).ValueA.Calculate(null) - b.Calculate(null)), t);
+
+			//########  (X + C) [==,<>] C  ########
+
+			if ((t == BinaryMathType.EQ || t == BinaryMathType.NEQ) && a is ExpressionBinMath && (a as ExpressionBinMath).Type == BinaryMathType.ADD && b is ExpressionConstant && (a as ExpressionBinMath).ValueB is ExpressionConstant)
+				return ExpressionBinMath.Create((a as ExpressionBinMath).ValueA, ExpressionConstant.Create(b.Calculate(null) - (a as ExpressionBinMath).ValueB.Calculate(null)), t);
+
+			//########  (C + X) [==,<>] C  ########
+
+			if ((t == BinaryMathType.EQ || t == BinaryMathType.NEQ) && a is ExpressionBinMath && (a as ExpressionBinMath).Type == BinaryMathType.ADD && b is ExpressionConstant && (a as ExpressionBinMath).ValueA is ExpressionConstant)
+				return ExpressionBinMath.Create((a as ExpressionBinMath).ValueB, ExpressionConstant.Create(b.Calculate(null) - (a as ExpressionBinMath).ValueA.Calculate(null)), t);
+
+			//########  C [==,<>] (X - C)  ########
+
+			if ((t == BinaryMathType.EQ || t == BinaryMathType.NEQ) && b is ExpressionBinMath && (b as ExpressionBinMath).Type == BinaryMathType.SUB && a is ExpressionConstant && (b as ExpressionBinMath).ValueB is ExpressionConstant)
+				return ExpressionBinMath.Create(ExpressionConstant.Create(a.Calculate(null) + (b as ExpressionBinMath).ValueB.Calculate(null)), (b as ExpressionBinMath).ValueA, t);
+
+			//########  C [==,<>] (C - X)  ########
+
+			if ((t == BinaryMathType.EQ || t == BinaryMathType.NEQ) && b is ExpressionBinMath && (b as ExpressionBinMath).Type == BinaryMathType.SUB && a is ExpressionConstant && (b as ExpressionBinMath).ValueA is ExpressionConstant)
+				return ExpressionBinMath.Create(ExpressionConstant.Create((b as ExpressionBinMath).ValueA.Calculate(null) - a.Calculate(null)), (b as ExpressionBinMath).ValueA, t);
+
+			//########  C [==,<>] (X + C)  ########
+
+			if ((t == BinaryMathType.EQ || t == BinaryMathType.NEQ) && b is ExpressionBinMath && (b as ExpressionBinMath).Type == BinaryMathType.ADD && a is ExpressionConstant && (b as ExpressionBinMath).ValueB is ExpressionConstant)
+				return ExpressionBinMath.Create(ExpressionConstant.Create(a.Calculate(null) - (b as ExpressionBinMath).ValueB.Calculate(null)), (b as ExpressionBinMath).ValueA, t);
+
+			//########  C [==,<>] (C + X)  ########
+
+			if ((t == BinaryMathType.EQ || t == BinaryMathType.NEQ) && b is ExpressionBinMath && (b as ExpressionBinMath).Type == BinaryMathType.ADD && a is ExpressionConstant && (b as ExpressionBinMath).ValueA is ExpressionConstant)
+				return ExpressionBinMath.Create(ExpressionConstant.Create(a.Calculate(null) - (b as ExpressionBinMath).ValueA.Calculate(null)), (b as ExpressionBinMath).ValueB, t);
+
 			return r;
 		}
 
@@ -247,33 +287,17 @@ namespace BefunCompile.Graph.Expression
 			string op;
 			switch (tp)
 			{
-				case BinaryMathType.ADD:
-					op = "+";
-					break;
-				case BinaryMathType.SUB:
-					op = "-";
-					break;
-				case BinaryMathType.MUL:
-					op = "*";
-					break;
-				case BinaryMathType.DIV:
-					op = "/";
-					break;
-				case BinaryMathType.GT:
-					op = ">";
-					break;
-				case BinaryMathType.LT:
-					op = "<";
-					break;
-				case BinaryMathType.GET:
-					op = ">=";
-					break;
-				case BinaryMathType.LET:
-					op = "<=";
-					break;
-				case BinaryMathType.MOD:
-					op = "%";
-					break;
+				case BinaryMathType.ADD: return "+";
+				case BinaryMathType.SUB: return "-";
+				case BinaryMathType.MUL: return "*";
+				case BinaryMathType.DIV: return "/";
+				case BinaryMathType.GT:  return ">";
+				case BinaryMathType.LT:  return "<";
+				case BinaryMathType.GET: return ">=";
+				case BinaryMathType.LET: return "<=";
+				case BinaryMathType.MOD: return "%";
+				case BinaryMathType.EQ:  return "==";
+				case BinaryMathType.NEQ: return "<>";
 				default:
 					throw new ArgumentException();
 			}
@@ -371,6 +395,13 @@ namespace BefunCompile.Graph.Expression
 			return true;
 		}
 
+		public bool RightSideCanBeZero()
+		{
+			var expr = ValueB as ExpressionConstant;
+			if (expr != null && expr.Value != 0) return false;
+			return true;
+		}
+
 		public override bool IsAlwaysLongReturn()
 		{
 			switch (Type)
@@ -385,6 +416,8 @@ namespace BefunCompile.Graph.Expression
 				case BinaryMathType.LT:
 				case BinaryMathType.GET:
 				case BinaryMathType.LET:
+				case BinaryMathType.NEQ:
+				case BinaryMathType.EQ:
 					return false;
 			}
 

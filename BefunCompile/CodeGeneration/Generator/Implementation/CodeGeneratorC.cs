@@ -262,6 +262,12 @@ namespace BefunCompile.CodeGeneration.Generator
 				case BinaryMathType.MOD:
 					codebuilder.AppendLine("{int64 v0=sp();sa(tm(sp(),v0));}");
 					break;
+				case BinaryMathType.EQ:
+					codebuilder.AppendLine("{int64 v0=sp();sa((sp()==v0)?1:0);}");
+					break;
+				case BinaryMathType.NEQ:
+					codebuilder.AppendLine("{int64 v0=sp();sa((sp()==v0)?0:1);}");
+					break;
 				default:
 					throw new Exception("uwotm8");
 			}
@@ -347,7 +353,10 @@ namespace BefunCompile.CodeGeneration.Generator
 					codebuilder.AppendLine("sa(sp()*" + Paren(comp.SecondExpression.GenerateCode(this, true), comp.NeedsParen()) + ");");
 					break;
 				case BinaryMathType.DIV:
-					codebuilder.AppendLine("sa(td(sp()," + comp.SecondExpression.GenerateCode(this, false) + "));");
+					if (comp.RightSideCanBeZero())
+						codebuilder.AppendLine("sa(td(sp()," + comp.SecondExpression.GenerateCode(this, false) + "));");
+					else
+						codebuilder.AppendLine("sa(sp()/" + Paren(comp.SecondExpression.GenerateCode(this, true), comp.NeedsParen()) + ");");
 					break;
 				case BinaryMathType.GT:
 					codebuilder.AppendLine("sa((sp()>" + Paren(comp.SecondExpression.GenerateCode(this, false), comp.NeedsParen()) + ")?1:0);");
@@ -362,7 +371,16 @@ namespace BefunCompile.CodeGeneration.Generator
 					codebuilder.AppendLine("sa((sp()<=" + Paren(comp.SecondExpression.GenerateCode(this, false), comp.NeedsParen()) + ")?1:0);");
 					break;
 				case BinaryMathType.MOD:
-					codebuilder.AppendLine("sa(tm(sp()," + comp.SecondExpression.GenerateCode(this, false) + "));");
+					if (comp.RightSideCanBeZero())
+						codebuilder.AppendLine("sa(tm(sp()," + comp.SecondExpression.GenerateCode(this, false) + "));");
+					else
+						codebuilder.AppendLine("sa(sp()%" + Paren(comp.SecondExpression.GenerateCode(this, true), comp.NeedsParen()) + ");");
+					break;
+				case BinaryMathType.EQ:
+					codebuilder.AppendLine("sa((sp()==" + Paren(comp.SecondExpression.GenerateCode(this, false), comp.NeedsParen()) + ")?1:0);");
+					break;
+				case BinaryMathType.NEQ:
+					codebuilder.AppendLine("sa((sp()!=" + Paren(comp.SecondExpression.GenerateCode(this, false), comp.NeedsParen()) + ")?1:0);");
 					break;
 				default:
 					throw new Exception("uwotm8");
@@ -521,7 +539,10 @@ namespace BefunCompile.CodeGeneration.Generator
 				case BinaryMathType.MUL:
 					return Paren(comp.ValueA.GenerateCode(this, forceL), comp.NeedsLSParen()) + '*' + Paren(comp.ValueB.GenerateCode(this, forceR), comp.NeedsRSParen());
 				case BinaryMathType.DIV:
-					return "td(" + comp.ValueA.GenerateCode(this, false) + "," + comp.ValueB.GenerateCode(this, false) + ")";
+					if (comp.RightSideCanBeZero())
+						return "td(" + comp.ValueA.GenerateCode(this, false) + "," + comp.ValueB.GenerateCode(this, false) + ")";
+					else
+						return Paren(comp.ValueA.GenerateCode(this, forceL), comp.NeedsLSParen()) + '/' + Paren(comp.ValueB.GenerateCode(this, forceR), comp.NeedsRSParen());
 				case BinaryMathType.GT:
 					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + ">" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen()) + conditionalSuffix;
 				case BinaryMathType.LT:
@@ -531,7 +552,14 @@ namespace BefunCompile.CodeGeneration.Generator
 				case BinaryMathType.LET:
 					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "<=" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen()) + conditionalSuffix;
 				case BinaryMathType.MOD:
-					return "tm(" + comp.ValueA.GenerateCode(this, false) + "," + comp.ValueB.GenerateCode(this, false) + ")";
+					if (comp.RightSideCanBeZero())
+						return "tm(" + comp.ValueA.GenerateCode(this, false) + "," + comp.ValueB.GenerateCode(this, false) + ")";
+					else
+						return Paren(comp.ValueA.GenerateCode(this, forceL), comp.NeedsLSParen()) + '%' + Paren(comp.ValueB.GenerateCode(this, forceR), comp.NeedsRSParen());
+				case BinaryMathType.EQ:
+					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "==" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen()) + conditionalSuffix;
+				case BinaryMathType.NEQ:
+					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "!=" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen()) + conditionalSuffix;
 				default:
 					throw new ArgumentException();
 			}
@@ -562,6 +590,10 @@ namespace BefunCompile.CodeGeneration.Generator
 					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "<=" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen());
 				case BinaryMathType.MOD:
 					return "tm(" + comp.ValueA.GenerateCode(this, false) + "," + comp.ValueB.GenerateCode(this, false) + ")!=0";
+				case BinaryMathType.EQ:
+					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "==" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen());
+				case BinaryMathType.NEQ:
+					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "!=" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen());
 				default:
 					throw new ArgumentException();
 			}

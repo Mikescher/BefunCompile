@@ -1,5 +1,4 @@
-﻿using BefunCompile.CodeGeneration;
-using BefunCompile.CodeGeneration.Generator;
+﻿using BefunCompile.CodeGeneration.Generator;
 using BefunCompile.Graph.Expression;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Math;
@@ -27,6 +26,13 @@ namespace BefunCompile.Graph.Vertex
 		{
 			EdgeTrue = null;
 			EdgeFalse = null;
+		}
+
+		public BCVertexDecision(BCDirection d, Vec2i[] pos, BCVertex eFalse, BCVertex eTrue)
+			: base(d, pos)
+		{
+			EdgeTrue = eTrue;
+			EdgeFalse = eFalse;
 		}
 
 		public override void AfterGen()

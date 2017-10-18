@@ -19,6 +19,8 @@ namespace BefunCompile.Graph.Optimizations
 			public bool Run(BCGraph g) { LastRunInfo = ""; return Action(g); }
 		}
 
+		public const int MAX_OPTIMIZATIONS_PER_LEVEL = 1000;
+
 		private delegate bool StepAction(BCGraph g, out string info);
 
 		private List<OptimizerStep> AllSteps = new List<OptimizerStep>();
@@ -108,18 +110,16 @@ namespace BefunCompile.Graph.Optimizations
 			{
 				var rule1 = new BCModRule();
 				rule1.AddPreq<BCVertexExpression>();
-				rule1.AddPreq<BCVertexExpression>();
+				rule1.AddPreq<BCVertexExpression>(d => !d.IsStackRead());
 				rule1.AddPreq<BCVertexGet>();
 				rule1.AddRep((l, p) => new BCVertexExprGet(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression));
-				rule1.AddCond(d => !d[1].IsStackRead());
 				Add("CreateExprGetFromRawGet", rule1, new[] { 3, 4, 5, 6 });
 
 				var rule2 = new BCModRule();
 				rule2.AddPreq<BCVertexExpression>();
-				rule2.AddPreq<BCVertexExpression>();
+				rule2.AddPreq<BCVertexExpression>(d => !d.IsStackRead());
 				rule2.AddPreq<BCVertexSet>();
 				rule2.AddRep((l, p) => new BCVertexExprPopSet(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression));
-				rule2.AddCond(d => !d[1].IsStackRead());
 				Add("CreateExprSetFromRawGet", rule2, new[] { 3, 4, 5, 6 });
 
 				var rule3 = new BCModRule();
@@ -173,6 +173,12 @@ namespace BefunCompile.Graph.Optimizations
 				Add("CombineStringOutputAndExprOutput", rule10, new[] { 3, 4, 5, 6 });
 
 				Add("IntegrateDecisions", IntegrateDecisions, new[] { 3, 4, 5, 6 });
+
+				var rule11 = new BCModRule(false, true, true);
+				rule11.AddPreq<BCVertexNot>();
+				rule11.AddPreq<BCVertexDecision>();
+				rule11.AddRep((l, p) => new BCVertexDecision(BCDirection.UNKNOWN, p, ((BCVertexDecision)l[1]).EdgeTrue, ((BCVertexDecision)l[1]).EdgeFalse));
+				Add("SwapDecisionsChildren", rule11, new[] { 3, 4, 5, 6 });
 			}
 			#endregion
 
@@ -215,10 +221,14 @@ namespace BefunCompile.Graph.Optimizations
 				nopRule1.AddRep((l, p) => new BCVertexPop(BCDirection.UNKNOWN, p));
 				nopRule1.AddRep((l, p) => new BCVertexExpression(BCDirection.UNKNOWN, p, ExpressionConstant.Create(0)));
 				Add("MakeMultZeroConstant", nopRule1, new[] { 4, 5, 6 });
-
-
+				
 				Add("RemovePredeterminedDecisions_0", RemovePredeterminedDecisions_0, new[] { 4, 5, 6 });
+
 				Add("RemovePredeterminedDecisions_1", RemovePredeterminedDecisions_1, new[] { 4, 5 ,6 });
+
+				var condRule1 = new BCModRule(false, true, false);
+				condRule1.AddPreq<BCVertexExprDecision>(p => (p.Value is ExpressionBinMath) && ((ExpressionBinMath)p.Value).Type != BinaryMathType.EQ && ((ExpressionBinMath)p.Value).Type != BinaryMathType.NEQ);
+				nopRule1.AddRep((l, p) => new BCVertexExprDecision(l[0].Direction, p, ((BCVertexExprDecision)l[0]).EdgeTrue, ((BCVertexExprDecision)l[0]).EdgeFalse, ExpressionBinMath.Create(((BCVertexExprDecision)l[0]).Value, ExpressionConstant.Create(0), BinaryMathType.NEQ)));
 			}
 			#endregion
 
@@ -599,6 +609,11 @@ namespace BefunCompile.Graph.Optimizations
 				if (prev.Parents.Count == 0)
 					continue;
 
+				// Without this we would go down the rabbithole of actually evaulating the program
+				// So we only remove decisions that are predetermined on all paths
+				if (!v.Parents.All(p => (p as BCVertexExpression)?.Expression is ExpressionConstant))
+					continue;
+
 				chain = new List<BCVertex>() { prev, v };
 			}
 
@@ -724,7 +739,6 @@ namespace BefunCompile.Graph.Optimizations
 					g.Vertices.RemoveAt(i);
 				}
 			}
-
 		}
 
 		private bool Unstackify(BCGraph g, out string info)
@@ -928,6 +942,7 @@ namespace BefunCompile.Graph.Optimizations
 		{
 			bool result = false;
 
+			int count = 0;
 			foreach (var step in AllSteps.Where(s => s.Scope.Contains(level)))
 			{
 				var r = step.Run(g);
@@ -937,8 +952,15 @@ namespace BefunCompile.Graph.Optimizations
 #endif
 
 				if (r) g.UsedOptimizations.Add($"[{level}] {step.Name} {{{step.LastRunInfo}}}");
-
+				
 				result = result || r;
+
+				if (r)
+				{
+					count++;
+					if (count > MAX_OPTIMIZATIONS_PER_LEVEL) return result;
+				}
+
 			}
 
 			return result;

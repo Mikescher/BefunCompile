@@ -227,6 +227,14 @@ namespace BefunCompile.CodeGeneration.Generator
 					codebuilder.AppendLine("tmp=" + _stackPop + "();");
 					codebuilder.AppendLine(_stackPush + "(" + _stackPop + "()%tmp);");
 					break;
+				case BinaryMathType.EQ:
+					codebuilder.AppendLine("tmp=" + _stackPop + "();");
+					codebuilder.AppendLine(_stackPush + "((int)(" + _stackPop + "()==tmp));");
+					break;
+				case BinaryMathType.NEQ:
+					codebuilder.AppendLine("tmp=" + _stackPop + "();");
+					codebuilder.AppendLine(_stackPush + "((int)(" + _stackPop + "()!=tmp));");
+					break;
 				default:
 					throw new Exception("uwotm8");
 			}
@@ -348,6 +356,12 @@ namespace BefunCompile.CodeGeneration.Generator
 					break;
 				case BinaryMathType.MOD:
 					codebuilder.AppendLine(_stackPush + "(" + _stackPop + "()%" + comp.SecondExpression.GenerateCode(this, false) + ");");
+					break;
+				case BinaryMathType.EQ:
+					codebuilder.AppendLine(_stackPush + "((int)(" + _stackPop + "()==" + Paren(comp.SecondExpression.GenerateCode(this, false), comp.NeedsParen()) + "));");
+					break;
+				case BinaryMathType.NEQ:
+					codebuilder.AppendLine(_stackPush + "((int)(" + _stackPop + "()!=" + Paren(comp.SecondExpression.GenerateCode(this, false), comp.NeedsParen()) + "));");
 					break;
 				default:
 					throw new Exception("uwotm8");
@@ -558,6 +572,10 @@ namespace BefunCompile.CodeGeneration.Generator
 					return "(int)(" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "<=" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen()) + ")";
 				case BinaryMathType.MOD:
 					return Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "%" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen());
+				case BinaryMathType.EQ:
+					return "(int)(" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "==" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen()) + ")";
+				case BinaryMathType.NEQ:
+					return "(int)(" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "!=" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen()) + ")";
 				default:
 					throw new ArgumentException();
 			}
@@ -588,6 +606,10 @@ namespace BefunCompile.CodeGeneration.Generator
 					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "<=" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen());
 				case BinaryMathType.MOD:
 					return "(" + Paren(comp.ValueA.GenerateCode(this, forceL), comp.NeedsLSParen()) + '%' + Paren(comp.ValueB.GenerateCode(this, forceR), comp.NeedsRSParen()) + ")!=0";
+				case BinaryMathType.EQ:
+					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "==" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen());
+				case BinaryMathType.NEQ:
+					return "" + Paren(comp.ValueA.GenerateCode(this, false), comp.NeedsLSParen()) + "!=" + Paren(comp.ValueB.GenerateCode(this, false), comp.NeedsRSParen());
 				default:
 					throw new ArgumentException();
 			}

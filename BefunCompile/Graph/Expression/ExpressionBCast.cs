@@ -44,6 +44,12 @@ namespace BefunCompile.Graph.Expression
 			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.LET)
 				return v;
 
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.EQ)
+				return v;
+
+			if (v is ExpressionBinMath && (v as ExpressionBinMath).Type == Vertex.BinaryMathType.NEQ)
+				return v;
+
 
 			return r;
 		}

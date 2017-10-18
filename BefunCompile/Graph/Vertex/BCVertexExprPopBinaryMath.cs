@@ -49,6 +49,10 @@ namespace BefunCompile.Graph.Vertex
 					return (a <= b) ? 1 : 0;
 				case BinaryMathType.MOD:
 					return b == 0 ? 0 : (a % b);
+				case BinaryMathType.EQ:
+					return (a == b) ? 1 : 0;
+				case BinaryMathType.NEQ:
+					return (a != b) ? 1 : 0;
 				default:
 					throw new Exception("uwotm8");
 			}
@@ -159,7 +163,13 @@ namespace BefunCompile.Graph.Vertex
 
 			return true;
 		}
-		
+
+		public bool RightSideCanBeZero()
+		{
+			var expr = SecondExpression as ExpressionConstant;
+			if (expr != null && expr.Value != 0) return false;
+			return true;
+		}
 
 		public override string GenerateCode(CodeGenerator cg)
 		{
