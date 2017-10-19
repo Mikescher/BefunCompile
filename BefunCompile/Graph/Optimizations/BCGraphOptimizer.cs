@@ -116,8 +116,8 @@ namespace BefunCompile.Graph.Optimizations
 				Add("CreateExprGetFromRawGet", rule1, new[] { 3, 4, 5, 6 });
 
 				var rule2 = new BCModRule();
-				rule2.AddPreq<BCVertexExpression>();
-				rule2.AddPreq<BCVertexExpression>(d => !d.IsStackRead());
+				rule2.AddPreq<BCVertexExpression>(d => !d.Expression.IsStackAccess());
+				rule2.AddPreq<BCVertexExpression>(d => !d.Expression.IsStackAccess());
 				rule2.AddPreq<BCVertexSet>();
 				rule2.AddRep((l, p) => new BCVertexExprPopSet(BCDirection.UNKNOWN, p, ((BCVertexExpression)l[0]).Expression, ((BCVertexExpression)l[1]).Expression));
 				Add("CreateExprSetFromRawGet", rule2, new[] { 3, 4, 5, 6 });
@@ -228,7 +228,8 @@ namespace BefunCompile.Graph.Optimizations
 
 				var condRule1 = new BCModRule(false, true, false);
 				condRule1.AddPreq<BCVertexExprDecision>(p => (p.Value is ExpressionBinMath) && ((ExpressionBinMath)p.Value).Type != BinaryMathType.EQ && ((ExpressionBinMath)p.Value).Type != BinaryMathType.NEQ);
-				nopRule1.AddRep((l, p) => new BCVertexExprDecision(l[0].Direction, p, ((BCVertexExprDecision)l[0]).EdgeTrue, ((BCVertexExprDecision)l[0]).EdgeFalse, ExpressionBinMath.Create(((BCVertexExprDecision)l[0]).Value, ExpressionConstant.Create(0), BinaryMathType.NEQ)));
+				condRule1.AddRep((l, p) => new BCVertexExprDecision(l[0].Direction, p, ((BCVertexExprDecision)l[0]).EdgeTrue, ((BCVertexExprDecision)l[0]).EdgeFalse, ExpressionBinMath.Create(((BCVertexExprDecision)l[0]).Value, ExpressionConstant.Create(0), BinaryMathType.NEQ)));
+				Add("ExprDecisionWithBoolResult", condRule1, new[] { 4, 5, 6 });
 			}
 			#endregion
 
