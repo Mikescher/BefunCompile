@@ -9,21 +9,6 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public enum BinaryMathType
-	{
-		ADD,
-		SUB,
-		MUL,
-		DIV,
-		GT,
-		LT,
-		GET,
-		LET,
-		MOD,
-		EQ,
-		NEQ,
-	}
-
 	public class BCVertexBinaryMath : BCVertex
 	{
 		public readonly BinaryMathType MathType;

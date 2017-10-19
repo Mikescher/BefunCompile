@@ -193,6 +193,11 @@ namespace BefunCompile.Consoleprogram
 			return CodeCompiler.GetCodeExtension(l);
 		}
 
+		private static string GetBinExt(OutputLanguage l)
+		{
+			return CodeCompiler.GetBinaryExtension(l);
+		}
+
 		private static void Run()
 		{
 			if (mode == null)
@@ -289,7 +294,7 @@ namespace BefunCompile.Consoleprogram
 		{
 			if (_languages.Length != 1)
 			{
-				Console.WriteLine("In mode 'execute' you must specify exactly one language");
+				Console.WriteLine("In mode 'compile' you must specify exactly one language");
 				return;
 			}
 
@@ -320,13 +325,21 @@ namespace BefunCompile.Consoleprogram
 						break;
 					}
 
-					CodeCompiler.Compile(lang, source, outputfilename);
+					var f = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("B") + "." + Path.GetExtension(outputfilename));
+
+					CodeCompiler.Compile(lang, source, f);
+
+					if (! File.Exists(f)) throw new Exception("No output file created");
+
+					File.Copy(f, outputfilename, _optionOverride);
+					File.Delete(f);
 
 					Console.Error.WriteLine("[{0:000}]File {1} succesfully compiled to {2}", counter, Path.GetFileName(input), Path.GetFileName(outputfilename));
 				}
 				catch (Exception e)
 				{
 					Console.Error.WriteLine("Fatal Failure on file " + Path.GetFileName(input) + ": " + e.GetType().Name);
+					Console.Error.WriteLine(e);
 					break;
 				}
 
@@ -397,7 +410,8 @@ namespace BefunCompile.Consoleprogram
 						.Replace("{fp}", Path.GetDirectoryName(input))
 						.Replace("{i}", counter.ToString())
 						.Replace("{l}", lang.ToString())
-						.Replace("{le}", GetLangExt(lang));
+						.Replace("{le}", GetLangExt(lang))
+						.Replace("{be}", GetBinExt(lang));
 		}
 	}
 }

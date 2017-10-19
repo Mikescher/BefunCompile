@@ -227,7 +227,7 @@ namespace BefunCompile.Graph.Optimizations
 				Add("RemovePredeterminedDecisions_1", RemovePredeterminedDecisions_1, new[] { 4, 5 ,6 });
 
 				var condRule1 = new BCModRule(false, true, false);
-				condRule1.AddPreq<BCVertexExprDecision>(p => (p.Value is ExpressionBinMath) && ((ExpressionBinMath)p.Value).Type != BinaryMathType.EQ && ((ExpressionBinMath)p.Value).Type != BinaryMathType.NEQ);
+				condRule1.AddPreq<BCVertexExprDecision>(p => (p.Value is ExpressionBinMath) && !BinaryMathTypeHelper.IsNativeBoolReturn(((ExpressionBinMath)p.Value).Type));
 				condRule1.AddRep((l, p) => new BCVertexExprDecision(l[0].Direction, p, ((BCVertexExprDecision)l[0]).EdgeTrue, ((BCVertexExprDecision)l[0]).EdgeFalse, ExpressionBinMath.Create(((BCVertexExprDecision)l[0]).Value, ExpressionConstant.Create(0), BinaryMathType.NEQ)));
 				Add("ExprDecisionWithBoolResult", condRule1, new[] { 4, 5, 6 });
 			}

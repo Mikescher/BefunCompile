@@ -12,7 +12,7 @@ namespace BefunCompile
 {
 	public class BefunCompiler
 	{
-		public const string VERSION = "1.2.0";
+		public const string VERSION = "1.3.0";
 		public const string YEAR    = "2017";
 
 		public class GenerationLevel
@@ -374,3 +374,5 @@ namespace BefunCompile
 //     --> and perhaps make assemble callable per commandline (for ProjectEuler script)
 
 //TODO data_06 only works with safe stack acc
+
+//TODO (!) EP_032 does not finish for O5+
