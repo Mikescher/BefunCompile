@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Graph.Expression;
 using System;
+using System.Collections.Generic;
 
 namespace BefunCompile.Graph
 {
@@ -7,6 +8,8 @@ namespace BefunCompile.Graph
 	{
 		private Func<BCExpression, bool> prerequisite = null;
 		private Func<BCExpression, BCExpression> replacement = null;
+
+		public List<string> LastRunInfo = new List<string>();
 
 		public BCExprModRule()
 		{
@@ -37,11 +40,16 @@ namespace BefunCompile.Graph
 		{
 			bool found = false;
 
+			LastRunInfo.Clear();
+
 			foreach (var vertex in g.Vertices)
 			{
+				var prev = vertex.ToOneLineString();
 				if (vertex.SubsituteExpression(prerequisite, replacement))
 				{
 					found = true;
+
+					LastRunInfo.Add($"[{prev}] --> [{vertex.ToOneLineString()}]");
 				}
 			}
 

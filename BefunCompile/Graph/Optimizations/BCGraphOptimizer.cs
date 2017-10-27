@@ -4,6 +4,7 @@ using BefunCompile.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace BefunCompile.Graph.Optimizations
 {
@@ -15,6 +16,7 @@ namespace BefunCompile.Graph.Optimizations
 			public Func<BCGraph, bool> Action;
 			public HashSet<int> Scope;
 			public string LastRunInfo;
+			public bool InstantRepeat;
 
 			public bool Run(BCGraph g) { LastRunInfo = ""; return Action(g); }
 		}
@@ -256,8 +258,10 @@ namespace BefunCompile.Graph.Optimizations
 
 			#region O:7 Combine
 			{
+				Add("AggregateSimpleChainsIntoBlocks", AggregateSimpleChainsIntoBlocks, new[] { 7, 8 }, repeat: true);
+
 				var ruleSubstitute = new BCModRule(false);
-				ruleSubstitute.AddPreq(v => v.Children.Count <= 1 && !(v is BCVertexBlock));
+				ruleSubstitute.AddPreq(v => v.Children.Count <= 1 && !(v is IBlockVertex));
 				ruleSubstitute.AddRep((l, p) => new BCVertexBlock(BCDirection.UNKNOWN, p, l[0]));
 				Add("ConvertNodeToBlock", ruleSubstitute, new[] { 7, 8 });
 
@@ -292,9 +296,10 @@ namespace BefunCompile.Graph.Optimizations
 
 		#region OptimizerMethods
 
-		private bool MinimizeNOP(BCGraph g)
+		private bool MinimizeNOP(BCGraph g, out string info)
 		{
 			bool found = false;
+			var b = new StringBuilder();
 
 			List<BCVertex> removed = new List<BCVertex>();
 			foreach (var vertex in g.Vertices)
@@ -311,6 +316,7 @@ namespace BefunCompile.Graph.Optimizations
 				if (vertex.Parents.Count == 1 && vertex.Children.Count == 1 && vertex.Parents[0].Children.Count == 1)
 				{
 					found = true;
+					b.AppendLine($"[{vertex.Parents[0].ToOneLineString()}] -> [{vertex.ToOneLineString()}] -> [{vertex.Children[0].ToOneLineString()}]");
 
 					BCVertex prev = vertex.Parents[0];
 					BCVertex next = vertex.Children[0];
@@ -331,6 +337,7 @@ namespace BefunCompile.Graph.Optimizations
 					if (vertex == g.Root) g.Root = next;
 				}
 			}
+			info = b.ToString();
 
 			foreach (var rv in removed)
 			{
@@ -340,9 +347,10 @@ namespace BefunCompile.Graph.Optimizations
 			return found;
 		}
 
-		private bool MinimizeNOPSplit(BCGraph g)
+		private bool MinimizeNOPSplit(BCGraph g, out string info)
 		{
 			bool found = false;
+			var b = new StringBuilder();
 
 			List<BCVertex> removed = new List<BCVertex>();
 			foreach (var vertex in g.Vertices)
@@ -353,6 +361,7 @@ namespace BefunCompile.Graph.Optimizations
 				if (vertex.Parents.Count > 1 && vertex.Children.Count == 1 && vertex.Parents.All(p => !p.IsCodePathSplit()) && vertex.Parents.All(p => p != vertex) && vertex.Children.All(p => p != vertex))
 				{
 					found = true;
+					b.AppendLine($"[ {string.Join(" | ", vertex.Parents.Select(p => "["+p.ToOneLineString()+"]"))} ] -> [{vertex.ToOneLineString()}] -> [{vertex.Children[0].ToOneLineString()}]");
 
 					BCVertex[] prev = vertex.Parents.ToArray();
 					BCVertex next = vertex.Children[0];
@@ -376,6 +385,7 @@ namespace BefunCompile.Graph.Optimizations
 					if (vertex == g.Root) g.Root = next;
 				}
 			}
+			info = b.ToString();
 
 			foreach (var rv in removed)
 			{
@@ -385,13 +395,15 @@ namespace BefunCompile.Graph.Optimizations
 			return found;
 		}
 
-		private bool MinimizeNOPTail(BCGraph g)
+		private bool MinimizeNOPTail(BCGraph g, out string info)
 		{
 			bool found = false;
+			var b = new StringBuilder();
 
 			if (g.Root is BCVertexNOP && g.Root.Parents.Count == 0 && g.Root.Children.Count == 1)
 			{
 				found = true;
+				b.AppendLine($"[[ROOT]] -> [{g.Root.Children[0].ToOneLineString()}]");
 
 				BCVertex vertex = g.Root;
 
@@ -412,6 +424,7 @@ namespace BefunCompile.Graph.Optimizations
 				if (vertex.Parents.Count == 1 && vertex.Children.Count == 0 && vertex.Parents[0].Children.Count == 1 && vertex != g.Root)
 				{
 					found = true;
+					b.AppendLine($"[{vertex.Parents[0].ToOneLineString()}] -> [{vertex.ToOneLineString()}] -> epsilon");
 
 					BCVertex prev = vertex.Parents[0];
 
@@ -424,6 +437,7 @@ namespace BefunCompile.Graph.Optimizations
 					prev.Children.Remove(vertex);
 				}
 			}
+			info = b.ToString();
 
 			foreach (var rv in removed)
 			{
@@ -433,9 +447,10 @@ namespace BefunCompile.Graph.Optimizations
 			return found;
 		}
 
-		private bool MinimizeNOPDecision(BCGraph g)
+		private bool MinimizeNOPDecision(BCGraph g, out string info)
 		{
 			bool found = false;
+			var b = new StringBuilder();
 
 			List<BCVertex> removed = new List<BCVertex>();
 			foreach (var vertex in g.Vertices)
@@ -451,6 +466,7 @@ namespace BefunCompile.Graph.Optimizations
 					BCVertex next = vertex.Children[0];
 
 					bool isDTrue = (prev.EdgeTrue == vertex);
+					b.AppendLine($"[{vertex.Parents[0].ToOneLineString()}] -[{(isDTrue?"edge_true":"edge_false")}]-> [{vertex.ToOneLineString()}] -> [{vertex.Children[0].ToOneLineString()}]");
 
 					removed.Add(vertex);
 					vertex.Children.Clear();
@@ -472,6 +488,7 @@ namespace BefunCompile.Graph.Optimizations
 					if (vertex == g.Root) g.Root = next;
 				}
 			}
+			info = b.ToString();
 
 			foreach (var rv in removed)
 			{
@@ -481,7 +498,7 @@ namespace BefunCompile.Graph.Optimizations
 			return found;
 		}
 
-		private bool IntegrateDecisions(BCGraph g)
+		private bool IntegrateDecisions(BCGraph g, out string info)
 		{
 			var rule = new BCModRule();
 			rule.AddPreq<BCVertexExpression>();
@@ -489,18 +506,25 @@ namespace BefunCompile.Graph.Optimizations
 
 			var chain = rule.GetMatchingChain(g);
 
-			if (chain == null)
-				return false;
+			if (chain == null) { info = ""; return false; }
 
 			var prev = chain[0].Parents.ToList();
 			var nextTrue = ((BCVertexDecision)chain[1]).EdgeTrue;
 			var nextFalse = ((BCVertexDecision)chain[1]).EdgeFalse;
 
-			if (prev.Any(p => p is BCVertexExprDecision))
-				return false;
+			if (prev.Any(p => p is BCVertexExprDecision)) { info = ""; return false; }
 
-			if (chain[1].Parents.Count > 1)
-				return false;
+			if (chain[1].Parents.Count > 1) { info = ""; return false; }
+
+			info = string.Join("\n", new[]
+			{
+				$"Prev  := " + string.Join(" -> ", chain[0].Parents.Select(p => "[" + p.ToOneLineString() + "]")),
+				$"Chain := " + string.Join(" -> ", chain.Select(p => "[" + p.ToOneLineString())),
+				$"Next  := " + string.Join(" -> ", chain[1].Children.Select(p => "[" + p.ToOneLineString() + "]")),
+				"",
+				$"True  := " + nextTrue.ToString(),
+				$"False := " + nextFalse.ToString(),
+			});
 
 			chain[0].Children.Clear();
 			chain[0].Parents.Clear();
@@ -542,13 +566,13 @@ namespace BefunCompile.Graph.Optimizations
 			return true;
 		}
 
-		private bool SubstituteConstMemoryAccess(BCGraph g)
+		private bool SubstituteConstMemoryAccess(BCGraph g, out string info)
 		{
 			var dvs = g.ListDynamicVariableAccess().ToList();
 			var ios = g.ListConstantVariableAccess().ToList();
 
-			if (dvs.Count > 0) return false;
-			if (ios.Count == 0) return false;
+			if (dvs.Count > 0) { info = ""; return false; }
+			if (ios.Count == 0) { info = ""; return false; }
 
 			var newvars = ios
 				.Select(p => new Vec2l(p.getX().Calculate(null), p.getY().Calculate(null)))
@@ -579,6 +603,8 @@ namespace BefunCompile.Graph.Optimizations
 
 			bool changed = true;
 
+			var sbi = new StringBuilder();
+
 			int c = -1;
 			while (changed)
 			{
@@ -592,13 +618,24 @@ namespace BefunCompile.Graph.Optimizations
 					exprRule1.Execute(g),
 				};
 
+				sbi.AppendLine($"[{c}] [VertexRule1]:");
+				foreach (var i in vertexRule1.LastRunInfo) sbi.AppendLine(i);
+				sbi.AppendLine($"[{c}] [VertexRule2]:");
+				foreach (var i in vertexRule2.LastRunInfo) sbi.AppendLine(i);
+				sbi.AppendLine($"[{c}] [VertexRule3]:");
+				foreach (var i in vertexRule3.LastRunInfo) sbi.AppendLine(i);
+				sbi.AppendLine($"[{c}] [ExprRule1]:");
+				foreach (var i in exprRule1.LastRunInfo) sbi.AppendLine(i);
+
 				changed = cb.Any(p => p);
 			}
+
+			info = sbi.ToString();
 
 			return c > 0;
 		}
 
-		private bool RemovePredeterminedDecisions_0(BCGraph g)
+		private bool RemovePredeterminedDecisions_0(BCGraph g, out string info)
 		{
 			List<BCVertex> chain = null;
 
@@ -618,8 +655,7 @@ namespace BefunCompile.Graph.Optimizations
 				chain = new List<BCVertex>() { prev, v };
 			}
 
-			if (chain == null)
-				return false;
+			if (chain == null) { info = ""; return false; }
 
 
 			var Expression = chain[0] as BCVertexExpression;
@@ -627,6 +663,17 @@ namespace BefunCompile.Graph.Optimizations
 
 			var Prev = Expression.Parents;
 			var Next = Expression.Expression.Calculate(null) != 0 ? Decision.EdgeTrue : Decision.EdgeFalse;
+
+			info = string.Join("\n", new[]
+			{
+				"Parents   := [ " + string.Join(" | ", Prev.Select(p => "["+p.ToOneLineString()+"]")) + " ]",
+				"Expr      := " + Expression.ToOneLineString(),
+				"Decision  := " + Decision.ToOneLineString(),
+				"Children  := [ " + string.Join(" | ", Decision.Children.Select(p => "["+p.ToOneLineString()+"]")) + " ]",
+				"",
+				"Calculate := " + Expression.Expression.Calculate(null),
+				"Next      := " + Next.ToOneLineString(),
+			});
 
 			//######## REPLACE ########
 
@@ -659,15 +706,19 @@ namespace BefunCompile.Graph.Optimizations
 				Decision.Children.Clear();
 				g.Vertices.Remove(Decision);
 
-				RemoveHeadlessPaths(g);
+				string rhp;
+				RemoveHeadlessPaths(g, out rhp);
+				info += "\n\n[RemoveHeadlessPaths:]\n" + rhp;
 			}
 
-			RemoveUnreachableNodes(g);
+			string rurn;
+			RemoveUnreachableNodes(g, out rurn);
+			info += "\n\n[RemoveUnreachableNodes:]\n" + rurn;
 
 			return true;
 		}
 
-		private bool RemovePredeterminedDecisions_1(BCGraph g)
+		private bool RemovePredeterminedDecisions_1(BCGraph g, out string info)
 		{
 			foreach (var vertex in g.Vertices)
 			{
@@ -676,14 +727,24 @@ namespace BefunCompile.Graph.Optimizations
 
 				BCVertexExprDecision decision = vertex as BCVertexExprDecision;
 
+				info = "Decision := " + decision.ToOneLineString();
+
 				if (decision.Value.Calculate(null) != 0)
 				{
+					info += "\nCalculate==true | Remove False";
+					info += "\nEdgeFalse := " + decision.EdgeFalse.ToOneLineString();
+					info += "\nEdgeTrue := " + decision.EdgeTrue.ToOneLineString();
+
 					decision.EdgeFalse.Parents.Remove(decision);
 					decision.Children.Remove(decision.EdgeFalse);
 					decision.EdgeFalse = null;
 				}
 				else
 				{
+					info += "\nCalculate==false | Remove True";
+					info += "\nEdgeFalse := " + decision.EdgeFalse.ToOneLineString();
+					info += "\nEdgeTrue := " + decision.EdgeTrue.ToOneLineString();
+
 					decision.EdgeTrue.Parents.Remove(decision);
 					decision.Children.Remove(decision.EdgeTrue);
 					decision.EdgeTrue = null;
@@ -694,29 +755,39 @@ namespace BefunCompile.Graph.Optimizations
 
 				bool exec = remRule.Execute(g);
 
+				info += "\n[RemRule]:\n" + string.Join("\n", remRule.LastRunInfo);
+
 				if (!exec)
 					throw new Exception("errrrrrrr");
 
 				var included = g.WalkGraphByChildren();
 				g.Vertices = g.Vertices.Where(p => included.Contains(p)).ToList();
 
+				info += "\n";
 				foreach (var v in g.Vertices)
 				{
-					v.Parents.Where(p => !included.Contains(p))
-						.ToList()
-						.ForEach(p => v.Parents.Remove(p));
+					foreach (var p in v.Parents.Where(p => !included.Contains(p)).ToList())
+					{
+						info += "\n Remove Parent [" + p.ToOneLineString() + "]";
+						v.Parents.Remove(p);
+					}
 				}
 
-				RemoveHeadlessPaths(g);
+				string rhp;
+				RemoveHeadlessPaths(g, out rhp);
+				info += "\n\n[RemoveHeadlessPaths:]\n" + rhp;
 
 				return true;
 			}
 
+			info = "";
 			return false;
 		}
 
-		private void RemoveHeadlessPaths(BCGraph g)
+		private void RemoveHeadlessPaths(BCGraph g, out string info)
 		{
+			var sb = new StringBuilder();
+
 			for (;;)
 			{
 				var headless = g.Vertices.FirstOrDefault(p => p.Parents.Count == 0 && p != g.Root);
@@ -725,40 +796,47 @@ namespace BefunCompile.Graph.Optimizations
 
 				g.Vertices.Remove(headless);
 				headless.Children.ForEach(p => p.Parents.Remove(headless));
+
+				sb.AppendLine("remove [" + headless.ToOneLineString() + "]");
 			}
+
+			info = sb.ToString();
 		}
 
-		private void RemoveUnreachableNodes(BCGraph g)
+		private void RemoveUnreachableNodes(BCGraph g, out string info)
 		{
+			var sb = new StringBuilder();
+
 			var reachable = g.WalkGraphByChildren();
 
 			for (int i = g.Vertices.Count - 1; i >= 0; i--)
 			{
 				if (!reachable.Contains(g.Vertices[i]))
 				{
+					sb.AppendLine("remove [" + g.Vertices[i].ToOneLineString() + "]");
+
 					foreach (var c in g.Vertices[i].Children) c.Parents.Remove(g.Vertices[i]);
 					g.Vertices.RemoveAt(i);
 				}
 			}
+
+			info = sb.ToString();
 		}
 
 		private bool Unstackify(BCGraph g, out string info)
 		{
 			var r = g.Unstackifier.Run();
-			info = string.Join(";", g.Unstackifier.LastRunInfo);
+			info = string.Join("\n", g.Unstackifier.LastRunInfo);
 			return r;
 		}
 
-		private bool ReplaceVariableIntializer(BCGraph g)
+		private bool ReplaceVariableIntializer(BCGraph g, out string info)
 		{
-			if (g.Root.Parents.Count != 0)
-				return false;
+			if (g.Root.Parents.Count != 0) { info = ""; return false; }
 
-			if (g.Variables.Count == 0)
-				return false;
+			if (g.Variables.Count == 0) { info = ""; return false; }
 
-			if (!(g.Root is BCVertexBlock))
-				return false;
+			if (!(g.Root is BCVertexBlock)) { info = ""; return false; }
 
 			BCVertexBlock BRoot = g.Root as BCVertexBlock;
 			foreach (var variable in g.Variables.Where(p => p.isUserDefinied))
@@ -778,9 +856,20 @@ namespace BefunCompile.Graph.Optimizations
 						ruleRepl.AddRep((l, p) => (l[0] as BCVertexBlock).GetWithRemovedNode(node1));
 
 						if (ruleRepl.Execute(g))
+						{
+							info = string.Join("\n", new[]
+							{
+								"Variable := " + variable.Identifier,
+								"Setter   := " + node1.ToOneLineString(),
+								"Initial  := " + ivalue,
+							});
+
 							return true;
+						}
 						else
+						{
 							break;
+						}
 					}
 
 					if (node.GetVariables().Contains(variable))
@@ -788,10 +877,11 @@ namespace BefunCompile.Graph.Optimizations
 				}
 			}
 
+			info = "";
 			return false;
 		}
 
-		private bool CombineIdenticalBlocks(BCGraph g)
+		private bool CombineIdenticalBlocks(BCGraph g, out string info)
 		{
 			foreach (var vx1 in g.Vertices)
 			{
@@ -801,11 +891,14 @@ namespace BefunCompile.Graph.Optimizations
 					{
 						MergeVertex(g, vx1, vx2);
 
+						info = vx1.ToOneLineString() + "\n==\n" + vx2.ToOneLineString();
+
 						return true;
 					}
 				}
 			}
 
+			info = "";
 			return false;
 		}
 
@@ -907,33 +1000,85 @@ namespace BefunCompile.Graph.Optimizations
 			return false;
 		}
 
+		private bool AggregateSimpleChainsIntoBlocks(BCGraph g, out string info)
+		{
+			foreach (var vStart in g.Vertices)
+			{
+				if (vStart is IBlockVertex) continue;
+				if (vStart.Parents.Any(p => p is IDecisionVertex)) continue;
+				if (g.Root == vStart) continue;
+
+				var chain = new List<BCVertex>() { vStart };
+				while (chain.Last().Children.Count == 1 
+					&& chain.Last().Children[0].Parents.Count == 1 
+					&& chain.Last().Children[0].Children.Count == 1 
+					&& !(chain.Last().Children[0] is IDecisionVertex) 
+					&& !(chain.Last().Children[0] is IBlockVertex) 
+					&& !chain.Contains(chain.Last().Children[0]))
+				{
+					chain.Add(chain.Last().Children[0]);
+				}
+				if (chain.Count < 3) continue;
+
+				var start = chain.First();
+				var block = new BCVertexBlock(BCDirection.UNKNOWN, chain.SelectMany(c => c.Positions).ToArray(), chain.ToArray());
+				var end   = chain.Last();
+
+				var sb = new StringBuilder();
+				sb.AppendLine($"({string.Join(" | ", start.Parents.Select(p => "[" + p.ToOneLineString() + "]"))})");
+				foreach (var v in chain)
+				{
+					sb.AppendLine("  | " + v.ToOneLineString());
+
+					g.Vertices.Remove(v);
+				}
+				sb.AppendLine($"({string.Join(" | ", end.Children.Select(p => "[" + p.ToOneLineString() + "]"))})");
+
+				g.Vertices.Add(block);
+
+				foreach (var p in start.Parents)
+				{
+					p.Children.Remove(start);
+					p.Children.Add(block);
+					block.Parents.Add(p);
+				}
+
+				end.Children[0].Parents.Remove(end);
+				end.Children[0].Parents.Add(block);
+				block.Children.Add(end.Children[0]);
+
+				info = sb.ToString();
+				return true;
+			}
+
+			info = "";
+			return false;
+		}
+
 		#endregion
 
-		private void Add(string name, BCModRule rule, int[] scope)
+		private void Add(string name, BCModRule rule, int[] scope, bool repeat = false)
 		{
 			var os = new OptimizerStep();
 			os.Name = name;
 			os.Scope = new HashSet<int>(scope);
-			os.Action = (g) => { var r = rule.Execute(g); os.LastRunInfo = string.Join(", ", rule.LastRunInfo.Distinct()); return r; };
+			os.InstantRepeat = repeat;
+			os.Action = (g) => 
+			{
+				var r = rule.Execute(g);
+				os.LastRunInfo = string.Join("\n", rule.LastRunInfo.Distinct());
+				return r;
+			};
 
 			AllSteps.Add(os);
 		}
 
-		private void Add(string name, Func<BCGraph, bool> a, int[] scope)
-		{
-			AllSteps.Add(new OptimizerStep
-			{
-				Name = name,
-				Action = a,
-				Scope = new HashSet<int>(scope),
-			});
-		}
-
-		private void Add(string name, StepAction a, int[] scope)
+		private void Add(string name, StepAction a, int[] scope, bool repeat = false)
 		{
 			var os = new OptimizerStep();
 			os.Name = name;
 			os.Scope = new HashSet<int>(scope);
+			os.InstantRepeat = repeat;
 			os.Action = (g) => { string i; var r = a(g, out i); os.LastRunInfo = i; return r; };
 
 			AllSteps.Add(os);
@@ -946,21 +1091,28 @@ namespace BefunCompile.Graph.Optimizations
 			int count = 0;
 			foreach (var step in AllSteps.Where(s => s.Scope.Contains(level)))
 			{
-				var r = step.Run(g);
+				bool repeat = false;
+				do
+				{
+					var r = step.Run(g);
 
 #if DEBUG
-				if (!g.TestGraph()) throw new Exception("Graph became invalid !");
+					if (!g.TestGraph()) throw new Exception("Graph became invalid !");
 #endif
 
-				if (r) g.UsedOptimizations.Add($"[{level}] {step.Name} {{{step.LastRunInfo}}}");
-				
-				result = result || r;
+					if (r) g.UsedOptimizations.Add(new OptimizationLogEntry(level, step.Name, step.LastRunInfo));
 
-				if (r)
-				{
-					count++;
-					if (count > MAX_OPTIMIZATIONS_PER_LEVEL) return result;
+					result = result || r;
+
+					if (r)
+					{
+						count++;
+						if (count > MAX_OPTIMIZATIONS_PER_LEVEL) return result;
+					}
+
+					repeat = (r && step.InstantRepeat);
 				}
+				while (repeat);
 
 			}
 

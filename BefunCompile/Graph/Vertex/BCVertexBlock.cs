@@ -11,7 +11,7 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexBlock : BCVertex
+	public class BCVertexBlock : BCVertex, IBlockVertex
 	{
 		public readonly BCVertex[] nodes;
 
@@ -48,6 +48,8 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return new BCVertexBlock(Direction, Positions, nodes);
 		}
+
+		public IEnumerable<BCVertex> GetSubVertices() => nodes;
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{

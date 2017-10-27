@@ -96,16 +96,36 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 			history.RemovePoison();
 			history.CreateVariables(graph, ref varIdentity, ref LastRunInfo);
-			
+
+			LastRunInfo.Add("");
+
+			foreach (var sv in history.StackValues)
+			{
+				LastRunInfo.Add($"[StackValue]");
+				LastRunInfo.Add($"IsPoisoned={sv.IsPoisoned}");
+				LastRunInfo.Add($"Replacement={sv.Replacement?.Identifier}");
+				LastRunInfo.Add($"AccessCounter=");
+				LastRunInfo.Add($"[");
+				foreach (var a in sv.AccessCounter) LastRunInfo.Add($"   {("{" + a.Type + "}"),-11} | {("{" + a.Modifier + "}"),-12} [" + a.Vertex.ToOneLineString() + "]");
+				LastRunInfo.Add($"]");
+				LastRunInfo.Add($"Scope=");
+				LastRunInfo.Add($"[");
+				foreach (var s in sv.Scope) LastRunInfo.Add($"   [" + s.ToOneLineString() + "]");
+				LastRunInfo.Add($"]");
+				LastRunInfo.Add($"");
+			}
+
+			LastRunInfo.Add("");
+
 			foreach (var vertex in graph.Vertices.ToList())
 			{
-				ReplaceVariablesInVertex(history, vertex);
+				ReplaceVariablesInVertex(history, vertex, ref LastRunInfo);
 			}
 
 			return history.ValuesCount();
 		}
 
-		private void ReplaceVariablesInVertex(UnstackifyStateHistory history, BCVertex vertex)
+		private void ReplaceVariablesInVertex(UnstackifyStateHistory history, BCVertex vertex, ref List<string> info)
 		{
 			var replacements = history.StackValues
 				.SelectMany(p => p.AccessCounter)
@@ -129,20 +149,29 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 
 				if (newVertex == vertex)
 				{
+					info.Add("[NoReplace]:    " + vertex.ToOneLineString());
+
 					// do nothing
 				}
 				else if (newVertex is BCVertexNOP)
 				{
+					info.Add("[ReplaceToNop]: " + vertex.ToOneLineString());
+
 					graph.RemoveVertex(vertex);
 				}
 				else if (newVertex is BCVertexBlock)
 				{
+					info.Add("[ReplaceBlock]: [" + vertex.ToOneLineString() + "] -->");
+					foreach (var v in (newVertex as BCVertexBlock).nodes.ToList()) info.Add("  |->" + v.ToOneLineString());
+
 					(newVertex as BCVertexBlock).nodes.ToList().ForEach(p => protectedVertices.Add(p));
 
 					graph.ReplaceVertex(vertex, (newVertex as BCVertexBlock).nodes.ToList());
 				}
 				else
 				{
+					info.Add("[ReplaceVertex]: [" + vertex.ToOneLineString() + "] --> [" + newVertex.ToOneLineString() + "]");
+
 					graph.ReplaceVertex(vertex, newVertex);
 				}
 			}

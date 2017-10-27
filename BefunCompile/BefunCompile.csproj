@@ -107,6 +107,7 @@
     <Compile Include="Graph\Expression\ExpressionGet.cs" />
     <Compile Include="Graph\Expression\BCExpression.cs" />
     <Compile Include="Graph\MemoryAccess.cs" />
+    <Compile Include="Graph\Optimizations\OptimizationLogEntry.cs" />
     <Compile Include="Graph\Optimizations\StacksizePredictor\StacksizePredictor.cs" />
     <Compile Include="Exceptions\StackSizePredictorException.cs" />
     <Compile Include="Graph\Optimizations\StacksizePredictor\StackSizePredictorIntermediateResult.cs" />
@@ -145,6 +146,7 @@
     <Compile Include="Graph\Vertex\BCVertexExpression.cs" />
     <Compile Include="Graph\Vertex\BCVertexInputVarSet.cs" />
     <Compile Include="Graph\Vertex\BinaryMathType.cs" />
+    <Compile Include="Graph\Vertex\IBlockVertex.cs" />
     <Compile Include="Graph\Vertex\IDecisionVertex.cs" />
     <Compile Include="Math\CommonZipImplementation.cs" />
     <Compile Include="Math\GZipImplementation.cs" />

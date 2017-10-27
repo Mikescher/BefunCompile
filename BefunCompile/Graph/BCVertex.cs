@@ -37,6 +37,8 @@ namespace BefunCompile.Graph
 			// NOP
 		}
 
+		public string ToOneLineString() => ToString().Replace("\r", "").Replace("\n", " | ");
+
 		public void UpdateParents()
 		{
 			foreach (var child in Children)

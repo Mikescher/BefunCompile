@@ -1,5 +1,6 @@
 ﻿using BefunCompile.Exceptions;
 using BefunCompile.Graph.Expression;
+using BefunCompile.Graph.Optimizations;
 using BefunCompile.Graph.Optimizations.StacksizePredictor;
 using BefunCompile.Graph.Optimizations.Unstackify;
 using BefunCompile.Graph.Vertex;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BefunCompile.Graph
 {
@@ -23,7 +25,7 @@ namespace BefunCompile.Graph
 		public readonly long Width;
 		public readonly long Height;
 
-		public readonly List<string> UsedOptimizations = new List<string>();
+		public readonly List<OptimizationLogEntry> UsedOptimizations = new List<OptimizationLogEntry>();
 		public readonly UnstackifyWalker Unstackifier;
 
 		public BCGraph(long[,] sg, long w, long h)

@@ -70,7 +70,7 @@ namespace BefunCompile.Graph.Optimizations.Unstackify
 				var systemvar = ExpressionVariable.CreateSystemVariable(identity++, row.Select(p => p.Scope.ToList()).ToList());
 				graph.Variables.Add(systemvar);
 
-				info.Add(systemvar.Identifier);
+				info.Add("new var: " + systemvar.Identifier);
 
 				row.ForEach(p => p.Replacement = systemvar);
 			}

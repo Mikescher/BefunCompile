@@ -11,7 +11,7 @@ using System.Text;
 
 namespace BefunCompile.Graph.Vertex
 {
-	public class BCVertexDecisionBlock : BCVertex, IDecisionVertex
+	public class BCVertexDecisionBlock : BCVertex, IDecisionVertex, IBlockVertex
 	{
 		public readonly BCVertexBlock Block;
 		public readonly BCVertexDecision Decision;
@@ -44,6 +44,8 @@ namespace BefunCompile.Graph.Vertex
 		{
 			return new BCVertexExprDecisionBlock(Direction, (BCVertexBlock)Block.Duplicate(), (BCVertexExprDecision)Decision.Duplicate());
 		}
+
+		public IEnumerable<BCVertex> GetSubVertices() => Block.GetSubVertices();
 
 		public override IEnumerable<MemoryAccess> ListConstantVariableAccess()
 		{
