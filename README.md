@@ -7,6 +7,14 @@ It can only compile Befunge-code which does **not** modify its own source code *
 
 So no, this is not a solution to the main challenge of Befunge, but a nice way to generate executables out of your Befunge code.
 
+Download
+========
+
+You can download the binaries from my website [www.mikescher.com](http://www.mikescher.com/programs/view/BefunUtils)
+
+Or you can get the latest [Github release](https://github.com/Mikescher/BefunCompile/releases/latest) (In case AppVeyor is down)
+
+Or you can download the latest (nightly) version from the **[AppVeyor build server](https://ci.appveyor.com/project/Mikescher/BefunCompile/build/artifacts)**
 
 Usage
 =====
